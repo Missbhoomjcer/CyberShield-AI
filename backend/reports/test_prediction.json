@@ -1,0 +1,12 @@
+{
+    "filename": "notepad.exe",
+    "prediction": "1",
+    "class": 1,
+    "threat_score": 99.65,
+    "probability": 0.996533989906311,
+    "model": "XGBoost",
+    "features_used": 72,
+    "file_size": 360448,
+    "entropy": 6.482597341473152,
+    "sha256": "db1131b5060bcfad80fc21d7bd333d9a7de3eee5190c5586d0a3a096fd563b87"
+}
