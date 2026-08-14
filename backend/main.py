@@ -1,3 +1,4 @@
+from api.history import router as history_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.upload import router as upload_router
@@ -20,6 +21,7 @@ app.add_middleware(
 
 # Register APIs AFTER app is created
 app.include_router(upload_router)
+app.include_router(history_router)
 
 @app.get("/")
 def home():
