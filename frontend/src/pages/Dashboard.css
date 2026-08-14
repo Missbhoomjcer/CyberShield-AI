@@ -1,0 +1,118 @@
+.dashboard h1 {
+  font-size: 24px;
+}
+
+.page-subtitle {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-top: 4px;
+  margin-bottom: 24px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.dashboard-row {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.panel h2 {
+  font-size: 15px;
+  margin-bottom: 18px;
+}
+
+.threat-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.threat-bar-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 30px;
+  align-items: center;
+  gap: 10px;
+}
+
+.threat-bar-label {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.threat-bar-track {
+  height: 8px;
+  background: var(--bg-panel-raised);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.threat-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+  border-radius: 4px;
+}
+
+.threat-bar-count {
+  font-size: 12.5px;
+  text-align: right;
+  color: var(--text-primary);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.data-table th {
+  text-align: left;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.data-table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-critical {
+  background: rgba(244, 63, 94, 0.12);
+  color: var(--sev-critical);
+}
+
+.badge-low {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--sev-low);
+}
+
+@media (max-width: 1100px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-row { grid-template-columns: 1fr; }
+}

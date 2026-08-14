@@ -1,0 +1,28 @@
+.sev-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.sev-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.sev-low { background: rgba(52, 211, 153, 0.12); color: var(--sev-low); }
+.sev-low::before { background: var(--sev-low); }
+
+.sev-medium { background: rgba(251, 191, 36, 0.12); color: var(--sev-medium); }
+.sev-medium::before { background: var(--sev-medium); }
+
+.sev-high { background: rgba(251, 146, 60, 0.12); color: var(--sev-high); }
+.sev-high::before { background: var(--sev-high); }
+
+.sev-critical { background: rgba(244, 63, 94, 0.12); color: var(--sev-critical); }
+.sev-critical::before { background: var(--sev-critical); box-shadow: 0 0 5px var(--sev-critical); }
