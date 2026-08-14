@@ -8,5 +8,57 @@
     "features_used": 72,
     "file_size": 360448,
     "entropy": 6.482597341473152,
-    "sha256": "db1131b5060bcfad80fc21d7bd333d9a7de3eee5190c5586d0a3a096fd563b87"
+    "sha256": "db1131b5060bcfad80fc21d7bd333d9a7de3eee5190c5586d0a3a096fd563b87",
+    "shap_explanation": [
+        {
+            "feature": "processes_malicious",
+            "shap_value": 3.5542993545532227,
+            "absolute_impact": 3.5542993545532227
+        },
+        {
+            "feature": "files_suspicious",
+            "shap_value": 1.392923355102539,
+            "absolute_impact": 1.392923355102539
+        },
+        {
+            "feature": "OperatingSystemVersion",
+            "shap_value": -1.1315689086914062,
+            "absolute_impact": 1.1315689086914062
+        },
+        {
+            "feature": "processes_monitored",
+            "shap_value": 0.5362225770950317,
+            "absolute_impact": 0.5362225770950317
+        },
+        {
+            "feature": "files_unknown",
+            "shap_value": 0.5078155994415283,
+            "absolute_impact": 0.5078155994415283
+        },
+        {
+            "feature": "total_procsses",
+            "shap_value": -0.43003347516059875,
+            "absolute_impact": 0.43003347516059875
+        },
+        {
+            "feature": "registry_write",
+            "shap_value": -0.386159747838974,
+            "absolute_impact": 0.386159747838974
+        },
+        {
+            "feature": "registry_total",
+            "shap_value": 0.37161368131637573,
+            "absolute_impact": 0.37161368131637573
+        },
+        {
+            "feature": "dlls_calls",
+            "shap_value": 0.3145284056663513,
+            "absolute_impact": 0.3145284056663513
+        },
+        {
+            "feature": "apis",
+            "shap_value": 0.2971477508544922,
+            "absolute_impact": 0.2971477508544922
+        }
+    ]
 }
