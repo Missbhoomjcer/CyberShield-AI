@@ -73,6 +73,10 @@
         "dlls_calls",
         "apis"
     ],
-    "target_column": "Class",
-    "number_of_features": 72
+     "target_column": "Class",
+    "number_of_features": 72,
+    "target_mapping": {
+        "0": "Benign",
+        "1": "Malware"
+    }
 }

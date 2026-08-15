@@ -1,76 +1,103 @@
-.scan-file h1 { font-size: 24px; }
+.scan-file {
+  width: 100%;
+}
+
+.scan-file h1 {
+  margin: 0;
+  font-size: 32px;
+  color: #e8edf5;
+}
 
 .page-subtitle {
-  color: var(--text-secondary);
-  font-size: 13px;
-  margin-top: 4px;
+  margin-top: 8px;
   margin-bottom: 24px;
+  color: #91a0b8;
+  font-size: 15px;
 }
 
 .scan-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
 }
 
 .scan-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  padding: 22px;
 }
 
 .btn-scan {
-  background: var(--accent-cyan);
-  color: #06131a;
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px 20px;
+
   border: none;
-  padding: 12px;
   border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
+
+  background: #36b7cf;
+  color: #071018;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-scan:hover:not(:disabled) {
+  background: #4bc9e0;
+  box-shadow: 0 0 18px rgba(54, 183, 207, 0.35);
 }
 
 .btn-scan:disabled {
-  background: var(--bg-panel-raised);
-  color: var(--text-muted);
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.btn-scan:not(:disabled):hover {
-  box-shadow: 0 0 14px var(--accent-cyan);
-}
-
 .scanning-state {
+  margin-top: 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
+  gap: 10px;
 
-.scanning-state span {
-  font-size: 12px;
-  color: var(--text-secondary);
+  color: #8fa0b8;
+  font-size: 13px;
 }
 
 .scan-bar {
-  height: 4px;
-  background: var(--bg-panel-raised);
-  border-radius: 2px;
+  width: 100%;
+  height: 6px;
+
+  background: #101b2c;
+  border-radius: 10px;
   overflow: hidden;
 }
 
 .scan-bar-fill {
+  width: 100%;
   height: 100%;
-  width: 40%;
-  background: var(--accent-cyan);
-  border-radius: 2px;
-  animation: scan-sweep 1.2s ease-in-out infinite;
+
+  background: #36b7cf;
+  animation: scanning 1.5s infinite ease-in-out;
 }
 
-@keyframes scan-sweep {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(350%); }
+@keyframes scanning {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
-@media (max-width: 900px) {
-  .scan-layout { grid-template-columns: 1fr; }
+.scan-error {
+  margin-top: 16px;
+  padding: 12px 14px;
+
+  background: rgba(255, 75, 100, 0.1);
+  border: 1px solid rgba(255, 75, 100, 0.4);
+  border-radius: 6px;
+
+  color: #ff6b7a;
+  font-size: 14px;
 }

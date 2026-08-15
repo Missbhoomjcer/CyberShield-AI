@@ -13,8 +13,9 @@ function FileDropzone({ selectedFile, onFileSelect }) {
   }
 
   const handleChange = (e) => {
-    const file = e.target.files[0]
-    if (file) onFileSelect(file)
+  const file = e.target.files[0]
+  if (file) onFileSelect(file)
+  e.target.value = ''
   }
 
   return (
