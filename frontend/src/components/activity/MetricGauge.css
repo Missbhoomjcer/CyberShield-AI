@@ -1,0 +1,25 @@
+.metric-gauge {
+  background: var(--bg-panel-raised);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.metric-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+}
+
+.metric-unit {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-left: 3px;
+}

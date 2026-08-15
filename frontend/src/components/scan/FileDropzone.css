@@ -1,0 +1,55 @@
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--bg-panel);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.dropzone:hover,
+.dropzone.dragging {
+  border-color: var(--accent-cyan);
+  background: var(--accent-cyan-dim);
+}
+
+.dropzone-icon {
+  font-size: 32px;
+  color: var(--accent-cyan);
+  margin-bottom: 12px;
+}
+
+.dropzone-title {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.dropzone-filename {
+  font-size: 14px;
+  color: var(--accent-cyan);
+  margin-bottom: 6px;
+  word-break: break-all;
+}
+
+.dropzone-hint {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.btn-choose {
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--border-hover);
+  color: var(--text-primary);
+  padding: 9px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.btn-choose:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
