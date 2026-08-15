@@ -35,7 +35,6 @@ except Exception as e:
     PREDICTOR_AVAILABLE = False
     PREDICTOR_ERROR = str(e)
 
-
 # =========================================================
 # UPLOAD ENDPOINT
 # =========================================================
@@ -44,7 +43,7 @@ except Exception as e:
 async def upload_file(file: UploadFile = File(...)):
 
     # -----------------------------------------------------
-    # CHECK FILENAME
+    # Check filename
     # -----------------------------------------------------
 
     if not file.filename:
@@ -55,7 +54,7 @@ async def upload_file(file: UploadFile = File(...)):
         )
 
     # -----------------------------------------------------
-    # SECURE FILENAME
+    # Secure filename
     # -----------------------------------------------------
 
     filename = Path(file.filename).name
@@ -63,7 +62,7 @@ async def upload_file(file: UploadFile = File(...)):
     file_path = UPLOAD_DIR / filename
 
     # -----------------------------------------------------
-    # SAVE UPLOADED FILE
+    # Save uploaded file
     # -----------------------------------------------------
 
     try:
@@ -83,7 +82,7 @@ async def upload_file(file: UploadFile = File(...)):
         )
 
     # -----------------------------------------------------
-    # BASIC FILE INFORMATION
+    # Basic information
     # -----------------------------------------------------
 
     file_size = file_path.stat().st_size
@@ -91,7 +90,7 @@ async def upload_file(file: UploadFile = File(...)):
     extension = file_path.suffix.lower()
 
     # -----------------------------------------------------
-    # CHECK PREDICTION ENGINE
+    # Run ML prediction
     # -----------------------------------------------------
 
     if not PREDICTOR_AVAILABLE:
@@ -102,9 +101,9 @@ async def upload_file(file: UploadFile = File(...)):
 
             "filename": filename,
 
-            "file_type": extension,
+            "extension": extension,
 
-            "file_size": file_size,
+            "size": file_size,
 
             "ml_status": "Prediction engine unavailable",
 
@@ -112,7 +111,7 @@ async def upload_file(file: UploadFile = File(...)):
         }
 
     # -----------------------------------------------------
-    # RUN ML PREDICTION
+    # Prediction
     # -----------------------------------------------------
 
     try:
@@ -121,68 +120,17 @@ async def upload_file(file: UploadFile = File(...)):
             str(file_path)
         )
 
-        # -------------------------------------------------
-        # RETURN ML RESULT DIRECTLY
-        # IMPORTANT:
-        # SHAP data must NOT be nested inside "prediction"
-        # -------------------------------------------------
-
         return {
 
             "status": "Analysis Completed",
 
-            "filename": result.get(
-                "filename",
-                filename
-            ),
+            "filename": filename,
 
-            "file_type": extension,
+            "extension": extension,
 
-            "file_size": result.get(
-                "file_size",
-                file_size
-            ),
+            "size": file_size,
 
-            "prediction": result.get(
-                "prediction"
-            ),
-
-            "class": result.get(
-                "class"
-            ),
-
-            "threat_score": result.get(
-                "threat_score"
-            ),
-
-            "probability": result.get(
-                "probability"
-            ),
-
-            "model": result.get(
-                "model"
-            ),
-
-            "features_used": result.get(
-                "features_used"
-            ),
-
-            "entropy": result.get(
-                "entropy"
-            ),
-
-            "sha256": result.get(
-                "sha256"
-            ),
-
-            # =============================================
-            # SHAP EXPLAINABILITY
-            # =============================================
-
-            "shap_explanation": result.get(
-                "shap_explanation",
-                []
-            )
+            "prediction": result
         }
 
     except Exception as e:
