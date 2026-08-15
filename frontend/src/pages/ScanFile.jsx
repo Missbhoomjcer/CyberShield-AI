@@ -9,89 +9,224 @@ function ScanFile() {
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
 
+  // ==========================================
+  // FILE SELECT
+  // ==========================================
+
   const handleFileSelect = (file) => {
     setSelectedFile(file)
     setResult(null)
     setError(null)
   }
 
+  // ==========================================
+  // SCAN FILE
+  // ==========================================
+
   const handleScan = async () => {
-    if (!selectedFile) return
+    if (!selectedFile) {
+      setError('Please select a file first.')
+      return
+    }
 
     setScanning(true)
     setResult(null)
     setError(null)
 
     try {
+      // --------------------------------------
+      // CREATE FORM DATA
+      // --------------------------------------
+
       const formData = new FormData()
       formData.append('file', selectedFile)
+
+      // --------------------------------------
+      // SEND FILE TO BACKEND
+      // --------------------------------------
 
       const response = await fetch('http://127.0.0.1:8000/', {
         method: 'POST',
         body: formData,
       })
 
+      // --------------------------------------
+      // GET BACKEND RESPONSE
+      // --------------------------------------
+
       const data = await response.json()
 
-      console.log('Backend response:', data)
+      console.log('=================================')
+      console.log('FULL BACKEND RESPONSE:', data)
+      console.log('PREDICTION DATA:', data.prediction)
+      console.log('SHAP DATA:', data.prediction?.shap_explanation)
+      console.log('=================================')
 
       if (!response.ok) {
-        throw new Error(data.detail || 'File analysis failed')
+        throw new Error(
+          data.detail || 'File analysis failed'
+        )
       }
 
-      // Get prediction data from backend
-      const predictionData = data.prediction || data
+      // --------------------------------------
+      // GET PREDICTION OBJECT
+      // --------------------------------------
 
-      // Get threat score
-      const threatScore =
+      const predictionData =
+        data.prediction || data
+
+      // --------------------------------------
+      // GET THREAT SCORE
+      // --------------------------------------
+
+      const rawThreatScore =
         predictionData.threat_score ??
         predictionData.threatScore ??
+        predictionData.score ??
+        predictionData.probability ??
+        predictionData.confidence ??
         data.threat_score ??
         data.threatScore ??
-        predictionData.confidence ??
+        data.score ??
         data.confidence ??
         0
 
-      // Convert score safely to number
-      const numericScore = Number(threatScore)
+      let numericScore = Number(rawThreatScore)
 
-      // If score is between 0 and 1, convert to percentage
+      if (isNaN(numericScore)) {
+        numericScore = 0
+      }
+
+      // Convert 0-1 probability into 0-100 score
       const scorePercent =
         numericScore <= 1
           ? numericScore * 100
           : numericScore
 
-      // Decide malware status
-      const prediction =
-        scorePercent >= 50
-          ? 'Malware'
-          : 'Benign'
+      // --------------------------------------
+      // GET ORIGINAL PREDICTION
+      // --------------------------------------
+
+      const backendPrediction =
+        predictionData.prediction ??
+        predictionData.label ??
+        predictionData.classification ??
+        data.prediction ??
+        ''
+
+      const predictionText =
+        String(backendPrediction)
+          .toLowerCase()
+          .trim()
+
+      // --------------------------------------
+      // DETERMINE MALWARE STATUS
+      // --------------------------------------
+
+      const malwareValues = [
+        '1',
+        'malware',
+        'malware detected',
+        'malicious',
+        'ransomware',
+        'ransomware detected',
+        'attack',
+        'infected',
+        'true',
+      ]
+
+      let prediction
+
+      if (malwareValues.includes(predictionText)) {
+        prediction = 'Malware'
+      } else if (
+        predictionText === '0' ||
+        predictionText === 'benign' ||
+        predictionText === 'normal' ||
+        predictionText === 'safe' ||
+        predictionText === 'false'
+      ) {
+        prediction = 'Benign'
+      } else {
+        // Fallback if backend prediction is unclear
+        prediction =
+          scorePercent >= 50
+            ? 'Malware'
+            : 'Benign'
+      }
+
+      // --------------------------------------
+      // GET CONFIDENCE
+      // --------------------------------------
+
+      const rawConfidence =
+        predictionData.confidence ??
+        predictionData.confidence_score ??
+        predictionData.probability ??
+        data.confidence ??
+        data.confidence_score ??
+        scorePercent
+
+      // --------------------------------------
+      // GET SHAP EXPLANATION
+      // --------------------------------------
+
+      const shapExplanation =
+        predictionData.shap_explanation ??
+        predictionData.shapExplanation ??
+        data.shap_explanation ??
+        data.shapExplanation ??
+        []
+
+      // Make sure it is always an array
+      const validShapExplanation =
+        Array.isArray(shapExplanation)
+          ? shapExplanation
+          : []
+
+      console.log(
+        'FINAL SHAP EXPLANATION:',
+        validShapExplanation
+      )
+
+      // --------------------------------------
+      // CREATE RESULT OBJECT
+      // --------------------------------------
 
       setResult({
+        // File details
         filename:
-          predictionData.filename ||
-          data.filename ||
+          predictionData.filename ??
+          predictionData.fileName ??
+          predictionData.file_name ??
+          data.filename ??
           selectedFile.name,
 
         file_type:
-          predictionData.file_type ||
-          predictionData.fileType ||
-          data.file_type ||
-          data.fileType ||
-          data.extension ||
-          '',
+          predictionData.file_type ??
+          predictionData.fileType ??
+          predictionData.extension ??
+          data.file_type ??
+          data.fileType ??
+          data.extension ??
+          selectedFile.name.split('.').pop() ??
+          'N/A',
 
         file_size:
-          predictionData.file_size ||
-          predictionData.fileSize ||
-          data.file_size ||
-          data.fileSize ||
-          data.size ||
+          predictionData.file_size ??
+          predictionData.fileSize ??
+          predictionData.size ??
+          data.file_size ??
+          data.fileSize ??
+          data.size ??
           selectedFile.size,
 
+        // Security details
         sha256:
-          predictionData.sha256 ||
-          data.sha256 ||
+          predictionData.sha256 ??
+          predictionData.hash ??
+          data.sha256 ??
+          data.hash ??
           'N/A',
 
         entropy:
@@ -101,39 +236,51 @@ function ScanFile() {
 
         threat_score: scorePercent,
 
-        confidence:
-          predictionData.confidence ??
-          data.confidence ??
-          scorePercent,
+        confidence: rawConfidence,
 
         model:
-          predictionData.model ||
-          predictionData.model_name ||
-          data.model ||
-          data.model_name ||
+          predictionData.model ??
+          predictionData.model_name ??
+          data.model ??
+          data.model_name ??
           'XGBoost',
 
         prediction: prediction,
 
-        // Use current valid ISO date if backend doesn't send one
+        // Time
         created_at:
-          predictionData.created_at ||
-          predictionData.analysis_time ||
-          data.created_at ||
-          data.analysis_time ||
+          predictionData.created_at ??
+          predictionData.analysis_time ??
+          predictionData.analysisTime ??
+          predictionData.timestamp ??
+          data.created_at ??
+          data.analysis_time ??
+          data.analysisTime ??
+          data.timestamp ??
           new Date().toISOString(),
+
+        // IMPORTANT: SHAP DATA
+        shap_explanation: validShapExplanation,
       })
 
     } catch (err) {
       console.error('Scan error:', err)
-      setError(err.message)
+
+      setError(
+        err.message || 'Something went wrong during file analysis.'
+      )
     } finally {
       setScanning(false)
     }
   }
 
+  // ==========================================
+  // UI
+  // ==========================================
+
   return (
     <div className="scan-file">
+
       <h1>Scan File</h1>
 
       <p className="page-subtitle">
@@ -141,6 +288,7 @@ function ScanFile() {
       </p>
 
       <div className="scan-layout">
+
         <div className="panel scan-panel">
 
           <FileDropzone
@@ -153,11 +301,14 @@ function ScanFile() {
             disabled={!selectedFile || scanning}
             onClick={handleScan}
           >
-            {scanning ? 'Scanning...' : 'Scan File'}
+            {scanning
+              ? 'Scanning...'
+              : 'Scan File'}
           </button>
 
           {scanning && (
             <div className="scanning-state">
+
               <div className="scan-bar">
                 <div className="scan-bar-fill" />
               </div>
@@ -165,6 +316,7 @@ function ScanFile() {
               <span className="mono">
                 Analyzing PE structure and extracting features...
               </span>
+
             </div>
           )}
 
@@ -176,9 +328,12 @@ function ScanFile() {
 
         </div>
 
-        {result && <ScanResult result={result} />}
+        {result && (
+          <ScanResult result={result} />
+        )}
 
       </div>
+
     </div>
   )
 }

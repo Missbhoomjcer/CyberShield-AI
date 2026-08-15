@@ -11,11 +11,8 @@ function ScanResult({ result }) {
   // ==============================
 
   const prediction = result.prediction
-
-  // Convert prediction to lowercase text safely
   const predictionText = String(prediction ?? '').toLowerCase().trim()
 
-  // Check different possible backend values
   const malwarePredictions = [
     '1',
     'malware',
@@ -30,7 +27,10 @@ function ScanResult({ result }) {
 
   let isMalware = malwarePredictions.includes(predictionText)
 
-  // If prediction is missing or unknown, use threat score
+  // ==============================
+  // THREAT SCORE
+  // ==============================
+
   const rawThreatScore =
     result.threat_score ??
     result.threatScore ??
@@ -57,10 +57,6 @@ function ScanResult({ result }) {
       isMalware = normalizedScore >= 50
     }
   }
-
-  // ==============================
-  // THREAT SCORE
-  // ==============================
 
   let displayThreatScore = 'N/A'
 
@@ -167,113 +163,195 @@ function ScanResult({ result }) {
     }
   }
 
+  // ==============================
+  // SHAP EXPLAINABILITY
+  // ==============================
+
+  const shapExplanation = Array.isArray(result.shap_explanation)
+    ? result.shap_explanation
+    : []
+
+  console.log('FULL RESULT:', result)
+  console.log('SHAP EXPLANATION:', shapExplanation)
+
   return (
-    <div className="scan-result panel">
-      <div className="result-header">
-        <h2>Scan Result</h2>
+    <>
+      {/* ==============================
+          SCAN RESULT
+      ============================== */}
 
-        <span
-          className={`badge ${
-            isMalware ? 'badge-critical' : 'badge-low'
-          }`}
-        >
-          {isMalware
-            ? 'Malware Detected'
-            : 'No Malware Detected'}
-        </span>
+      <div className="scan-result panel">
+        <div className="result-header">
+          <h2>Scan Result</h2>
+
+          <span
+            className={`badge ${
+              isMalware ? 'badge-critical' : 'badge-low'
+            }`}
+          >
+            {isMalware
+              ? 'Malware Detected'
+              : 'No Malware Detected'}
+          </span>
+        </div>
+
+        <div className="result-score">
+          <div className="score-label">
+            Threat Score
+          </div>
+
+          <div
+            className={`score-value mono ${
+              isMalware ? 'score-high' : 'score-low'
+            }`}
+          >
+            {displayThreatScore}
+            <span className="score-max">/100</span>
+          </div>
+        </div>
+
+        <div className="result-grid">
+          <div className="result-field">
+            <span className="field-label">
+              File Name
+            </span>
+            <span className="field-value mono">
+              {fileName}
+            </span>
+          </div>
+
+          <div className="result-field">
+            <span className="field-label">
+              File Type
+            </span>
+            <span className="field-value mono">
+              {fileType}
+            </span>
+          </div>
+
+          <div className="result-field">
+            <span className="field-label">
+              File Size
+            </span>
+            <span className="field-value mono">
+              {fileSize}
+            </span>
+          </div>
+
+          <div className="result-field">
+            <span className="field-label">
+              Confidence
+            </span>
+            <span className="field-value mono">
+              {displayConfidence}
+            </span>
+          </div>
+
+          <div className="result-field">
+            <span className="field-label">
+              Entropy
+            </span>
+            <span className="field-value mono">
+              {entropy}
+            </span>
+          </div>
+
+          <div className="result-field">
+            <span className="field-label">
+              Model
+            </span>
+            <span className="field-value mono">
+              {model}
+            </span>
+          </div>
+
+          <div className="result-field">
+            <span className="field-label">
+              Analysis Time
+            </span>
+            <span className="field-value mono">
+              {analysisTime}
+            </span>
+          </div>
+
+          <div className="result-field span-2">
+            <span className="field-label">
+              SHA-256
+            </span>
+            <span className="field-value mono hash">
+              {sha256}
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div className="result-score">
-        <div className="score-label">
-          Threat Score
+      {/* ==============================
+          SHAP EXPLAINABILITY
+      ============================== */}
+
+      {shapExplanation.length > 0 && (
+        <div className="shap-section panel">
+          <div className="shap-header">
+            <div>
+              <h3>AI Explainability</h3>
+
+              <p>
+                Top features that influenced the AI prediction
+              </p>
+            </div>
+
+            <span className="shap-badge">
+              SHAP Analysis
+            </span>
+          </div>
+
+          <div className="shap-table-wrapper">
+            <table className="shap-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Feature</th>
+                  <th>SHAP Value</th>
+                  <th>Impact</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {shapExplanation.map((item, index) => (
+                  <tr key={`${item.feature}-${index}`}>
+                    <td>{index + 1}</td>
+
+                    <td className="mono shap-feature">
+                      {item.feature ?? 'N/A'}
+                    </td>
+
+                    <td className="mono">
+                      {Number(
+                        item.shap_value ?? 0
+                      ).toFixed(6)}
+                    </td>
+
+                    <td className="mono shap-impact">
+                      {Number(
+                        item.absolute_impact ?? 0
+                      ).toFixed(6)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
+      )}
 
-        <div
-          className={`score-value mono ${
-            isMalware ? 'score-high' : 'score-low'
-          }`}
-        >
-          {displayThreatScore}
-          <span className="score-max">/100</span>
+      {/* Temporary debugging message */}
+      {shapExplanation.length === 0 && (
+        <div className="shap-section panel">
+          <h3>AI Explainability</h3>
+          <p>No SHAP explanation data received from backend.</p>
         </div>
-      </div>
-
-      <div className="result-grid">
-
-        <div className="result-field">
-          <span className="field-label">
-            File Name
-          </span>
-          <span className="field-value mono">
-            {fileName}
-          </span>
-        </div>
-
-        <div className="result-field">
-          <span className="field-label">
-            File Type
-          </span>
-          <span className="field-value mono">
-            {fileType}
-          </span>
-        </div>
-
-        <div className="result-field">
-          <span className="field-label">
-            File Size
-          </span>
-          <span className="field-value mono">
-            {fileSize}
-          </span>
-        </div>
-
-        <div className="result-field">
-          <span className="field-label">
-            Confidence
-          </span>
-          <span className="field-value mono">
-            {displayConfidence}
-          </span>
-        </div>
-
-        <div className="result-field">
-          <span className="field-label">
-            Entropy
-          </span>
-          <span className="field-value mono">
-            {entropy}
-          </span>
-        </div>
-
-        <div className="result-field">
-          <span className="field-label">
-            Model
-          </span>
-          <span className="field-value mono">
-            {model}
-          </span>
-        </div>
-
-        <div className="result-field">
-          <span className="field-label">
-            Analysis Time
-          </span>
-          <span className="field-value mono">
-            {analysisTime}
-          </span>
-        </div>
-
-        <div className="result-field span-2">
-          <span className="field-label">
-            SHA-256
-          </span>
-          <span className="field-value mono hash">
-            {sha256}
-          </span>
-        </div>
-
-      </div>
-    </div>
+      )}
+    </>
   )
 }
 
