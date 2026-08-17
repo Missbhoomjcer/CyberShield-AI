@@ -22,3 +22,5 @@ temp/
 *.zip
 
 datasets/
+# Local SQLite database
+backend/cybershield.db
