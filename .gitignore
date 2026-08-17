@@ -22,3 +22,6 @@ temp/
 *.zip
 
 datasets/
+# Frontend dependencies
+frontend/node_modules/
+node_modules/
