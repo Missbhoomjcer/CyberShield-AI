@@ -4,12 +4,13 @@ import json
 import joblib
 import pandas as pd
 
-
 # ============================================================
 # CyberShield-AI
-# COMPLETE FILE PREDICTION PIPELINE
-# PE Extraction -> Feature Mapping -> XGBoost
+# COMPLETE FILE PREDICTION PIPELINE + SHAP EXPLAINABILITY
+#
+# PE Extraction -> Feature Mapping -> XGBoost -> SHAP
 # ============================================================
+
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 BACKEND_DIR = os.path.dirname(CURRENT_DIR)
@@ -31,11 +32,15 @@ FEATURE_INFO_PATH = os.path.join(
 )
 
 
-# Allow importing feature_engineering.py
+# ============================================================
+# ALLOW IMPORTING feature_engineering.py AND shap_explainer.py
+# ============================================================
+
 if CURRENT_DIR not in sys.path:
     sys.path.insert(0, CURRENT_DIR)
 
 from feature_engineering import extract_pe_features
+from shap_explainer import explain_prediction
 
 
 # ============================================================
@@ -63,7 +68,6 @@ TARGET_MAPPING = feature_info.get(
     {}
 )
 
-
 print(
     "Expected ML features:",
     len(FEATURE_COLUMNS)
@@ -78,11 +82,6 @@ def encode_file_extension(extension):
     """
     Convert file extension into the numeric representation
     expected by the trained model.
-
-    IMPORTANT:
-    The training dataset encoded file_extension.
-    For an unknown extension we use 0 rather than passing
-    a string to XGBoost.
     """
 
     if extension is None:
@@ -91,11 +90,6 @@ def encode_file_extension(extension):
     extension = str(
         extension
     ).lower().strip()
-
-    # Common extensions from the dataset.
-    #
-    # This is a fallback mapping only.
-    # The model receives a numeric value.
 
     extension_map = {
 
@@ -107,6 +101,7 @@ def encode_file_extension(extension):
         ".bat": 5.0,
         ".cmd": 6.0,
         ".msi": 7.0
+
     }
 
     return float(
@@ -174,7 +169,7 @@ def predict_file(file_path):
 
         else:
 
-            # Behavioural features are not yet
+            # Behavioral features are not yet
             # collected by our real-time monitor.
 
             value = 0
@@ -308,6 +303,51 @@ def predict_file(file_path):
 
 
     # ========================================================
+    # SHAP EXPLAINABILITY
+    # ========================================================
+
+    print(
+        "\n[4/4] Generating SHAP explanation..."
+    )
+
+    try:
+
+        shap_explanation = explain_prediction(
+            X
+        )
+
+        print("\n")
+        print("=" * 70)
+        print("TOP SHAP FEATURES")
+        print("=" * 70)
+
+        for index, item in enumerate(
+            shap_explanation,
+            start=1
+        ):
+
+            print(
+                f"{index}. "
+                f"{item['feature']} "
+                f"| SHAP: "
+                f"{item['shap_value']:.6f} "
+                f"| Impact: "
+                f"{item['absolute_impact']:.6f}"
+            )
+
+        print("=" * 70)
+
+    except Exception as error:
+
+        print(
+            "[SHAP] Explanation failed:",
+            error
+        )
+
+        shap_explanation = []
+
+
+    # ========================================================
     # FILE INFORMATION
     # ========================================================
 
@@ -365,7 +405,10 @@ def predict_file(file_path):
             entropy,
 
         "sha256":
-            sha256
+            sha256,
+
+        "shap_explanation":
+            shap_explanation
     }
 
 
@@ -422,6 +465,22 @@ def predict_file(file_path):
         "SHA256       :",
         sha256
     )
+
+    print(
+        "\nSHAP Features:"
+    )
+
+    for index, item in enumerate(
+        shap_explanation,
+        start=1
+    ):
+
+        print(
+            f"{index}. "
+            f"{item['feature']} "
+            f"(impact: "
+            f"{item['absolute_impact']:.6f})"
+        )
 
     print("=" * 70)
 

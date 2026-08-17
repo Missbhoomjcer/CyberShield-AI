@@ -2,7 +2,7 @@ from api.history import router as history_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.upload import router as upload_router
-
+from api.monitoring import router as monitoring_router
 # Create FastAPI app FIRST
 app = FastAPI(
     title="CyberShield AI",
@@ -22,7 +22,7 @@ app.add_middleware(
 # Register APIs AFTER app is created
 app.include_router(upload_router)
 app.include_router(history_router)
-
+app.include_router(monitoring_router)
 @app.get("/")
 def home():
     return {
