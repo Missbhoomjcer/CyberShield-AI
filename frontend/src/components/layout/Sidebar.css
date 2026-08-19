@@ -29,7 +29,9 @@
   font-weight: 600;
 }
 
-.brand-accent { color: var(--accent-cyan); }
+.brand-accent {
+  color: var(--accent-cyan);
+}
 
 .brand-sub {
   font-size: 9px;
@@ -103,4 +105,59 @@
   border-radius: 50%;
   background: var(--sev-low);
   box-shadow: 0 0 6px var(--sev-low);
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    min-height: auto;
+    position: relative;
+    top: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-brand {
+    padding: 14px 16px;
+  }
+
+  .brand-name {
+    font-size: 14px;
+  }
+
+  .brand-sub {
+    font-size: 8px;
+  }
+
+  .sidebar-nav {
+    padding: 8px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+    overflow-x: auto;
+  }
+
+  .nav-item {
+    flex: 0 0 auto;
+    padding: 8px 10px;
+    font-size: 12px;
+    gap: 7px;
+  }
+
+  .nav-item.active::before {
+    left: 0;
+    top: auto;
+    bottom: -2px;
+    width: 100%;
+    height: 2px;
+  }
+
+  .sidebar-status {
+    display: none;
+  }
 }

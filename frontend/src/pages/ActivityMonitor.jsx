@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import MetricGauge from '../components/activity/MetricGauge.jsx'
 import './ActivityMonitor.css'
 
@@ -6,171 +6,152 @@ const API_URL = 'http://127.0.0.1:8000'
 
 function ActivityMonitor() {
   const [monitoring, setMonitoring] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const [metrics, setMetrics] = useState({
     cpuUsage: 0,
     memoryUsage: 0,
     fileModRate: 0,
-    fileRenameRate: 0,
-    fileAccessFreq: 0,
-    entropy: 0,
+    networkConnections: 0,
+    suspiciousProcesses: 0,
+  })
+
+  const [prediction, setPrediction] = useState({
+    label: 'Not analyzed',
+    probability: 0,
+    riskPercent: 0,
   })
 
   const [log, setLog] = useState([])
 
-  const [loading, setLoading] = useState(false)
-
-  const [error, setError] = useState(null)
+  const intervalRef = useRef(null)
 
   // ==========================================
-  // GET CURRENT MONITOR STATUS
+  // FETCH REAL MONITORING DATA
   // ==========================================
 
-  useEffect(() => {
-    const getStatus = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/monitor/status`
-        )
-
-        const data = await response.json()
-
-        if (response.ok) {
-          setMonitoring(data.monitoring)
-        }
-      } catch (err) {
-        console.error('Monitor status error:', err)
-      }
-    }
-
-    getStatus()
-  }, [])
-
-  // ==========================================
-  // START / STOP MONITORING
-  // ==========================================
-
-  const handleMonitoring = async () => {
-    setLoading(true)
-    setError(null)
-
+  const fetchLiveMonitoring = async () => {
     try {
-      const endpoint = monitoring
-        ? '/monitor/stop'
-        : '/monitor/start'
+      setLoading(true)
+      setError(null)
 
       const response = await fetch(
-        `${API_URL}${endpoint}`,
-        {
-          method: 'POST',
-        }
+        `${API_URL}/monitoring/live?observations=10&interval=1`
       )
 
       const data = await response.json()
 
       if (!response.ok) {
         throw new Error(
-          data.detail || 'Monitoring request failed'
+          data.detail || 'Live monitoring failed'
         )
       }
 
-      setMonitoring(data.monitoring)
+      const activity = data.latest_activity || {}
 
-      // Clear old data when starting
-      if (data.monitoring) {
-        setLog([])
+      // ----------------------------------------
+      // UPDATE SYSTEM METRICS
+      // ----------------------------------------
+
+      setMetrics({
+        cpuUsage: activity.cpu_usage ?? 0,
+        memoryUsage: activity.memory_usage ?? 0,
+        fileModRate: activity.file_change_count ?? 0,
+        networkConnections:
+          activity.network_connection_count ?? 0,
+        suspiciousProcesses:
+          activity.suspicious_process_count ?? 0,
+      })
+
+      // ----------------------------------------
+      // UPDATE LSTM PREDICTION
+      // ----------------------------------------
+
+      setPrediction({
+        label: data.label ?? 'Unknown',
+        probability: Number(data.probability ?? 0),
+        riskPercent: Number(data.risk_percent ?? 0),
+      })
+
+      // ----------------------------------------
+      // ADD ACTIVITY LOG ENTRY
+      // ----------------------------------------
+
+      const now = new Date().toLocaleTimeString()
+
+      const newEvent = {
+        id: Date.now(),
+        type:
+          String(data.label).toLowerCase() === 'normal'
+            ? 'info'
+            : 'warning',
+        time: now,
+        text:
+          `LSTM: ${data.label} | ` +
+          `Risk: ${Number(data.risk_percent ?? 0).toFixed(2)}% | ` +
+          `Suspicious processes: ${
+            activity.suspicious_process_count ?? 0
+          }`,
       }
 
+      setLog((previous) =>
+        [newEvent, ...previous].slice(0, 20)
+      )
     } catch (err) {
-      console.error('Monitoring error:', err)
-
-      setError(err.message)
-
+      console.error('Live monitoring error:', err)
+      setError(
+        err.message || 'Unable to fetch live monitoring data.'
+      )
     } finally {
       setLoading(false)
     }
   }
 
   // ==========================================
-  // GET LIVE BACKEND METRICS
+  // START / STOP FRONTEND MONITORING
+  // ==========================================
+
+  const handleMonitoring = async () => {
+    if (monitoring) {
+      // Stop frontend polling
+      setMonitoring(false)
+
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+
+      return
+    }
+
+    // Start monitoring
+    setMonitoring(true)
+    setError(null)
+    setLog([])
+
+    // Get first result immediately
+    await fetchLiveMonitoring()
+
+    // Backend endpoint collects 10 samples at 1 second
+    // intervals, so refresh approximately every 10 seconds.
+    intervalRef.current = setInterval(
+      fetchLiveMonitoring,
+      10000
+    )
+  }
+
+  // ==========================================
+  // CLEANUP
   // ==========================================
 
   useEffect(() => {
-    if (!monitoring) return
-
-    const fetchMetrics = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/monitor/metrics`
-        )
-
-        const data = await response.json()
-
-        if (!response.ok) {
-          throw new Error(
-            data.detail || 'Could not fetch metrics'
-          )
-        }
-
-        // --------------------------------------
-        // UPDATE METRICS FROM BACKEND
-        // --------------------------------------
-
-        const backendMetrics = data.metrics || {}
-
-        setMetrics({
-          cpuUsage:
-            backendMetrics.cpuUsage ?? 0,
-
-          memoryUsage:
-            backendMetrics.memoryUsage ?? 0,
-
-          fileModRate:
-            backendMetrics.fileModRate ?? 0,
-
-          // Backend currently doesn't provide
-          // these separately
-          fileRenameRate:
-            backendMetrics.fileRenameRate ?? 0,
-
-          fileAccessFreq:
-            backendMetrics.fileAccessFreq ?? 0,
-
-          entropy:
-            backendMetrics.entropy ?? 0,
-        })
-
-        // --------------------------------------
-        // UPDATE ACTIVITY LOG
-        // --------------------------------------
-
-        if (Array.isArray(data.activity)) {
-          setLog(data.activity)
-        }
-
-        setError(null)
-
-      } catch (err) {
-        console.error('Metrics error:', err)
-
-        setError(err.message)
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
       }
     }
-
-    // Get first sample immediately
-    fetchMetrics()
-
-    // Then collect metrics every 2 seconds
-    const metricInterval = setInterval(
-      fetchMetrics,
-      2000
-    )
-
-    return () => {
-      clearInterval(metricInterval)
-    }
-
-  }, [monitoring])
+  }, [])
 
   return (
     <div className="activity-monitor">
@@ -180,7 +161,6 @@ function ActivityMonitor() {
       <p className="page-subtitle">
         Real-time file and process activity
       </p>
-
 
       {/* =====================================
           PROTECTION STATUS
@@ -206,14 +186,13 @@ function ActivityMonitor() {
 
             <div className="protection-sub">
               {monitoring
-                ? 'Monitoring system activity and collecting behavioral data'
-                : 'Start monitoring to view live activity'}
+                ? 'Collecting behavioral data and analyzing with LSTM'
+                : 'Start monitoring to collect live system activity'}
             </div>
 
           </div>
 
         </div>
-
 
         <button
           className={`btn-toggle${
@@ -222,17 +201,14 @@ function ActivityMonitor() {
           onClick={handleMonitoring}
           disabled={loading}
         >
-
           {loading
-            ? 'Please wait...'
+            ? 'Analyzing...'
             : monitoring
               ? 'Stop Monitoring'
               : 'Start Monitoring'}
-
         </button>
 
       </div>
-
 
       {/* =====================================
           ERROR
@@ -244,6 +220,47 @@ function ActivityMonitor() {
         </div>
       )}
 
+      {/* =====================================
+          LSTM RESULT
+      ===================================== */}
+
+      <div className="panel">
+        <h2>Behavioral Detection</h2>
+
+        <div className="result-grid">
+
+          <div className="result-field">
+            <span className="field-label">
+              LSTM Prediction
+            </span>
+
+            <span className="field-value mono">
+              {prediction.label}
+            </span>
+          </div>
+
+          <div className="result-field">
+            <span className="field-label">
+              Probability
+            </span>
+
+            <span className="field-value mono">
+              {(prediction.probability * 100).toFixed(2)}%
+            </span>
+          </div>
+
+          <div className="result-field">
+            <span className="field-label">
+              Risk
+            </span>
+
+            <span className="field-value mono">
+              {prediction.riskPercent.toFixed(2)}%
+            </span>
+          </div>
+
+        </div>
+      </div>
 
       {/* =====================================
           LIVE METRICS
@@ -266,23 +283,22 @@ function ActivityMonitor() {
         <MetricGauge
           label="File Modification Rate"
           value={metrics.fileModRate}
-          unit="/min"
+          unit=""
         />
 
         <MetricGauge
           label="Network Connections"
-          value={metrics.networkConnections || 0}
+          value={metrics.networkConnections}
           unit=""
         />
 
         <MetricGauge
           label="Suspicious Processes"
-          value={metrics.suspiciousProcesses || 0}
+          value={metrics.suspiciousProcesses}
           unit=""
         />
 
       </div>
-
 
       {/* =====================================
           LIVE ACTIVITY LOG
@@ -295,22 +311,16 @@ function ActivityMonitor() {
         <div className="activity-log">
 
           {log.length === 0 && (
-
             <div className="empty-state">
-
               {monitoring
                 ? 'Collecting system activity...'
                 : 'Start monitoring to see live events here.'}
-
             </div>
-
           )}
 
-
-          {log.map((event, index) => (
-
+          {log.map((event) => (
             <div
-              key={`${event.id}-${index}`}
+              key={event.id}
               className={`log-entry log-${event.type}`}
             >
 
@@ -323,11 +333,9 @@ function ActivityMonitor() {
               </span>
 
             </div>
-
           ))}
 
         </div>
-
       </div>
 
     </div>
