@@ -22,3 +22,34 @@
     box-sizing: border-box;
   }
 }
+.account-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 18px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.account-logout {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-panel);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.account-logout:hover {
+  color: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+}
+
+@media (max-width: 768px) {
+  .account-bar {
+    justify-content: space-between;
+  }
+}
