@@ -130,7 +130,9 @@ class BehavioralLSTM(nn.Module):
             dropout=0.2
         )
 
-        self.dropout = nn.Dropout(dropout)
+        self.dropout = nn.Dropout(
+            dropout
+        )
 
         self.fc = nn.Linear(
             hidden_size,
@@ -208,7 +210,10 @@ elif "mean_" in scaler_data:
 
 else:
 
-    print("Scaler keys:", scaler_data.files)
+    print(
+        "Scaler keys:",
+        scaler_data.files
+    )
 
     raise KeyError(
         "Could not find scaler mean/scale values."
@@ -261,11 +266,24 @@ def get_network_connection_count():
         return 0
 
 
+# ============================================================
+# FILE ACTIVITY MONITOR
+# ============================================================
+
 def get_file_change_count():
 
-    # Safe approximation:
-    # number of files in common user folders.
-    # No files are modified.
+    """
+    Count files that were created, modified,
+    or deleted since the previous observation.
+
+    This is intentionally different from counting
+    the total number of files on the system.
+
+    The LSTM training dataset uses file_change_count
+    as a behavioral activity feature.
+    """
+
+    global previous_file_count
 
     folders = []
 
@@ -290,11 +308,12 @@ def get_file_change_count():
             )
         ]
 
-    total = 0
+    current_files = {}
 
     for folder in folders:
 
         if not os.path.exists(folder):
+
             continue
 
         try:
@@ -303,18 +322,111 @@ def get_file_change_count():
                 folder
             ):
 
-                total += len(files)
+                # Skip heavy/system-like directories
+                dirs[:] = [
+                    directory
+                    for directory in dirs
+                    if directory not in {
+                        "node_modules",
+                        ".git",
+                        "__pycache__",
+                        ".venv"
+                    }
+                ]
 
-                # Keep monitoring lightweight.
-                if total > 5000:
-                    return 5000
+                for filename in files:
 
-        except Exception:
+                    try:
+
+                        file_path = os.path.join(
+                            root,
+                            filename
+                        )
+
+                        stat = os.stat(
+                            file_path
+                        )
+
+                        current_files[
+                            file_path
+                        ] = (
+                            stat.st_mtime_ns,
+                            stat.st_size
+                        )
+
+                    except (
+                        FileNotFoundError,
+                        PermissionError,
+                        OSError
+                    ):
+
+                        continue
+
+        except (
+            PermissionError,
+            OSError
+        ):
 
             continue
 
-    return total
+    # --------------------------------------------------------
+    # FIRST OBSERVATION
+    # --------------------------------------------------------
 
+    if previous_file_count is None:
+
+        previous_file_count = (
+            current_files
+        )
+
+        return 0
+
+    # --------------------------------------------------------
+    # DETECT CREATED / MODIFIED FILES
+    # --------------------------------------------------------
+
+    changed_files = 0
+
+    for path, metadata in current_files.items():
+
+        # Newly created file
+        if path not in previous_file_count:
+
+            changed_files += 1
+
+        # Existing file modified
+        elif previous_file_count[path] != metadata:
+
+            changed_files += 1
+
+    # --------------------------------------------------------
+    # DETECT DELETED FILES
+    # --------------------------------------------------------
+
+    deleted_files = (
+        set(previous_file_count.keys())
+        -
+        set(current_files.keys())
+    )
+
+    changed_files += len(
+        deleted_files
+    )
+
+    # --------------------------------------------------------
+    # UPDATE BASELINE
+    # --------------------------------------------------------
+
+    previous_file_count = (
+        current_files
+    )
+
+    return changed_files
+
+
+# ============================================================
+# SUSPICIOUS PROCESS DETECTION
+# ============================================================
 
 def get_suspicious_process_count():
 
@@ -345,6 +457,7 @@ def get_suspicious_process_count():
                 ]
 
                 if not name:
+
                     continue
 
                 if name.lower() in suspicious_names:
@@ -371,15 +484,25 @@ def get_suspicious_process_count():
 
 def collect_features():
 
+    # --------------------------------------------------------
+    # SYSTEM FEATURES
+    # --------------------------------------------------------
+
     cpu_usage = psutil.cpu_percent(
         interval=0.2
     )
 
-    memory_usage = psutil.virtual_memory().percent
+    memory_usage = (
+        psutil.virtual_memory().percent
+    )
 
-    process_count = get_process_count()
+    process_count = (
+        get_process_count()
+    )
 
-    file_change_count = get_file_change_count()
+    file_change_count = (
+        get_file_change_count()
+    )
 
     network_connection_count = (
         get_network_connection_count()
@@ -389,11 +512,13 @@ def collect_features():
         get_suspicious_process_count()
     )
 
-    # Behavioral score.
-    #
-    # This is NOT a malware verdict.
-    # It is simply an additional behavioral feature
-    # used by the LSTM.
+    # --------------------------------------------------------
+    # BEHAVIORAL SCORE
+    # --------------------------------------------------------
+
+    # This is NOT the malware verdict.
+    # It is an additional behavioral feature
+    # supplied to the LSTM.
 
     cpu_score = min(
         cpu_usage,
@@ -516,8 +641,16 @@ print("REAL-TIME MONITORING STARTING")
 print("=" * 70)
 
 print()
-print("Sequence length :", SEQUENCE_LENGTH)
-print("Interval        :", INTERVAL_SECONDS, "seconds")
+print(
+    "Sequence length :",
+    SEQUENCE_LENGTH
+)
+
+print(
+    "Interval        :",
+    INTERVAL_SECONDS,
+    "seconds"
+)
 
 print()
 print("Features:")
@@ -538,6 +671,12 @@ print(
 
 print(
     "The first 10 observations fill the LSTM sequence."
+)
+
+print()
+print(
+    "File activity is measured as "
+    "created/modified/deleted files between observations."
 )
 
 print()

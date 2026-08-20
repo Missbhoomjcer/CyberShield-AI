@@ -3,35 +3,28 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
+
 # ============================================================
-# CyberShield-AI
-# LARGE LSTM SEQUENCE GENERATOR
-#
-# Input:
-#   backend/datasets/behavioral/lstm_dataset_large.csv
-#
-# Output:
-#   lstm_sequences.npz
-#   lstm_scaler.npz
-#
-# Features MUST match the real-time monitor.
+# CYBERSHIELD-AI
+# LEAKAGE-SAFE LSTM SEQUENCE GENERATOR
 # ============================================================
+
+print("=" * 70)
+print("CYBERSHIELD-AI LEAKAGE-SAFE LSTM SEQUENCE GENERATOR")
+print("=" * 70)
 
 
 # ============================================================
 # PATHS
 # ============================================================
 
-BASE_DIR = os.path.dirname(
-    os.path.abspath(__file__)
-)
-
-BACKEND_DIR = os.path.dirname(
-    BASE_DIR
+BASE_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..")
 )
 
 DATASET_DIR = os.path.join(
-    BACKEND_DIR,
+    BASE_DIR,
+    "backend",
     "datasets",
     "behavioral"
 )
@@ -70,162 +63,203 @@ FEATURE_COLUMNS = [
 
 LABEL_COLUMN = "label"
 
-
-# ============================================================
-# HEADER
-# ============================================================
-
-print("=" * 70)
-print("CYBERSHIELD-AI LARGE LSTM SEQUENCE GENERATOR")
-print("=" * 70)
+TRAIN_RATIO = 0.80
 
 
 # ============================================================
-# LOAD DATASET
+# LOAD DATA
 # ============================================================
 
-print("\nLoading large behavioral dataset...")
+print("\nLoading behavioral dataset...")
 
 if not os.path.exists(INPUT_PATH):
-
     raise FileNotFoundError(
         f"\nDataset not found:\n{INPUT_PATH}"
     )
 
-df = pd.read_csv(
-    INPUT_PATH
-)
+df = pd.read_csv(INPUT_PATH)
 
-print(
-    "Total rows:",
-    len(df)
-)
-
-print(
-    "Columns:",
-    len(df.columns)
-)
+print("Total rows:", len(df))
 
 
 # ============================================================
-# CHECK FEATURES
+# CHECK COLUMNS
 # ============================================================
 
-print("\nChecking required features...")
-
-missing_features = [
-    feature
-    for feature in FEATURE_COLUMNS
-    if feature not in df.columns
+missing = [
+    column
+    for column in FEATURE_COLUMNS + [LABEL_COLUMN]
+    if column not in df.columns
 ]
 
-if missing_features:
-
+if missing:
     raise ValueError(
-        f"Missing features: {missing_features}"
+        f"Missing columns: {missing}"
     )
 
-print("All 7 behavioral features found.")
-
 
 # ============================================================
-# SELECT FEATURES
+# CLEAN DATA
 # ============================================================
 
-X_raw = df[
-    FEATURE_COLUMNS
+df = df[
+    FEATURE_COLUMNS + [LABEL_COLUMN]
 ].copy()
-
-y_raw = df[
-    LABEL_COLUMN
-].astype(int)
-
-
-# ============================================================
-# CONVERT NUMERIC
-# ============================================================
-
-print("\nConverting features to numeric...")
 
 for column in FEATURE_COLUMNS:
 
-    X_raw[column] = pd.to_numeric(
-        X_raw[column],
+    df[column] = pd.to_numeric(
+        df[column],
         errors="coerce"
     )
 
-X_raw = X_raw.replace(
+df[LABEL_COLUMN] = pd.to_numeric(
+    df[LABEL_COLUMN],
+    errors="coerce"
+)
+
+df = df.replace(
     [np.inf, -np.inf],
     np.nan
 )
 
-X_raw = X_raw.fillna(0)
+df = df.dropna()
+
+df[LABEL_COLUMN] = (
+    df[LABEL_COLUMN]
+    .astype(int)
+)
 
 
 # ============================================================
-# NORMALIZATION
+# TEMPORAL TRAIN / VALIDATION SPLIT
 # ============================================================
 
-print("\nNormalizing behavioral features...")
+split_index = int(
+    len(df) * TRAIN_RATIO
+)
+
+train_df = df.iloc[
+    :split_index
+].copy()
+
+validation_df = df.iloc[
+    split_index:
+].copy()
+
+
+print("\nTemporal split:")
+print("Training rows   :", len(train_df))
+print("Validation rows :", len(validation_df))
+
+print("\nTraining labels:")
+print(
+    train_df[LABEL_COLUMN]
+    .value_counts()
+    .sort_index()
+)
+
+print("\nValidation labels:")
+print(
+    validation_df[LABEL_COLUMN]
+    .value_counts()
+    .sort_index()
+)
+
+
+# ============================================================
+# FIT SCALER ONLY ON TRAINING DATA
+# ============================================================
+
+print("\nFitting StandardScaler on TRAINING data only...")
 
 scaler = StandardScaler()
 
-X_scaled = scaler.fit_transform(
-    X_raw
+X_train_raw = train_df[
+    FEATURE_COLUMNS
+].values
+
+X_validation_raw = validation_df[
+    FEATURE_COLUMNS
+].values
+
+X_train_scaled = scaler.fit_transform(
+    X_train_raw
 )
 
-print(
-    "Normalized shape:",
-    X_scaled.shape
+X_validation_scaled = scaler.transform(
+    X_validation_raw
 )
 
 
 # ============================================================
-# CREATE TEMPORAL SEQUENCES
+# SEQUENCE CREATION
 # ============================================================
 
-print("\nCreating temporal sequences...")
+def create_sequences(
+    X,
+    y,
+    sequence_length
+):
 
-print(
-    "Sequence length:",
+    sequences = []
+    labels = []
+
+    for i in range(
+        len(X) - sequence_length + 1
+    ):
+
+        sequence = X[
+            i:i + sequence_length
+        ]
+
+        label = y[
+            i + sequence_length - 1
+        ]
+
+        sequences.append(
+            sequence
+        )
+
+        labels.append(
+            label
+        )
+
+    return (
+        np.asarray(
+            sequences,
+            dtype=np.float32
+        ),
+        np.asarray(
+            labels,
+            dtype=np.int64
+        )
+    )
+
+
+# ============================================================
+# CREATE TRAINING SEQUENCES
+# ============================================================
+
+print("\nCreating training sequences...")
+
+X_train, y_train = create_sequences(
+    X_train_scaled,
+    train_df[LABEL_COLUMN].values,
     SEQUENCE_LENGTH
 )
 
-X_sequences = []
-y_sequences = []
 
+# ============================================================
+# CREATE VALIDATION SEQUENCES
+# ============================================================
 
-for i in range(
-    len(X_scaled) - SEQUENCE_LENGTH + 1
-):
+print("Creating validation sequences...")
 
-    sequence = X_scaled[
-        i:i + SEQUENCE_LENGTH
-    ]
-
-    # Label comes from the final observation
-    # in the temporal window.
-    label = y_raw.iloc[
-        i + SEQUENCE_LENGTH - 1
-    ]
-
-    X_sequences.append(
-        sequence
-    )
-
-    y_sequences.append(
-        label
-    )
-
-
-X_sequences = np.asarray(
-    X_sequences,
-    dtype=np.float32
-)
-
-y_sequences = np.asarray(
-    y_sequences,
-    dtype=np.int64
+X_validation, y_validation = create_sequences(
+    X_validation_scaled,
+    validation_df[LABEL_COLUMN].values,
+    SEQUENCE_LENGTH
 )
 
 
@@ -234,52 +268,49 @@ y_sequences = np.asarray(
 # ============================================================
 
 print("\n" + "=" * 70)
-print("LSTM SEQUENCE DATASET INFORMATION")
+print("LEAKAGE-SAFE LSTM DATASET")
 print("=" * 70)
 
-print(
-    "X shape:",
-    X_sequences.shape
-)
+print("\nTraining:")
+print("X:", X_train.shape)
+print("y:", y_train.shape)
 
-print(
-    "y shape:",
-    y_sequences.shape
-)
+print("\nValidation:")
+print("X:", X_validation.shape)
+print("y:", y_validation.shape)
 
-print(
-    "Sequences:",
-    len(X_sequences)
-)
-
-print(
-    "Timesteps:",
-    X_sequences.shape[1]
-)
-
-print(
-    "Features:",
-    X_sequences.shape[2]
-)
-
-print(
-    "\nLabel distribution:"
-)
-
-unique_labels, counts = np.unique(
-    y_sequences,
-    return_counts=True
-)
-
+print("\nTraining label distribution:")
 for label, count in zip(
-    unique_labels,
-    counts
+    *np.unique(
+        y_train,
+        return_counts=True
+    )
 ):
 
-    if label == 0:
-        name = "NORMAL"
-    else:
-        name = "SUSPICIOUS"
+    name = (
+        "NORMAL"
+        if label == 0
+        else "SUSPICIOUS"
+    )
+
+    print(
+        f"{name} ({label}): {count}"
+    )
+
+
+print("\nValidation label distribution:")
+for label, count in zip(
+    *np.unique(
+        y_validation,
+        return_counts=True
+    )
+):
+
+    name = (
+        "NORMAL"
+        if label == 0
+        else "SUSPICIOUS"
+    )
 
     print(
         f"{name} ({label}): {count}"
@@ -287,15 +318,17 @@ for label, count in zip(
 
 
 # ============================================================
-# SAVE SEQUENCES
+# SAVE DATASET
 # ============================================================
 
-print("\nSaving LSTM sequences...")
+print("\nSaving leakage-safe LSTM dataset...")
 
 np.savez_compressed(
     SEQUENCE_PATH,
-    X=X_sequences,
-    y=y_sequences
+    X_train=X_train,
+    y_train=y_train,
+    X_validation=X_validation,
+    y_validation=y_validation
 )
 
 
@@ -303,9 +336,8 @@ np.savez_compressed(
 # SAVE SCALER
 # ============================================================
 
-print("Saving scaler information...")
+print("Saving training scaler...")
 
-# StandardScaler needs these values for real-time prediction.
 np.savez(
     SCALER_PATH,
     mean=scaler.mean_,
@@ -317,48 +349,23 @@ np.savez(
 
 
 # ============================================================
-# FINAL INFORMATION
+# FINAL
 # ============================================================
 
 print("\n" + "=" * 70)
-print("LARGE LSTM SEQUENCE DATASET CREATED")
+print("SEQUENCE GENERATION COMPLETED")
 print("=" * 70)
 
-print(
-    "\nDataset:"
-)
+print("\nDataset:")
+print(SEQUENCE_PATH)
 
-print(
-    SEQUENCE_PATH
-)
+print("\nScaler:")
+print(SCALER_PATH)
 
-print(
-    "\nScaler:"
-)
+print("\nSequence length:", SEQUENCE_LENGTH)
+print("Features:", len(FEATURE_COLUMNS))
 
-print(
-    SCALER_PATH
-)
-
-print(
-    "\nInput shape:"
-)
-
-print(
-    "(samples, timesteps, features)"
-)
-
-print(
-    "\nExpected model input:"
-)
-
-print(
-    f"(samples, {SEQUENCE_LENGTH}, {len(FEATURE_COLUMNS)})"
-)
-
-print(
-    "\nReal-time feature order:"
-)
+print("\nReal-time feature order:")
 
 for index, feature in enumerate(
     FEATURE_COLUMNS,
@@ -369,6 +376,17 @@ for index, feature in enumerate(
         f"{index}. {feature}"
     )
 
+print("\nImportant:")
 print(
-    "\n" + "=" * 70
+    "Scaler fitted ONLY on training data."
 )
+
+print(
+    "Validation data was never used during scaling."
+)
+
+print(
+    "Training and validation sequences are temporally separated."
+)
+
+print("=" * 70)

@@ -2,23 +2,29 @@ import os
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import TensorDataset, DataLoader, random_split
+from torch.utils.data import TensorDataset, DataLoader
 
 
 # ============================================================
-# CYBERSHIELD-AI LSTM BEHAVIORAL DETECTION
+# CYBERSHIELD-AI
+# LEAKAGE-SAFE LSTM TRAINING
 # ============================================================
 
 print("=" * 70)
-print("CYBERSHIELD-AI LSTM BEHAVIORAL DETECTION")
+print("CYBERSHIELD-AI LEAKAGE-SAFE LSTM TRAINING")
 print("=" * 70)
 
-# ------------------------------------------------------------
+
+# ============================================================
 # PATHS
-# ------------------------------------------------------------
+# ============================================================
 
 BASE_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..")
+    os.path.join(
+        os.path.dirname(__file__),
+        "..",
+        ".."
+    )
 )
 
 DATA_PATH = os.path.join(
@@ -40,114 +46,191 @@ MODEL_PATH = os.path.join(
     "lstm_behavioral_model.pth"
 )
 
-os.makedirs(MODEL_DIR, exist_ok=True)
+os.makedirs(
+    MODEL_DIR,
+    exist_ok=True
+)
 
 
-# ------------------------------------------------------------
+# ============================================================
 # DEVICE
-# ------------------------------------------------------------
+# ============================================================
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device(
+    "cuda"
+    if torch.cuda.is_available()
+    else "cpu"
+)
 
 print()
 print("Device:", device)
 
 
-# ------------------------------------------------------------
-# LOAD LARGE LSTM DATASET
-# ------------------------------------------------------------
+# ============================================================
+# LOAD DATA
+# ============================================================
 
 print()
-print("Loading LARGE LSTM sequence dataset...")
+print("Loading leakage-safe LSTM dataset...")
 
 if not os.path.exists(DATA_PATH):
+
     raise FileNotFoundError(
         f"""
 LSTM dataset not found:
 
 {DATA_PATH}
 
-Run this first:
+Run:
 
 python backend\\dl\\sequence_generator.py
 """
     )
 
-data = np.load(DATA_PATH)
 
-X = data["X"]
-y = data["y"]
-
-print("X shape:", X.shape)
-print("y shape:", y.shape)
+data = np.load(
+    DATA_PATH
+)
 
 
-# ------------------------------------------------------------
-# CHECK DATA
-# ------------------------------------------------------------
+# ============================================================
+# LOAD TRAINING / VALIDATION DATA
+# ============================================================
 
-if X.ndim != 3:
-    raise ValueError(
-        f"Expected X to have 3 dimensions "
-        f"(samples, timesteps, features), got {X.shape}"
-    )
+X_train = data["X_train"]
+y_train = data["y_train"]
 
-if y.ndim != 1:
-    y = y.reshape(-1)
+X_validation = data["X_validation"]
+y_validation = data["y_validation"]
 
-samples, timesteps, features = X.shape
 
 print()
-print("LSTM dataset information:")
-print("Samples   :", samples)
-print("Timesteps :", timesteps)
-print("Features  :", features)
+print("Dataset loaded.")
+
+print(
+    "Training X:",
+    X_train.shape
+)
+
+print(
+    "Training y:",
+    y_train.shape
+)
+
+print(
+    "Validation X:",
+    X_validation.shape
+)
+
+print(
+    "Validation y:",
+    y_validation.shape
+)
+
+
+# ============================================================
+# DATA INFORMATION
+# ============================================================
+
+samples = X_train.shape[0]
+timesteps = X_train.shape[1]
+features = X_train.shape[2]
 
 print()
-print("Label distribution:")
-print("NORMAL (0):", int(np.sum(y == 0)))
-print("SUSPICIOUS (1):", int(np.sum(y == 1)))
+print("=" * 70)
+print("DATASET INFORMATION")
+print("=" * 70)
 
+print(
+    "Training samples   :",
+    samples
+)
 
-# ------------------------------------------------------------
-# CONVERT TO PYTORCH TENSORS
-# ------------------------------------------------------------
+print(
+    "Validation samples :",
+    X_validation.shape[0]
+)
 
-X_tensor = torch.tensor(X, dtype=torch.float32)
-y_tensor = torch.tensor(y, dtype=torch.float32)
+print(
+    "Timesteps           :",
+    timesteps
+)
 
-
-# ------------------------------------------------------------
-# DATASET
-# ------------------------------------------------------------
-
-dataset = TensorDataset(X_tensor, y_tensor)
-
-
-# ------------------------------------------------------------
-# TRAIN / VALIDATION SPLIT
-# ------------------------------------------------------------
-
-train_size = int(0.8 * len(dataset))
-val_size = len(dataset) - train_size
-
-generator = torch.Generator().manual_seed(42)
-
-train_dataset, val_dataset = random_split(
-    dataset,
-    [train_size, val_size],
-    generator=generator
+print(
+    "Features             :",
+    features
 )
 
 print()
-print("Dataset split:")
-print("Training samples  :", len(train_dataset))
-print("Validation samples:", len(val_dataset))
+print("Training labels:")
+
+print(
+    "NORMAL     :",
+    int(np.sum(y_train == 0))
+)
+
+print(
+    "SUSPICIOUS :",
+    int(np.sum(y_train == 1))
+)
+
+print()
+print("Validation labels:")
+
+print(
+    "NORMAL     :",
+    int(np.sum(y_validation == 0))
+)
+
+print(
+    "SUSPICIOUS :",
+    int(np.sum(y_validation == 1))
+)
 
 
-# ------------------------------------------------------------
+# ============================================================
+# PYTORCH TENSORS
+# ============================================================
+
+X_train_tensor = torch.tensor(
+    X_train,
+    dtype=torch.float32
+)
+
+y_train_tensor = torch.tensor(
+    y_train,
+    dtype=torch.float32
+)
+
+X_validation_tensor = torch.tensor(
+    X_validation,
+    dtype=torch.float32
+)
+
+y_validation_tensor = torch.tensor(
+    y_validation,
+    dtype=torch.float32
+)
+
+
+# ============================================================
+# DATASETS
+# ============================================================
+
+train_dataset = TensorDataset(
+    X_train_tensor,
+    y_train_tensor
+)
+
+validation_dataset = TensorDataset(
+    X_validation_tensor,
+    y_validation_tensor
+)
+
+
+# ============================================================
 # DATA LOADERS
-# ------------------------------------------------------------
+# ============================================================
 
 BATCH_SIZE = 64
 
@@ -157,8 +240,8 @@ train_loader = DataLoader(
     shuffle=True
 )
 
-val_loader = DataLoader(
-    val_dataset,
+validation_loader = DataLoader(
+    validation_dataset,
     batch_size=BATCH_SIZE,
     shuffle=False
 )
@@ -185,10 +268,14 @@ class BehavioralLSTM(nn.Module):
             hidden_size=hidden_size,
             num_layers=num_layers,
             batch_first=True,
-            dropout=0.2 if num_layers > 1 else 0
+            dropout=0.2
+            if num_layers > 1
+            else 0
         )
 
-        self.dropout = nn.Dropout(dropout)
+        self.dropout = nn.Dropout(
+            dropout
+        )
 
         self.fc = nn.Linear(
             hidden_size,
@@ -197,21 +284,24 @@ class BehavioralLSTM(nn.Module):
 
     def forward(self, x):
 
-        output, (hidden, cell) = self.lstm(x)
+        output, _ = self.lstm(x)
 
-        # Last timestep
         last_output = output[:, -1, :]
 
-        last_output = self.dropout(last_output)
+        last_output = self.dropout(
+            last_output
+        )
 
-        result = self.fc(last_output)
+        result = self.fc(
+            last_output
+        )
 
         return result.squeeze(1)
 
 
-# ------------------------------------------------------------
+# ============================================================
 # CREATE MODEL
-# ------------------------------------------------------------
+# ============================================================
 
 model = BehavioralLSTM(
     input_size=features,
@@ -222,21 +312,25 @@ model = BehavioralLSTM(
 
 model = model.to(device)
 
+
 print()
-print("LSTM architecture:")
+print("=" * 70)
+print("LSTM ARCHITECTURE")
+print("=" * 70)
+
 print(model)
 
 
-# ------------------------------------------------------------
-# LOSS FUNCTION
-# ------------------------------------------------------------
+# ============================================================
+# LOSS
+# ============================================================
 
 criterion = nn.BCEWithLogitsLoss()
 
 
-# ------------------------------------------------------------
+# ============================================================
 # OPTIMIZER
-# ------------------------------------------------------------
+# ============================================================
 
 optimizer = torch.optim.Adam(
     model.parameters(),
@@ -244,13 +338,19 @@ optimizer = torch.optim.Adam(
 )
 
 
-# ------------------------------------------------------------
+# ============================================================
 # TRAINING SETTINGS
-# ------------------------------------------------------------
+# ============================================================
 
 EPOCHS = 30
 
-best_val_loss = float("inf")
+best_val_loss = float(
+    "inf"
+)
+
+patience = 5
+
+patience_counter = 0
 
 
 # ============================================================
@@ -262,120 +362,241 @@ print("=" * 70)
 print("STARTING LSTM TRAINING")
 print("=" * 70)
 
-for epoch in range(EPOCHS):
 
-    # --------------------------------------------------------
+for epoch in range(
+    EPOCHS
+):
+
+
+    # ========================================================
     # TRAIN
-    # --------------------------------------------------------
+    # ========================================================
 
     model.train()
 
     train_loss = 0.0
 
+    train_correct = 0
+    train_total = 0
+
+
     for batch_X, batch_y in train_loader:
 
-        batch_X = batch_X.to(device)
-        batch_y = batch_y.to(device)
+        batch_X = batch_X.to(
+            device
+        )
+
+        batch_y = batch_y.to(
+            device
+        )
+
 
         optimizer.zero_grad()
 
-        outputs = model(batch_X)
+
+        outputs = model(
+            batch_X
+        )
+
 
         loss = criterion(
             outputs,
             batch_y
         )
 
+
         loss.backward()
+
 
         optimizer.step()
 
-        train_loss += loss.item() * batch_X.size(0)
 
-    train_loss /= len(train_loader.dataset)
+        train_loss += (
+            loss.item()
+            * batch_X.size(0)
+        )
 
 
-    # --------------------------------------------------------
+        probabilities = torch.sigmoid(
+            outputs
+        )
+
+
+        predictions = (
+            probabilities >= 0.5
+        ).float()
+
+
+        train_correct += (
+            predictions == batch_y
+        ).sum().item()
+
+
+        train_total += (
+            batch_y.size(0)
+        )
+
+
+    train_loss /= len(
+        train_loader.dataset
+    )
+
+
+    train_accuracy = (
+        train_correct
+        / train_total
+    ) * 100
+
+
+    # ========================================================
     # VALIDATION
-    # --------------------------------------------------------
+    # ========================================================
 
     model.eval()
 
     val_loss = 0.0
 
-    correct = 0
-    total = 0
+    val_correct = 0
+
+    val_total = 0
+
 
     with torch.no_grad():
 
-        for batch_X, batch_y in val_loader:
+        for batch_X, batch_y in validation_loader:
 
-            batch_X = batch_X.to(device)
-            batch_y = batch_y.to(device)
+            batch_X = batch_X.to(
+                device
+            )
 
-            outputs = model(batch_X)
+            batch_y = batch_y.to(
+                device
+            )
+
+
+            outputs = model(
+                batch_X
+            )
+
 
             loss = criterion(
                 outputs,
                 batch_y
             )
 
-            val_loss += loss.item() * batch_X.size(0)
 
-            probabilities = torch.sigmoid(outputs)
+            val_loss += (
+                loss.item()
+                * batch_X.size(0)
+            )
+
+
+            probabilities = torch.sigmoid(
+                outputs
+            )
+
 
             predictions = (
                 probabilities >= 0.5
             ).float()
 
-            correct += (
+
+            val_correct += (
                 predictions == batch_y
             ).sum().item()
 
-            total += batch_y.size(0)
 
-    val_loss /= len(val_loader.dataset)
+            val_total += (
+                batch_y.size(0)
+            )
+
+
+    val_loss /= len(
+        validation_loader.dataset
+    )
+
 
     val_accuracy = (
-        correct / total
+        val_correct
+        / val_total
     ) * 100
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # SAVE BEST MODEL
-    # --------------------------------------------------------
+    # ========================================================
 
     if val_loss < best_val_loss:
 
         best_val_loss = val_loss
 
+        patience_counter = 0
+
+
         torch.save(
             {
-                "model_state_dict": model.state_dict(),
-                "input_size": features,
-                "hidden_size": 64,
-                "num_layers": 2,
-                "dropout": 0.3,
-                "timesteps": timesteps
+                "model_state_dict":
+                    model.state_dict(),
+
+                "input_size":
+                    features,
+
+                "hidden_size":
+                    64,
+
+                "num_layers":
+                    2,
+
+                "dropout":
+                    0.3,
+
+                "timesteps":
+                    timesteps
             },
             MODEL_PATH
         )
 
 
-    # --------------------------------------------------------
-    # PRINT PROGRESS
-    # --------------------------------------------------------
+        saved = "  <-- BEST"
+
+
+    else:
+
+        patience_counter += 1
+
+        saved = ""
+
+
+    # ========================================================
+    # PRINT
+    # ========================================================
 
     print(
         f"Epoch [{epoch + 1:02d}/{EPOCHS}] "
         f"Train Loss: {train_loss:.4f} | "
+        f"Train Acc: {train_accuracy:.2f}% | "
         f"Val Loss: {val_loss:.4f} | "
-        f"Val Accuracy: {val_accuracy:.2f}%"
+        f"Val Acc: {val_accuracy:.2f}%"
+        f"{saved}"
     )
 
 
+    # ========================================================
+    # EARLY STOPPING
+    # ========================================================
+
+    if patience_counter >= patience:
+
+        print()
+        print(
+            "Early stopping triggered."
+        )
+
+        break
+
+
 # ============================================================
-# COMPLETED
+# TRAINING COMPLETE
 # ============================================================
 
 print()
@@ -384,31 +605,48 @@ print("LSTM TRAINING COMPLETED")
 print("=" * 70)
 
 print()
-print("Best model saved to:")
-print(MODEL_PATH)
-
-print()
-print("LSTM input shape:")
+print("Best validation loss:")
 print(
-    f"(samples={samples}, "
-    f"timesteps={timesteps}, "
-    f"features={features})"
+    f"{best_val_loss:.6f}"
 )
 
 print()
-print("Expected real-time input:")
-print(f"(1, {timesteps}, {features})")
+print("Model saved to:")
+print(
+    MODEL_PATH
+)
+
+print()
+print("Model input:")
+print(
+    f"(batch, {timesteps}, {features})"
+)
 
 print()
 print("Behavioral features:")
-print("1. cpu_usage")
-print("2. memory_usage")
-print("3. process_count")
-print("4. file_change_count")
-print("5. network_connection_count")
-print("6. suspicious_process_count")
-print("7. suspicious_score")
+
+FEATURE_NAMES = [
+    "cpu_usage",
+    "memory_usage",
+    "process_count",
+    "file_change_count",
+    "network_connection_count",
+    "suspicious_process_count",
+    "suspicious_score"
+]
+
+for index, feature in enumerate(
+    FEATURE_NAMES,
+    start=1
+):
+
+    print(
+        f"{index}. {feature}"
+    )
 
 print()
-print("LSTM behavioral detector is ready.")
+print(
+    "Leakage-safe LSTM model is ready."
+)
+
 print("=" * 70)
