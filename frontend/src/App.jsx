@@ -1,158 +1,340 @@
-import { useEffect, useState } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { useState } from 'react'
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 
 import Sidebar from './components/layout/Sidebar.jsx'
+
+import Landing from './pages/Landing.jsx'
+import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import ScanFile from './pages/ScanFile.jsx'
 import ActivityMonitor from './pages/ActivityMonitor.jsx'
 import ThreatDetection from './pages/ThreatDetection.jsx'
+import Protection from './pages/Protection.jsx'
+import Quarantine from './pages/Quarantine.jsx'
+import AISecurity from './pages/AISecurity.jsx'
+import Devices from './pages/Devices.jsx'
 import Reports from './pages/Reports.jsx'
 import Settings from './pages/Settings.jsx'
-import Login from './pages/Login.jsx'
+import Subscription from './pages/Subscription.jsx'
 
 import './App.css'
 
-function ProtectedRoutes({ user, onLogout }) {
-  if (!user) {
-    return <Navigate to="/login" replace />
-  }
 
+function ProtectedLayout({ children }) {
   return (
-    <div className="app-shell">
+    <div className="app-layout">
       <Sidebar />
 
       <main className="main-content">
-
-        <div className="account-bar">
-          <span>
-            {user.username} · {user.role}
-          </span>
-
-          <button
-            className="account-logout"
-            onClick={onLogout}
-          >
-            Logout
-          </button>
-        </div>
-
-        <Routes>
-          <Route
-            path="/"
-            element={<Dashboard />}
-          />
-
-          <Route
-            path="/scan"
-            element={<ScanFile />}
-          />
-
-          <Route
-            path="/activity-monitor"
-            element={<ActivityMonitor />}
-          />
-
-          <Route
-            path="/threats"
-            element={<ThreatDetection />}
-          />
-
-          <Route
-            path="/reports"
-            element={<Reports />}
-          />
-
-          <Route
-            path="/settings"
-            element={<Settings />}
-          />
-
-          <Route
-            path="*"
-            element={
-              <Navigate
-                to="/"
-                replace
-              />
-            }
-          />
-        </Routes>
-
+        {children}
       </main>
     </div>
   )
 }
 
+
 function App() {
-  const [user, setUser] = useState(null)
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    sessionStorage.getItem('cybershield_logged_in') === 'true'
+  )
 
-  useEffect(() => {
-    const savedUser =
-      localStorage.getItem(
-        'cybershield_user'
-      )
+  const navigate = useNavigate()
 
-    if (savedUser) {
-      try {
-        setUser(
-          JSON.parse(savedUser)
-        )
-      } catch {
-        localStorage.removeItem(
-          'cybershield_user'
-        )
-      }
-    }
-  }, [])
 
-  const handleLogin = (userData) => {
-    localStorage.setItem(
-      'cybershield_user',
-      JSON.stringify(userData)
-    )
-
-    setUser(userData)
+  const handleLogin = () => {
+    sessionStorage.setItem('cybershield_logged_in', 'true')
+    setIsLoggedIn(true)
+    navigate('/')
   }
+
 
   const handleLogout = () => {
-    localStorage.removeItem(
-      'cybershield_user'
-    )
-
-    setUser(null)
+    sessionStorage.removeItem('cybershield_logged_in')
+    setIsLoggedIn(false)
+    navigate('/login')
   }
 
-  if (!user) {
-    return (
-      <Routes>
-        <Route
-          path="/login"
-          element={
-            <Login
-              onLogin={handleLogin}
-            />
-          }
-        />
 
-        <Route
-          path="*"
-          element={
+  return (
+    <Routes>
+
+      {/* =====================================================
+          LANDING PAGE
+          ===================================================== */}
+
+      <Route
+        path="/landing"
+        element={<Landing />}
+      />
+
+
+      {/* =====================================================
+          LOGIN
+          ===================================================== */}
+
+      <Route
+        path="/login"
+        element={
+          isLoggedIn ? (
+            <Navigate
+              to="/"
+              replace
+            />
+          ) : (
+            <Login onLogin={handleLogin} />
+          )
+        }
+      />
+
+
+      {/* =====================================================
+          DASHBOARD
+          ===================================================== */}
+
+      <Route
+        path="/"
+        element={
+          isLoggedIn ? (
+            <ProtectedLayout>
+              <Dashboard />
+            </ProtectedLayout>
+          ) : (
             <Navigate
               to="/login"
               replace
             />
-          }
-        />
-      </Routes>
-    )
-  }
+          )
+        }
+      />
 
-  return (
-    <ProtectedRoutes
-      user={user}
-      onLogout={handleLogout}
-    />
+
+      {/* =====================================================
+          SCAN
+          ===================================================== */}
+
+      <Route
+        path="/scan"
+        element={
+          isLoggedIn ? (
+            <ProtectedLayout>
+              <ScanFile />
+            </ProtectedLayout>
+          ) : (
+            <Navigate
+              to="/login"
+              replace
+            />
+          )
+        }
+      />
+
+
+      {/* =====================================================
+          ACTIVITY MONITOR
+          ===================================================== */}
+
+      <Route
+        path="/activity-monitor"
+        element={
+          isLoggedIn ? (
+            <ProtectedLayout>
+              <ActivityMonitor />
+            </ProtectedLayout>
+          ) : (
+            <Navigate
+              to="/login"
+              replace
+            />
+          )
+        }
+      />
+
+
+      {/* =====================================================
+          THREATS
+          ===================================================== */}
+
+      <Route
+        path="/threats"
+        element={
+          isLoggedIn ? (
+            <ProtectedLayout>
+              <ThreatDetection />
+            </ProtectedLayout>
+          ) : (
+            <Navigate
+              to="/login"
+              replace
+            />
+          )
+        }
+      />
+
+
+      {/* =====================================================
+          PROTECTION
+          ===================================================== */}
+
+      <Route
+        path="/protection"
+        element={
+          isLoggedIn ? (
+            <ProtectedLayout>
+              <Protection />
+            </ProtectedLayout>
+          ) : (
+            <Navigate
+              to="/login"
+              replace
+            />
+          )
+        }
+      />
+
+
+      {/* =====================================================
+          QUARANTINE
+          ===================================================== */}
+
+      <Route
+        path="/quarantine"
+        element={
+          isLoggedIn ? (
+            <ProtectedLayout>
+              <Quarantine />
+            </ProtectedLayout>
+          ) : (
+            <Navigate
+              to="/login"
+              replace
+            />
+          )
+        }
+      />
+
+
+      {/* =====================================================
+          AI SECURITY
+          ===================================================== */}
+
+      <Route
+        path="/ai-security"
+        element={
+          isLoggedIn ? (
+            <ProtectedLayout>
+              <AISecurity />
+            </ProtectedLayout>
+          ) : (
+            <Navigate
+              to="/login"
+              replace
+            />
+          )
+        }
+      />
+
+
+      {/* =====================================================
+          DEVICES
+          ===================================================== */}
+
+      <Route
+        path="/devices"
+        element={
+          isLoggedIn ? (
+            <ProtectedLayout>
+              <Devices />
+            </ProtectedLayout>
+          ) : (
+            <Navigate
+              to="/login"
+              replace
+            />
+          )
+        }
+      />
+
+
+      {/* =====================================================
+          REPORTS
+          ===================================================== */}
+
+      <Route
+        path="/reports"
+        element={
+          isLoggedIn ? (
+            <ProtectedLayout>
+              <Reports />
+            </ProtectedLayout>
+          ) : (
+            <Navigate
+              to="/login"
+              replace
+            />
+          )
+        }
+      />
+
+
+      {/* =====================================================
+          SETTINGS
+          ===================================================== */}
+
+      <Route
+        path="/settings"
+        element={
+          isLoggedIn ? (
+            <ProtectedLayout>
+              <Settings />
+            </ProtectedLayout>
+          ) : (
+            <Navigate
+              to="/login"
+              replace
+            />
+          )
+        }
+      />
+
+
+      {/* =====================================================
+          SUBSCRIPTION
+          ===================================================== */}
+
+      <Route
+        path="/subscription"
+        element={
+          isLoggedIn ? (
+            <ProtectedLayout>
+              <Subscription />
+            </ProtectedLayout>
+          ) : (
+            <Navigate
+              to="/login"
+              replace
+            />
+          )
+        }
+      />
+
+
+      {/* =====================================================
+          UNKNOWN ROUTES
+          ===================================================== */}
+
+      <Route
+        path="*"
+        element={
+          <Navigate
+            to="/landing"
+            replace
+          />
+        }
+      />
+
+    </Routes>
   )
 }
+
 
 export default App

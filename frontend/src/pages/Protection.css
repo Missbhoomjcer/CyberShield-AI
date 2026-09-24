@@ -1,0 +1,629 @@
+/* =========================================
+   PROTECTION PAGE
+========================================= */
+
+.protection-page {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.protection-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.protection-header h1 {
+  color: #172033;
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.protection-header p {
+  color: #68758a;
+  font-size: 14px;
+}
+
+.protection-overall-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 22px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-active {
+  background: #e7f8ef;
+  color: #13935a;
+}
+
+.status-limited {
+  background: #fff3e5;
+  color: #d27a18;
+}
+
+.overall-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+
+/* =========================================
+   PROTECTION BANNER
+========================================= */
+
+.protection-banner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 28px 30px;
+  background: linear-gradient(
+    135deg,
+    #f8fcff 0%,
+    #eef8ff 100%
+  );
+  border: 1px solid #d7e8f8;
+  border-radius: 15px;
+  margin-bottom: 38px;
+}
+
+.protection-banner-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #e0f7eb;
+  color: #16aa68;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.protection-banner-icon svg {
+  width: 34px;
+  height: 34px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.protection-banner-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.protection-label {
+  display: block;
+  color: #15965a;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 5px;
+}
+
+.protection-banner-content h2 {
+  color: #172033;
+  font-size: 21px;
+  margin-bottom: 5px;
+}
+
+.protection-banner-content p {
+  color: #64758b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.protection-banner-status {
+  min-width: 130px;
+  padding-left: 25px;
+  border-left: 1px solid #d9e6f1;
+  text-align: center;
+}
+
+.protection-banner-status strong {
+  display: block;
+  color: #172033;
+  font-size: 18px;
+}
+
+.protection-banner-status span {
+  display: block;
+  color: #7c899b;
+  font-size: 10px;
+  margin-top: 3px;
+}
+
+
+/* =========================================
+   SECTION HEADING
+========================================= */
+
+.protection-section {
+  margin-bottom: 25px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.section-heading > div:first-child {
+  flex: 1;
+}
+
+.section-heading h2 {
+  color: #172033;
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.section-heading p {
+  color: #78869a;
+  font-size: 12px;
+}
+
+.module-count {
+  color: #146ef5;
+  background: #edf4ff;
+  border-radius: 18px;
+  padding: 7px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+
+/* =========================================
+   PROTECTION CARD
+
+   IMPORTANT:
+   The ".protection-page" prefix prevents
+   Dashboard.css from overriding this page.
+========================================= */
+
+.protection-page .protection-card {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 28px;
+  row-gap: 0;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 15px;
+  padding: 8px 20px;
+}
+
+
+/* =========================================
+   PROTECTION MODULE
+========================================= */
+
+.protection-page .protection-module {
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+
+  min-width: 0;
+  min-height: 100px;
+  padding: 18px 0;
+
+  border-bottom: 1px solid #edf1f5;
+}
+
+.protection-page .protection-module:nth-child(odd) {
+  border-right: 1px solid #edf1f5;
+  padding-right: 20px;
+}
+
+.protection-page .protection-module:nth-child(5) {
+  grid-column: 1 / -1;
+  border-right: none;
+}
+
+.protection-page .protection-module:last-child {
+  border-bottom: none;
+}
+
+.module-disabled {
+  opacity: 0.65;
+}
+
+
+/* =========================================
+   MODULE ICON
+========================================= */
+
+.module-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+.module-icon svg {
+  width: 22px;
+  height: 22px;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.module-realtime {
+  background: #e7f1ff;
+  color: #176ef5;
+}
+
+.module-ransomware {
+  background: #fff0e5;
+  color: #e78622;
+}
+
+.module-behavioral {
+  background: #eee9ff;
+  color: #7653d8;
+}
+
+.module-ai {
+  background: #e5f8ed;
+  color: #15965a;
+}
+
+.module-network {
+  background: #e8f5f7;
+  color: #2297a8;
+}
+
+
+/* =========================================
+   MODULE INFO
+========================================= */
+
+.module-info {
+  min-width: 0;
+}
+
+.module-info h3 {
+  color: #27354a;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.module-info p {
+  color: #7b899c;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+
+/* =========================================
+   MODULE STATUS
+========================================= */
+
+.module-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.module-status-text {
+  min-width: 52px;
+  text-align: right;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.module-status-text.active {
+  color: #15965a;
+}
+
+.module-status-text.disabled {
+  color: #929cab;
+}
+
+
+/* =========================================
+   TOGGLE
+========================================= */
+
+.toggle {
+  width: 42px;
+  height: 24px;
+
+  padding: 2px;
+  border: none;
+  border-radius: 20px;
+
+  background: #cbd4df;
+
+  cursor: pointer;
+  position: relative;
+
+  transition: background 0.2s ease;
+
+  flex-shrink: 0;
+}
+
+.toggle-on {
+  background: #20b875;
+}
+
+.toggle-knob {
+  display: block;
+
+  width: 20px;
+  height: 20px;
+
+  background: #ffffff;
+  border-radius: 50%;
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+
+  transform: translateX(0);
+
+  transition: transform 0.2s ease;
+}
+
+.toggle-on .toggle-knob {
+  transform: translateX(18px);
+}
+
+
+/* =========================================
+   INFORMATION CARDS
+========================================= */
+
+.protection-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.info-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  padding: 20px;
+}
+
+.info-card-icon {
+  width: 40px;
+  height: 40px;
+
+  border-radius: 10px;
+
+  background: #edf4ff;
+  color: #176ef5;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ai-info {
+  background: #edf4ff;
+  color: #176ef5;
+}
+
+.response-info {
+  background: #e5f8ed;
+  color: #15965a;
+}
+
+.response-info svg {
+  width: 20px;
+  height: 20px;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.info-card h3 {
+  color: #27354a;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.info-card p {
+  color: #7c899b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+
+/* =========================================
+   LARGE SCREEN
+========================================= */
+
+@media (min-width: 1100px) {
+
+  .protection-page .protection-card {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .protection-page .protection-module:nth-child(1),
+  .protection-page .protection-module:nth-child(2) {
+    border-bottom: 1px solid #edf1f5;
+  }
+
+  .protection-page .protection-module:nth-child(3),
+  .protection-page .protection-module:nth-child(4) {
+    border-bottom: 1px solid #edf1f5;
+  }
+
+  .protection-page .protection-module:nth-child(5) {
+    grid-column: 1 / -1;
+    border-right: none;
+    border-bottom: none;
+  }
+}
+
+
+/* =========================================
+   MEDIUM SCREEN
+========================================= */
+
+@media (max-width: 1000px) {
+
+  .protection-page .protection-card {
+    grid-template-columns: 1fr;
+  }
+
+  .protection-page .protection-module,
+  .protection-page .protection-module:nth-child(odd) {
+    border-right: none;
+    padding-right: 0;
+  }
+
+  .protection-page .protection-module:nth-child(5) {
+    grid-column: auto;
+  }
+
+  .protection-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 800px) {
+
+  .protection-banner {
+    align-items: flex-start;
+  }
+
+  .protection-banner-status {
+    display: none;
+  }
+
+  .protection-page .protection-card {
+    grid-template-columns: 1fr;
+  }
+
+  .protection-page .protection-module,
+  .protection-page .protection-module:nth-child(odd) {
+    border-right: none;
+    padding-right: 0;
+  }
+
+  .protection-page .protection-module:nth-child(5) {
+    grid-column: auto;
+  }
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .protection-header {
+    flex-direction: column;
+  }
+
+  .protection-header h1 {
+    font-size: 24px;
+  }
+
+  .protection-overall-status {
+    align-self: flex-start;
+  }
+
+  .protection-banner {
+    padding: 20px;
+  }
+
+  .protection-banner-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .protection-banner-icon svg {
+    width: 27px;
+    height: 27px;
+  }
+
+  .protection-banner-content h2 {
+    font-size: 17px;
+  }
+
+  .section-heading {
+    align-items: center;
+  }
+
+  .protection-page .protection-card {
+    grid-template-columns: 1fr;
+    padding: 5px 15px;
+  }
+
+  .protection-page .protection-module {
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 11px;
+  }
+
+  .protection-page .protection-module:nth-child(odd) {
+    border-right: none;
+    padding-right: 0;
+  }
+
+  .protection-page .protection-module:nth-child(5) {
+    grid-column: auto;
+  }
+
+  .module-status {
+    grid-column: 2;
+    justify-content: space-between;
+    margin-top: -3px;
+  }
+
+  .module-status-text {
+    text-align: left;
+  }
+
+  .protection-info-grid {
+    grid-template-columns: 1fr;
+  }
+}

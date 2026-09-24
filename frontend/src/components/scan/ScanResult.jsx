@@ -1,13 +1,12 @@
 import './ScanResult.css'
 
 function ScanResult({ result }) {
-  // Safety check
   if (!result) {
     return null
   }
 
   // ==============================
-  // PREDICTION / MALWARE STATUS
+  // PREDICTION
   // ==============================
 
   const prediction = result.prediction
@@ -164,149 +163,209 @@ function ScanResult({ result }) {
   }
 
   // ==============================
-  // SHAP EXPLAINABILITY
+  // SHAP
   // ==============================
 
   const shapExplanation = Array.isArray(result.shap_explanation)
     ? result.shap_explanation
     : []
 
-  console.log('FULL RESULT:', result)
-  console.log('SHAP EXPLANATION:', shapExplanation)
-
   return (
-    <>
-      {/* ==============================
-          SCAN RESULT
-      ============================== */}
+    <div className="scan-result-container">
 
-      <div className="scan-result panel">
-        <div className="result-header">
-          <h2>Scan Result</h2>
+      {/* =================================
+          RESULT SUMMARY
+      ================================= */}
+
+      <div className="scan-result-card">
+
+        <div className="result-top">
+
+          <div className="result-title-area">
+
+            <div
+              className={`result-status-icon ${
+                isMalware ? 'danger' : 'safe'
+              }`}
+            >
+              {isMalware ? (
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 4l8 15H4L12 4z"
+                  />
+                  <path d="M12 9v4" />
+                  <circle cx="12" cy="16" r="0.8" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24">
+                  <path d="M5 12l4 4 10-10" />
+                </svg>
+              )}
+            </div>
+
+            <div>
+              <span className="result-label">
+                SCAN COMPLETE
+              </span>
+
+              <h2>Scan Result</h2>
+
+              <p className="result-file-name">
+                {fileName}
+              </p>
+            </div>
+
+          </div>
 
           <span
-            className={`badge ${
-              isMalware ? 'badge-critical' : 'badge-low'
+            className={`result-badge ${
+              isMalware ? 'danger-badge' : 'safe-badge'
             }`}
           >
             {isMalware
               ? 'Malware Detected'
               : 'No Malware Detected'}
           </span>
+
         </div>
 
-        <div className="result-score">
-          <div className="score-label">
-            Threat Score
+        {/* Score */}
+
+        <div className="threat-score-section">
+
+          <div className="score-circle-large">
+
+            <div className="score-inner">
+              <strong>{displayThreatScore}</strong>
+              <span>/100</span>
+            </div>
+
           </div>
 
-          <div
-            className={`score-value mono ${
-              isMalware ? 'score-high' : 'score-low'
-            }`}
-          >
-            {displayThreatScore}
-            <span className="score-max">/100</span>
+          <div className="score-description">
+
+            <span>THREAT SCORE</span>
+
+            <h3>
+              {isMalware
+                ? 'Potential threat detected'
+                : 'File appears safe'}
+            </h3>
+
+            <p>
+              {isMalware
+                ? 'The AI model identified characteristics associated with malicious software.'
+                : 'The AI model did not identify significant malicious characteristics in this file.'}
+            </p>
+
           </div>
+
+          <div className="confidence-box">
+
+            <span>AI CONFIDENCE</span>
+
+            <strong>{displayConfidence}</strong>
+
+            <small>{model}</small>
+
+          </div>
+
         </div>
 
-        <div className="result-grid">
-          <div className="result-field">
-            <span className="field-label">
-              File Name
-            </span>
-            <span className="field-value mono">
-              {fileName}
-            </span>
-          </div>
+        {/* File details */}
 
-          <div className="result-field">
-            <span className="field-label">
-              File Type
-            </span>
-            <span className="field-value mono">
-              {fileType}
-            </span>
-          </div>
-
-          <div className="result-field">
-            <span className="field-label">
-              File Size
-            </span>
-            <span className="field-value mono">
-              {fileSize}
-            </span>
-          </div>
-
-          <div className="result-field">
-            <span className="field-label">
-              Confidence
-            </span>
-            <span className="field-value mono">
-              {displayConfidence}
-            </span>
-          </div>
-
-          <div className="result-field">
-            <span className="field-label">
-              Entropy
-            </span>
-            <span className="field-value mono">
-              {entropy}
-            </span>
-          </div>
-
-          <div className="result-field">
-            <span className="field-label">
-              Model
-            </span>
-            <span className="field-value mono">
-              {model}
-            </span>
-          </div>
-
-          <div className="result-field">
-            <span className="field-label">
-              Analysis Time
-            </span>
-            <span className="field-value mono">
-              {analysisTime}
-            </span>
-          </div>
-
-          <div className="result-field span-2">
-            <span className="field-label">
-              SHA-256
-            </span>
-            <span className="field-value mono hash">
-              {sha256}
-            </span>
-          </div>
+        <div className="details-heading">
+          <h3>File analysis</h3>
+          <span>Static PE analysis</span>
         </div>
+
+        <div className="result-details-grid">
+
+          <div className="detail-item">
+            <span>File name</span>
+            <strong>{fileName}</strong>
+          </div>
+
+          <div className="detail-item">
+            <span>File type</span>
+            <strong>{fileType}</strong>
+          </div>
+
+          <div className="detail-item">
+            <span>File size</span>
+            <strong>{fileSize}</strong>
+          </div>
+
+          <div className="detail-item">
+            <span>Entropy</span>
+            <strong>{entropy}</strong>
+          </div>
+
+          <div className="detail-item">
+            <span>Model</span>
+            <strong>{model}</strong>
+          </div>
+
+          <div className="detail-item">
+            <span>Analysis time</span>
+            <strong>{analysisTime}</strong>
+          </div>
+
+        </div>
+
+        {/* SHA-256 */}
+
+        <div className="hash-section">
+
+          <span>SHA-256 HASH</span>
+
+          <div className="hash-value">
+            {sha256}
+          </div>
+
+        </div>
+
       </div>
 
-      {/* ==============================
-          SHAP EXPLAINABILITY
-      ============================== */}
+      {/* =================================
+          AI EXPLAINABILITY
+      ================================= */}
 
-      {shapExplanation.length > 0 && (
-        <div className="shap-section panel">
-          <div className="shap-header">
+      <div className="shap-card">
+
+        <div className="shap-header">
+
+          <div className="shap-title">
+
+            <div className="ai-icon">
+              AI
+            </div>
+
             <div>
-              <h3>AI Explainability</h3>
+              <span>EXPLAINABLE AI</span>
+
+              <h3>Why did the model make this prediction?</h3>
 
               <p>
-                Top features that influenced the AI prediction
+                SHAP shows which extracted features influenced
+                the AI prediction.
               </p>
             </div>
 
-            <span className="shap-badge">
-              SHAP Analysis
-            </span>
           </div>
 
+          <span className="shap-badge">
+            SHAP Analysis
+          </span>
+
+        </div>
+
+        {shapExplanation.length > 0 ? (
+
           <div className="shap-table-wrapper">
+
             <table className="shap-table">
+
               <thead>
                 <tr>
                   <th>#</th>
@@ -317,41 +376,67 @@ function ScanResult({ result }) {
               </thead>
 
               <tbody>
-                {shapExplanation.map((item, index) => (
-                  <tr key={`${item.feature}-${index}`}>
-                    <td>{index + 1}</td>
 
-                    <td className="mono shap-feature">
+                {shapExplanation.map((item, index) => (
+
+                  <tr key={`${item.feature}-${index}`}>
+
+                    <td className="table-index">
+                      {index + 1}
+                    </td>
+
+                    <td className="feature-name">
                       {item.feature ?? 'N/A'}
                     </td>
 
-                    <td className="mono">
+                    <td className="numeric-value">
                       {Number(
                         item.shap_value ?? 0
                       ).toFixed(6)}
                     </td>
 
-                    <td className="mono shap-impact">
+                    <td className="numeric-value impact-value">
                       {Number(
                         item.absolute_impact ?? 0
                       ).toFixed(6)}
                     </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
 
-      {/* Temporary debugging message */}
-      {shapExplanation.length === 0 && (
-        <div className="shap-section panel">
-          <h3>AI Explainability</h3>
-          <p>No SHAP explanation data received from backend.</p>
-        </div>
-      )}
-    </>
+                  </tr>
+
+                ))}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        ) : (
+
+          <div className="no-shap-data">
+
+            <div className="no-shap-icon">
+              AI
+            </div>
+
+            <div>
+              <strong>
+                No SHAP explanation available
+              </strong>
+
+              <p>
+                The backend did not return SHAP explanation
+                data for this analysis.
+              </p>
+            </div>
+
+          </div>
+
+        )}
+
+      </div>
+
+    </div>
   )
 }
 

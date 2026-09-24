@@ -1,0 +1,455 @@
+.quarantine-page {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 0 40px;
+  box-sizing: border-box;
+  color: #172033;
+}
+
+.quarantine-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.quarantine-header h1 {
+  margin: 0 0 6px;
+  color: #172033;
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.quarantine-header p {
+  margin: 0;
+  color: #68758a;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.quarantine-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 22px;
+  background: #e7f8ef;
+  color: #15965a;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.quarantine-status-dot {
+  width: 8px;
+  height: 8px;
+  display: block;
+  border-radius: 50%;
+  background: #18b86c;
+}
+
+.quarantine-banner {
+  width: 100%;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 30px;
+  padding: 28px 30px;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #f8fcff, #eef8ff);
+  border: 1px solid #d7e8f8;
+  border-radius: 15px;
+}
+
+.quarantine-banner-icon {
+  width: 62px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #e0f7eb;
+  color: #16aa68;
+}
+
+.quarantine-banner-icon svg {
+  width: 32px;
+  height: 32px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.quarantine-banner-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.quarantine-banner-label {
+  display: block;
+  margin-bottom: 5px;
+  color: #15965a;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.quarantine-banner-content h2 {
+  margin: 0 0 5px;
+  color: #172033;
+  font-size: 19px;
+  line-height: 1.35;
+}
+
+.quarantine-banner-content p {
+  margin: 0;
+  color: #64758b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.quarantine-count {
+  min-width: 125px;
+  padding-left: 25px;
+  border-left: 1px solid #d9e6f1;
+  text-align: center;
+}
+
+.quarantine-count strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #172033;
+  font-size: 22px;
+}
+
+.quarantine-count span {
+  color: #7c899b;
+  font-size: 10px;
+}
+
+.quarantine-panel {
+  width: 100%;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 15px;
+}
+
+.quarantine-panel-header {
+  min-height: 78px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 21px 23px;
+  border-bottom: 1px solid #edf1f5;
+}
+
+.quarantine-panel-header h2 {
+  margin: 0 0 4px;
+  color: #172033;
+  font-size: 18px;
+}
+
+.quarantine-panel-header p {
+  margin: 0;
+  color: #7b899c;
+  font-size: 11px;
+}
+
+.quarantine-refresh-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 13px;
+  background: #ffffff;
+  border: 1px solid #dce5ef;
+  border-radius: 8px;
+  color: #526176;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.quarantine-refresh-button:hover {
+  background: #f4f8ff;
+  border-color: #bfd8f6;
+  color: #176ef5;
+}
+
+.quarantine-refresh-button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.quarantine-refresh-button svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.quarantine-refresh-button:disabled svg {
+  animation: quarantine-spin 0.8s linear infinite;
+}
+
+@keyframes quarantine-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.quarantine-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.quarantine-table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+}
+
+.quarantine-table th {
+  height: 42px;
+  padding: 0 18px;
+  background: #f8fafc;
+  color: #8491a3;
+  font-size: 9px;
+  font-weight: 700;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.quarantine-table td {
+  height: 70px;
+  padding: 12px 18px;
+  border-top: 1px solid #edf1f5;
+  color: #526176;
+  font-size: 11px;
+  vertical-align: middle;
+}
+
+.quarantine-table tbody tr:hover {
+  background: #fbfdff;
+}
+
+.quarantine-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quarantine-file-icon {
+  width: 37px;
+  height: 37px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: #fff4e8;
+  color: #dc8529;
+}
+
+.quarantine-file-icon svg {
+  width: 19px;
+  height: 19px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.quarantine-file-info strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #27354a;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.quarantine-file-info span {
+  display: block;
+  color: #8995a6;
+  font-size: 9px;
+}
+
+.quarantine-threat {
+  color: #526176;
+}
+
+.quarantine-severity {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 12px;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.quarantine-severity.high {
+  background: #fff0e4;
+  color: #d77b1d;
+}
+
+.quarantine-severity.critical {
+  background: #ffe8e8;
+  color: #d93636;
+}
+
+.quarantine-severity.medium {
+  background: #fff7dc;
+  color: #b88918;
+}
+
+.quarantine-severity.low {
+  background: #edf4ff;
+  color: #176ef5;
+}
+
+.quarantine-status-badge {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 12px;
+  background: #e6f8ef;
+  color: #15965a;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.quarantine-view-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: 7px 12px;
+  background: #edf4ff;
+  border: 1px solid #cfe1fb;
+  border-radius: 7px;
+  color: #176ef5;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.quarantine-view-button:hover {
+  background: #dfeeff;
+  border-color: #b9d4f7;
+  color: #0d5fd7;
+}
+
+.quarantine-empty {
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 40px 20px;
+}
+
+.quarantine-empty-icon {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+  border-radius: 50%;
+  background: #e5f8ed;
+  color: #15965a;
+}
+
+.quarantine-empty-icon svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.quarantine-empty h3 {
+  margin: 0;
+  color: #526176;
+  font-size: 13px;
+}
+
+.quarantine-empty p {
+  margin: 0;
+  color: #8a96a7;
+  font-size: 10px;
+}
+
+.quarantine-footer {
+  padding: 15px 23px;
+  background: #f9fbfd;
+  border-top: 1px solid #edf1f5;
+  color: #8793a4;
+  font-size: 10px;
+}
+
+@media (max-width: 900px) {
+  .quarantine-banner {
+    align-items: flex-start;
+  }
+
+  .quarantine-count {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .quarantine-header {
+    flex-direction: column;
+  }
+
+  .quarantine-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 22px;
+  }
+
+  .quarantine-panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .quarantine-refresh-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .quarantine-header h1 {
+    font-size: 22px;
+  }
+
+  .quarantine-banner {
+    padding: 18px;
+  }
+}

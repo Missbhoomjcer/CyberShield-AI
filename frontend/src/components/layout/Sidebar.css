@@ -1,163 +1,277 @@
 .sidebar {
-  width: 240px;
-  flex-shrink: 0;
-  background: var(--bg-panel);
-  border-right: 1px solid var(--border);
+  width: 290px;
+  min-width: 290px;
+  height: 100vh;
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
-  height: 100vh;
   position: sticky;
   top: 0;
+  overflow: hidden;
 }
+
+/* Brand */
 
 .sidebar-brand {
+  height: 88px;
+  padding: 20px 22px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 22px 20px;
-  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  border-bottom: 1px solid #edf1f5;
 }
 
-.brand-mark {
-  font-size: 22px;
-  color: var(--accent-cyan);
+.brand-logo {
+  width: 42px;
+  height: 42px;
+  background: #edf6ff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.brand-name {
-  font-family: var(--font-heading);
-  font-size: 15px;
+.brand-logo svg {
+  width: 31px;
+  height: 31px;
+}
+
+.brand-text {
+  min-width: 0;
+}
+
+.brand-text h2 {
+  color: #172033;
+  font-size: 16px;
+  line-height: 1.2;
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+
+.brand-text span {
+  display: block;
+  color: #8a96a8;
+  font-size: 8px;
   font-weight: 600;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
-.brand-accent {
-  color: var(--accent-cyan);
+/* Content */
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 25px 14px 15px;
 }
 
-.brand-sub {
-  font-size: 9px;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  margin-top: 2px;
+.sidebar-content::-webkit-scrollbar {
+  width: 5px;
 }
+
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: #dce3eb;
+  border-radius: 10px;
+}
+
+/* Sections */
+
+.sidebar-section {
+  margin-bottom: 25px;
+}
+
+.management-section {
+  margin-top: 8px;
+}
+
+.sidebar-section-title {
+  padding: 0 16px;
+  margin-bottom: 9px;
+  color: #8a96a8;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+/* Navigation */
 
 .sidebar-nav {
-  flex: 1;
-  padding: 16px 12px;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.nav-item {
+.sidebar-link {
+  min-height: 45px;
+  padding: 0 15px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: var(--radius);
-  color: var(--text-secondary);
-  font-size: 13.5px;
-  font-weight: 500;
-  position: relative;
-  transition: background 0.15s, color 0.15s;
-}
-
-.nav-item:hover {
-  background: var(--bg-panel-raised);
-  color: var(--text-primary);
-}
-
-.nav-item.active {
-  background: var(--accent-cyan-dim);
-  color: var(--accent-cyan);
-}
-
-.nav-item.active::before {
-  content: '';
-  position: absolute;
-  left: -12px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--accent-cyan);
-  box-shadow: 0 0 8px var(--accent-cyan);
-}
-
-.nav-icon {
+  gap: 13px;
+  border-radius: 10px;
+  color: #526176;
   font-size: 14px;
-  width: 16px;
-  text-align: center;
+  font-weight: 500;
+  transition: background 0.18s ease, color 0.18s ease;
 }
 
-.sidebar-status {
+.sidebar-link:hover {
+  background: #f3f7fc;
+  color: #176ef5;
+}
+
+.sidebar-link.active {
+  background: #e8f1ff;
+  color: #146ef5;
+  font-weight: 600;
+}
+
+.sidebar-icon {
+  width: 19px;
+  height: 19px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 16px 20px;
-  border-top: 1px solid var(--border);
-  font-size: 10.5px;
-  letter-spacing: 0.04em;
-  color: var(--sev-low);
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.status-dot {
-  width: 7px;
-  height: 7px;
+.sidebar-icon svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Bottom */
+
+.sidebar-bottom {
+  border-top: 1px solid #edf1f5;
+  padding: 15px;
+}
+
+/* Protected */
+
+.protected-box {
+  background: #e8f8ef;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.protected-icon {
+  width: 34px;
+  height: 34px;
+  background: #1cba6c;
   border-radius: 50%;
-  background: var(--sev-low);
-  box-shadow: 0 0 6px var(--sev-low);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-/* =========================================
-   MOBILE
-========================================= */
+.protected-icon svg {
+  width: 19px;
+  height: 19px;
+}
 
-@media (max-width: 768px) {
+.protected-box strong {
+  display: block;
+  color: #168b57;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.protected-box span {
+  display: block;
+  color: #668875;
+  font-size: 10px;
+}
+
+/* User */
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e8f1ff;
+  color: #176ef5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-info strong {
+  display: block;
+  color: #2a374b;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.user-info span {
+  display: block;
+  color: #8b96a6;
+  font-size: 10px;
+}
+
+.user-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #1bb86a;
+  border: 2px solid #dff6e9;
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
   .sidebar {
-    width: 100%;
-    height: auto;
-    min-height: auto;
-    position: relative;
-    top: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
+    width: 235px;
+    min-width: 235px;
   }
 
-  .sidebar-brand {
-    padding: 14px 16px;
-  }
-
-  .brand-name {
+  .brand-text h2 {
     font-size: 14px;
   }
 
-  .brand-sub {
-    font-size: 8px;
+  .sidebar-link {
+    font-size: 13px;
   }
+}
 
-  .sidebar-nav {
-    padding: 8px;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 6px;
-    overflow-x: auto;
-  }
-
-  .nav-item {
-    flex: 0 0 auto;
-    padding: 8px 10px;
-    font-size: 12px;
-    gap: 7px;
-  }
-
-  .nav-item.active::before {
-    left: 0;
-    top: auto;
-    bottom: -2px;
+@media (max-width: 700px) {
+  .sidebar {
     width: 100%;
-    height: 2px;
+    min-width: 100%;
+    height: auto;
+    position: relative;
   }
 
-  .sidebar-status {
+  .sidebar-content {
+    max-height: 400px;
+  }
+
+  .sidebar-bottom {
     display: none;
   }
 }

@@ -1,112 +1,171 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './Login.css'
 
 function Login({ onLogin }) {
-  const [username, setUsername] = useState('')
+  const navigate = useNavigate()
+
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState('User')
+  const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState('')
 
   const handleSubmit = (event) => {
     event.preventDefault()
     setError('')
 
-    if (!username.trim() || !password.trim()) {
-      setError('Please enter username and password.')
+    if (!email.trim() || !password.trim()) {
+      setError('Please enter your email and password.')
       return
     }
 
-    onLogin({
-      username: username.trim(),
-      role,
-    })
+    const user = {
+      username: email.trim(),
+      role: 'User',
+      rememberMe,
+    }
+
+    if (onLogin) {
+      onLogin(user)
+    } else {
+      navigate('/')
+    }
+  }
+
+  const handleGoogleLogin = () => {
+    setError('Google sign-in will be connected later.')
+  }
+
+  const handleMicrosoftLogin = () => {
+    setError('Microsoft sign-in will be connected later.')
   }
 
   return (
     <div className="login-page">
+
       <div className="login-card">
 
-        <div className="login-brand">
-          <div className="login-mark">◇</div>
+        {/* Logo */}
+        <div className="login-logo">
+          <svg
+            viewBox="0 0 48 48"
+            className="login-shield"
+            aria-hidden="true"
+          >
+            <path
+              d="M24 3L42 10V21C42 32.5 34.6 42 24 46C13.4 42 6 32.5 6 21V10L24 3Z"
+              fill="#ffffff"
+              stroke="#16b879"
+              strokeWidth="3"
+            />
 
-          <div>
+            <path
+              d="M17 24L21.5 28.5L31.5 18"
+              fill="none"
+              stroke="#16b879"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+
+            <path
+              d="M24 3L42 10V14L24 7L6 14V10L24 3Z"
+              fill="#1677ff"
+            />
+          </svg>
+
+          <div className="login-logo-text">
             <div className="login-brand-name">
               CyberShield-AI
             </div>
 
             <div className="login-brand-sub">
-              RANSOMWARE & MALWARE DETECTION
+              SMART PROTECTION. SAFER TOMORROW.
             </div>
           </div>
         </div>
 
+        {/* Header */}
         <div className="login-header">
           <h1>Welcome Back</h1>
 
           <p>
-            Sign in to access your CyberShield AI dashboard
+            Sign in to your account
           </p>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit}>
 
+          {/* Email */}
           <div className="login-field">
-            <label htmlFor="username">
-              Username
+            <label htmlFor="email">
+              Email address
             </label>
 
             <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(event) =>
-                setUsername(event.target.value)
-              }
-              placeholder="Enter username"
-              autoComplete="username"
+              id="email"
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="Enter your email"
+              autoComplete="email"
             />
           </div>
 
-          <div className="login-field">
-            <label htmlFor="password">
-              Password
-            </label>
+          {/* Password */}
+          <div className="login-field password-field">
+            <div className="password-label-row">
+              <label htmlFor="password">
+                Password
+              </label>
+
+              <button
+                type="button"
+                className="forgot-password"
+                onClick={() =>
+                  setError('Password recovery will be connected later.')
+                }
+              >
+                Forgot password?
+              </button>
+            </div>
 
             <input
               id="password"
               type="password"
               value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
-              placeholder="Enter password"
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Enter your password"
               autoComplete="current-password"
             />
           </div>
 
-          <div className="login-field">
-            <label htmlFor="role">
-              Role
+          {/* Remember me */}
+          <div className="remember-row">
+
+            <label className="remember-label">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(event) =>
+                  setRememberMe(event.target.checked)
+                }
+              />
+
+              <span>Remember me</span>
             </label>
 
-            <select
-              id="role"
-              value={role}
-              onChange={(event) =>
-                setRole(event.target.value)
-              }
-            >
-              <option value="User">User</option>
-              <option value="Admin">Admin</option>
-            </select>
           </div>
 
+          {/* Error */}
           {error && (
             <div className="login-error">
               {error}
             </div>
           )}
 
+          {/* Sign In */}
           <button
             type="submit"
             className="login-button"
@@ -116,12 +175,55 @@ function Login({ onLogin }) {
 
         </form>
 
-        <div className="login-demo-note">
-          Demo frontend authentication.
-          Backend JWT authentication will be connected later.
+        {/* Divider */}
+        <div className="login-divider">
+          <span>or continue with</span>
+        </div>
+
+        {/* Social buttons */}
+        <div className="social-buttons">
+
+          <button
+            type="button"
+            className="social-button"
+            onClick={handleGoogleLogin}
+          >
+            <span className="google-icon">G</span>
+            <span>Google</span>
+          </button>
+
+          <button
+            type="button"
+            className="social-button"
+            onClick={handleMicrosoftLogin}
+          >
+            <span className="microsoft-icon">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+
+            <span>Microsoft</span>
+          </button>
+
+        </div>
+
+        {/* Sign up */}
+        <div className="signup-text">
+          Don't have an account?
+          <button
+            type="button"
+            onClick={() =>
+              setError('Account creation will be connected later.')
+            }
+          >
+            Create one
+          </button>
         </div>
 
       </div>
+
     </div>
   )
 }
