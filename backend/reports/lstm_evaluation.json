@@ -1,0 +1,16 @@
+{
+    "model": "LSTM Behavioral Detector",
+    "threshold": 0.5,
+    "accuracy": 0.9995047052996533,
+    "precision": 1.0,
+    "recall": 0.9990300678952473,
+    "f1_score": 0.9995147986414362,
+    "roc_auc": 1.0,
+    "false_positive_rate": 0.0,
+    "false_negative_rate": 0.0009699321047526673,
+    "true_negative": 988,
+    "false_positive": 0,
+    "false_negative": 1,
+    "true_positive": 1030,
+    "validation_samples": 2019
+}

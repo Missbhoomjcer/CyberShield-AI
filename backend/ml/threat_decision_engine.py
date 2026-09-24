@@ -1,18 +1,14 @@
 """
-CyberShield-AI
-Threat Decision Engine
+CyberShield-AI Threat Decision Engine
 
 Combines:
-- XGBoost static risk
-- LSTM behavioral risk
-- Behavioral evidence
+    1. Static XGBoost risk
+    2. Behavioral LSTM risk
+    3. Real-time behavioral evidence
 
-Output:
-- Overall risk score
-- Threat level
-- Recommended protection action
-- Confidence
-- Reasons
+Important:
+    Process count is NOT considered a threat indicator.
+    Windows systems can normally have hundreds of processes.
 """
 
 from dataclasses import dataclass
@@ -36,7 +32,7 @@ class ThreatDecision:
 
 
 # ============================================================
-# UTILITY FUNCTIONS
+# UTILITY
 # ============================================================
 
 def clamp(
@@ -60,7 +56,7 @@ def normalize_probability(
 
     probability = float(probability)
 
-    # Accept:
+    # Accept either:
     # 0.0 - 1.0
     # OR
     # 0 - 100
@@ -90,7 +86,7 @@ def calculate_behavior_evidence(
     reasons = []
 
     # --------------------------------------------------------
-    # Overall suspicious behavior score
+    # SUSPICIOUS SCORE
     # --------------------------------------------------------
 
     suspicious_score = clamp(
@@ -122,9 +118,10 @@ def calculate_behavior_evidence(
         )
 
     # --------------------------------------------------------
-    # FILE ACTIVITY
+    # FILE CHANGES
     #
-    # Important ransomware indicator.
+    # Rapid file modification is one of the strongest
+    # ransomware-related behavioral indicators.
     # --------------------------------------------------------
 
     if file_change_count >= 50:
@@ -172,7 +169,7 @@ def calculate_behavior_evidence(
         )
 
     # --------------------------------------------------------
-    # NETWORK ACTIVITY
+    # NETWORK CONNECTIONS
     # --------------------------------------------------------
 
     if network_connection_count >= 50:
@@ -192,7 +189,7 @@ def calculate_behavior_evidence(
         )
 
     # --------------------------------------------------------
-    # REGISTRY ACTIVITY
+    # REGISTRY CHANGES
     # --------------------------------------------------------
 
     if registry_change_count >= 20:
@@ -215,7 +212,7 @@ def calculate_behavior_evidence(
     # CPU
     #
     # Supporting evidence only.
-    # High CPU alone is NOT ransomware.
+    # High CPU by itself is NOT malware evidence.
     # --------------------------------------------------------
 
     if cpu_usage >= 90:
@@ -230,7 +227,7 @@ def calculate_behavior_evidence(
     # MEMORY
     #
     # Supporting evidence only.
-    # High memory alone is NOT ransomware.
+    # High memory by itself is NOT malware evidence.
     # --------------------------------------------------------
 
     if memory_usage >= 90:
@@ -244,19 +241,21 @@ def calculate_behavior_evidence(
     # --------------------------------------------------------
     # PROCESS COUNT
     #
-    # INTENTIONALLY NOT USED.
+    # IMPORTANT:
     #
-    # A normal Windows machine can easily have hundreds
-    # of processes because of:
+    # process_count is deliberately NOT used here.
     #
-    # - Windows services
-    # - browsers
-    # - VS Code
-    # - Python
-    # - antivirus
-    # - background applications
+    # 300+ Windows processes can be completely normal because
+    # of browsers, VS Code, Python, Windows services,
+    # antivirus, drivers and background applications.
     #
-    # Therefore process count alone is NOT ransomware evidence.
+    # Therefore:
+    #
+    # 325 processes -> NO THREAT SCORE
+    # 500 processes -> NO THREAT SCORE
+    #
+    # Suspicious processes are handled separately through
+    # suspicious_process_count.
     # --------------------------------------------------------
 
     return clamp(evidence), reasons
@@ -280,7 +279,7 @@ def decide_threat(
 ) -> ThreatDecision:
 
     # ========================================================
-    # NORMALIZE MODEL PROBABILITIES
+    # NORMALIZE MODEL OUTPUTS
     # ========================================================
 
     static_risk = normalize_probability(
@@ -292,7 +291,7 @@ def decide_threat(
     )
 
     # ========================================================
-    # CALCULATE BEHAVIORAL EVIDENCE
+    # BEHAVIORAL EVIDENCE
     # ========================================================
 
     evidence_score, reasons = calculate_behavior_evidence(
@@ -317,11 +316,10 @@ def decide_threat(
     # ========================================================
     # ML RISK FUSION
     #
-    # XGBoost  = 55%
-    # LSTM     = 45%
+    # XGBoost = 55%
+    # LSTM    = 45%
     #
-    # If one model is unavailable, the available model is
-    # used without treating the missing model as zero risk.
+    # If only one model is available, use that model alone.
     # ========================================================
 
     weighted_total = 0.0
@@ -356,8 +354,8 @@ def decide_threat(
     # ========================================================
     # FINAL RISK
     #
-    # ML models       = 80%
-    # Behavioral      = 20%
+    # ML models = 80%
+    # Behavioral evidence = 20%
     # ========================================================
 
     overall_risk = (
@@ -488,7 +486,7 @@ def decide_threat(
 
 
 # ============================================================
-# PRINT DECISION
+# DISPLAY RESULT
 # ============================================================
 
 def print_decision(
@@ -554,17 +552,17 @@ def print_decision(
 
 
 # ============================================================
-# SAFE LOCAL TESTS
+# LOCAL TESTS
 # ============================================================
 
 if __name__ == "__main__":
 
-    # ========================================================
-    # TEST 1 - NORMAL
-    # ========================================================
+    # --------------------------------------------------------
+    # TEST 1: NORMAL WINDOWS MACHINE
+    # --------------------------------------------------------
 
     print(
-        "\nTEST 1: NORMAL ACTIVITY"
+        "\nTEST 1: NORMAL WINDOWS ACTIVITY"
     )
 
     result = decide_threat(
@@ -573,28 +571,30 @@ if __name__ == "__main__":
 
         lstm_probability=5,
 
-        suspicious_score=5,
+        suspicious_score=8,
 
         cpu_usage=25,
 
-        memory_usage=50,
+        memory_usage=85,
 
-        process_count=328,
+        process_count=325,
 
-        file_change_count=2,
+        file_change_count=0,
 
-        network_connection_count=5,
+        network_connection_count=18,
 
         suspicious_process_count=0,
 
         registry_change_count=0,
     )
 
-    print_decision(result)
+    print_decision(
+        result
+    )
 
-    # ========================================================
-    # TEST 2 - SUSPICIOUS
-    # ========================================================
+    # --------------------------------------------------------
+    # TEST 2: SUSPICIOUS ACTIVITY
+    # --------------------------------------------------------
 
     print(
         "\nTEST 2: SUSPICIOUS ACTIVITY"
@@ -612,7 +612,7 @@ if __name__ == "__main__":
 
         memory_usage=75,
 
-        process_count=328,
+        process_count=325,
 
         file_change_count=25,
 
@@ -623,11 +623,13 @@ if __name__ == "__main__":
         registry_change_count=6,
     )
 
-    print_decision(result)
+    print_decision(
+        result
+    )
 
-    # ========================================================
-    # TEST 3 - HIGH RISK SIMULATION
-    # ========================================================
+    # --------------------------------------------------------
+    # TEST 3: HIGH-RISK SIMULATED ACTIVITY
+    # --------------------------------------------------------
 
     print(
         "\nTEST 3: HIGH-RISK SIMULATED ACTIVITY"
@@ -645,7 +647,7 @@ if __name__ == "__main__":
 
         memory_usage=93,
 
-        process_count=328,
+        process_count=325,
 
         file_change_count=70,
 
@@ -656,4 +658,6 @@ if __name__ == "__main__":
         registry_change_count=25,
     )
 
-    print_decision(result)
+    print_decision(
+        result
+    )

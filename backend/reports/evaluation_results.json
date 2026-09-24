@@ -1,0 +1,62 @@
+[
+    {
+        "model": "Decision Tree",
+        "accuracy": 0.9767869455297633,
+        "precision": 0.9877704609595485,
+        "recall": 0.9655172413793104,
+        "f1_score": 0.9765170890490583,
+        "roc_auc": 0.9767843559837729,
+        "false_positive_rate": 0.011948529411764705,
+        "false_negative_rate": 0.034482758620689655,
+        "true_negative": 2150,
+        "false_positive": 26,
+        "false_negative": 75,
+        "true_positive": 2100,
+        "test_samples": 4351
+    },
+    {
+        "model": "Random Forest",
+        "accuracy": 0.9935646977706274,
+        "precision": 0.9899589228662711,
+        "recall": 0.9972413793103448,
+        "f1_score": 0.9935868071461291,
+        "roc_auc": 0.9986575600067612,
+        "false_positive_rate": 0.01011029411764706,
+        "false_negative_rate": 0.002758620689655172,
+        "true_negative": 2154,
+        "false_positive": 22,
+        "false_negative": 6,
+        "true_positive": 2169,
+        "test_samples": 4351
+    },
+    {
+        "model": "SVM",
+        "accuracy": 0.8729027809698919,
+        "precision": 0.9787485242030697,
+        "recall": 0.7622988505747127,
+        "f1_score": 0.857069010080124,
+        "roc_auc": 0.9879463531102097,
+        "false_positive_rate": 0.016544117647058824,
+        "false_negative_rate": 0.23770114942528736,
+        "true_negative": 2140,
+        "false_positive": 36,
+        "false_negative": 517,
+        "true_positive": 1658,
+        "test_samples": 4351
+    },
+    {
+        "model": "XGBoost",
+        "accuracy": 0.9919558722132843,
+        "precision": 0.987693710118505,
+        "recall": 0.9963218390804598,
+        "f1_score": 0.9919890135042344,
+        "roc_auc": 0.9990440120013522,
+        "false_positive_rate": 0.012408088235294117,
+        "false_negative_rate": 0.0036781609195402297,
+        "true_negative": 2149,
+        "false_positive": 27,
+        "false_negative": 8,
+        "true_positive": 2167,
+        "test_samples": 4351
+    }
+]

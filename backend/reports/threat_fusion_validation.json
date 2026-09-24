@@ -1,0 +1,168 @@
+{
+    "project": "CyberShield-AI",
+    "test_type": "Static + Behavioral Threat Fusion",
+    "total_tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "all_passed": true,
+    "tests": [
+        {
+            "test": "NORMAL WINDOWS ACTIVITY",
+            "static_probability": 2,
+            "lstm_probability": 5,
+            "evidence_score": 0.0,
+            "overall_risk": 2.68,
+            "threat_level": "LOW",
+            "action": "ALLOW",
+            "confidence": "LOW",
+            "expected_level": "LOW",
+            "expected_action": "ALLOW",
+            "passed": true,
+            "reasons": [
+                "No strong behavioral indicators detected"
+            ]
+        },
+        {
+            "test": "HIGH PROCESS COUNT ONLY",
+            "static_probability": 2,
+            "lstm_probability": 3,
+            "evidence_score": 0.0,
+            "overall_risk": 1.96,
+            "threat_level": "LOW",
+            "action": "ALLOW",
+            "confidence": "LOW",
+            "expected_level": "LOW",
+            "expected_action": "ALLOW",
+            "passed": true,
+            "reasons": [
+                "No strong behavioral indicators detected"
+            ]
+        },
+        {
+            "test": "BEHAVIORAL SUSPICION",
+            "static_probability": 65,
+            "lstm_probability": 72,
+            "evidence_score": 62.0,
+            "overall_risk": 66.92,
+            "threat_level": "MEDIUM",
+            "action": "MONITOR_AND_INSPECT",
+            "confidence": "MEDIUM",
+            "expected_level": "MEDIUM",
+            "expected_action": "MONITOR_AND_INSPECT",
+            "passed": true,
+            "reasons": [
+                "High suspicious behavior score",
+                "Elevated file-change activity detected",
+                "Suspicious process activity detected",
+                "Elevated network connection activity",
+                "Registry changes detected"
+            ]
+        },
+        {
+            "test": "HIGH STATIC + BEHAVIORAL RISK",
+            "static_probability": 90,
+            "lstm_probability": 92,
+            "evidence_score": 100.0,
+            "overall_risk": 92.72,
+            "threat_level": "CRITICAL",
+            "action": "BLOCK_AND_QUARANTINE",
+            "confidence": "HIGH",
+            "expected_level": "CRITICAL",
+            "expected_action": "BLOCK_AND_QUARANTINE",
+            "passed": true,
+            "reasons": [
+                "High suspicious behavior score",
+                "Rapid file-change activity detected",
+                "Multiple suspicious processes detected",
+                "High network connection activity",
+                "High registry-change activity",
+                "Very high CPU usage",
+                "Very high memory usage"
+            ]
+        },
+        {
+            "test": "CRITICAL RANSOMWARE-LIKE BEHAVIOR",
+            "static_probability": 98,
+            "lstm_probability": 99,
+            "evidence_score": 100.0,
+            "overall_risk": 98.76,
+            "threat_level": "CRITICAL",
+            "action": "BLOCK_AND_QUARANTINE",
+            "confidence": "HIGH",
+            "expected_level": "CRITICAL",
+            "expected_action": "BLOCK_AND_QUARANTINE",
+            "passed": true,
+            "reasons": [
+                "Very high suspicious behavior score",
+                "Rapid file-change activity detected",
+                "Multiple suspicious processes detected",
+                "High network connection activity",
+                "High registry-change activity",
+                "Very high CPU usage",
+                "Very high memory usage"
+            ]
+        },
+        {
+            "test": "STATIC MODEL ONLY",
+            "static_probability": 90,
+            "lstm_probability": null,
+            "evidence_score": 0.0,
+            "overall_risk": 90.0,
+            "threat_level": "HIGH",
+            "action": "CONTAIN_AND_QUARANTINE",
+            "confidence": "MEDIUM",
+            "expected_level": "HIGH",
+            "expected_action": "CONTAIN_AND_QUARANTINE",
+            "passed": true,
+            "reasons": [
+                "Critical level requires multi-model corroboration"
+            ]
+        },
+        {
+            "test": "BEHAVIORAL MODEL ONLY",
+            "static_probability": null,
+            "lstm_probability": 90,
+            "evidence_score": 100.0,
+            "overall_risk": 92.0,
+            "threat_level": "HIGH",
+            "action": "CONTAIN_AND_QUARANTINE",
+            "confidence": "MEDIUM",
+            "expected_level": "HIGH",
+            "expected_action": "CONTAIN_AND_QUARANTINE",
+            "passed": true,
+            "reasons": [
+                "Very high suspicious behavior score",
+                "Rapid file-change activity detected",
+                "Multiple suspicious processes detected",
+                "High network connection activity",
+                "High registry-change activity",
+                "Very high CPU usage",
+                "Very high memory usage",
+                "Critical level requires multi-model corroboration"
+            ]
+        },
+        {
+            "test": "LOW ML + STRONG BEHAVIOR",
+            "static_probability": 10,
+            "lstm_probability": 15,
+            "evidence_score": 100.0,
+            "overall_risk": 50.0,
+            "threat_level": "MEDIUM",
+            "action": "MONITOR_AND_INSPECT",
+            "confidence": "MEDIUM",
+            "expected_level": "MEDIUM",
+            "expected_action": "MONITOR_AND_INSPECT",
+            "passed": true,
+            "reasons": [
+                "Very high suspicious behavior score",
+                "Rapid file-change activity detected",
+                "Multiple suspicious processes detected",
+                "High network connection activity",
+                "High registry-change activity",
+                "Very high CPU usage",
+                "Very high memory usage",
+                "Correlated ransomware-like behavioral pattern detected"
+            ]
+        }
+    ]
+}

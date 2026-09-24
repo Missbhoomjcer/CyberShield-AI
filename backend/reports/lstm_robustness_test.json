@@ -1,0 +1,128 @@
+{
+    "model": "LSTM behavioral detector",
+    "sequence_length": 10,
+    "feature_names": [
+        "cpu_usage",
+        "memory_usage",
+        "process_count",
+        "file_change_count",
+        "network_connection_count",
+        "suspicious_process_count",
+        "suspicious_score"
+    ],
+    "device": "cpu",
+    "results": [
+        {
+            "scenario": "Normal Activity",
+            "features": {
+                "cpu_usage": 20,
+                "memory_usage": 35,
+                "process_count": 120,
+                "file_change_count": 2,
+                "network_connection_count": 5,
+                "suspicious_process_count": 0,
+                "suspicious_score": 5
+            },
+            "probability": 6e-06,
+            "prediction": "NORMAL"
+        },
+        {
+            "scenario": "Mild Suspicious Activity",
+            "features": {
+                "cpu_usage": 35,
+                "memory_usage": 45,
+                "process_count": 130,
+                "file_change_count": 8,
+                "network_connection_count": 12,
+                "suspicious_process_count": 1,
+                "suspicious_score": 20
+            },
+            "probability": 6e-06,
+            "prediction": "NORMAL"
+        },
+        {
+            "scenario": "Moderate Suspicious Activity",
+            "features": {
+                "cpu_usage": 55,
+                "memory_usage": 60,
+                "process_count": 140,
+                "file_change_count": 18,
+                "network_connection_count": 25,
+                "suspicious_process_count": 2,
+                "suspicious_score": 45
+            },
+            "probability": 1.8e-05,
+            "prediction": "NORMAL"
+        },
+        {
+            "scenario": "Ransomware-like Activity",
+            "features": {
+                "cpu_usage": 75,
+                "memory_usage": 70,
+                "process_count": 150,
+                "file_change_count": 40,
+                "network_connection_count": 35,
+                "suspicious_process_count": 3,
+                "suspicious_score": 70
+            },
+            "probability": 0.999821,
+            "prediction": "SUSPICIOUS"
+        },
+        {
+            "scenario": "Extreme Ransomware Activity",
+            "features": {
+                "cpu_usage": 95,
+                "memory_usage": 92,
+                "process_count": 160,
+                "file_change_count": 80,
+                "network_connection_count": 70,
+                "suspicious_process_count": 8,
+                "suspicious_score": 95
+            },
+            "probability": 0.999996,
+            "prediction": "SUSPICIOUS"
+        },
+        {
+            "scenario": "File Change Spike",
+            "features": {
+                "cpu_usage": 45,
+                "memory_usage": 50,
+                "process_count": 135,
+                "file_change_count": 100,
+                "network_connection_count": 10,
+                "suspicious_process_count": 1,
+                "suspicious_score": 55
+            },
+            "probability": 0.999853,
+            "prediction": "SUSPICIOUS"
+        },
+        {
+            "scenario": "Network Spike",
+            "features": {
+                "cpu_usage": 40,
+                "memory_usage": 45,
+                "process_count": 135,
+                "file_change_count": 5,
+                "network_connection_count": 100,
+                "suspicious_process_count": 1,
+                "suspicious_score": 30
+            },
+            "probability": 8e-06,
+            "prediction": "NORMAL"
+        },
+        {
+            "scenario": "Suspicious Process Spike",
+            "features": {
+                "cpu_usage": 50,
+                "memory_usage": 55,
+                "process_count": 145,
+                "file_change_count": 15,
+                "network_connection_count": 20,
+                "suspicious_process_count": 10,
+                "suspicious_score": 65
+            },
+            "probability": 0.001155,
+            "prediction": "NORMAL"
+        }
+    ]
+}

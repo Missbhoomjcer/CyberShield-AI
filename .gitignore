@@ -22,3 +22,6 @@ temp/
 *.zip
 
 datasets/
+# Generated runtime/test artifacts
+backend/quarantine/
+backend/controller_test/

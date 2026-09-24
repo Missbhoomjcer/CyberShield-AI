@@ -1,0 +1,312 @@
+{
+    "model": "RandomForestClassifier",
+    "number_of_classes": 27,
+    "number_of_features": 72,
+    "test_samples": 4351,
+    "accuracy": 0.971041,
+    "mean_confidence": 83.64,
+    "minimum_confidence": 11.0,
+    "maximum_confidence": 100.0,
+    "sample_predictions": [
+        {
+            "sample": 1,
+            "actual_family": "Phobos",
+            "predicted_family": "Phobos",
+            "confidence": 100.0,
+            "top_3": [
+                {
+                    "family": "Phobos",
+                    "confidence": 100.0
+                },
+                {
+                    "family": "WannaCry",
+                    "confidence": 0.0
+                },
+                {
+                    "family": "njRat",
+                    "confidence": 0.0
+                }
+            ]
+        },
+        {
+            "sample": 2,
+            "actual_family": "Gandcrab",
+            "predicted_family": "Gandcrab",
+            "confidence": 98.67,
+            "top_3": [
+                {
+                    "family": "Gandcrab",
+                    "confidence": 98.67
+                },
+                {
+                    "family": "Phobos",
+                    "confidence": 0.33
+                },
+                {
+                    "family": "Ursnif",
+                    "confidence": 0.33
+                }
+            ]
+        },
+        {
+            "sample": 3,
+            "actual_family": "Benign",
+            "predicted_family": "Benign",
+            "confidence": 90.33,
+            "top_3": [
+                {
+                    "family": "Benign",
+                    "confidence": 90.33
+                },
+                {
+                    "family": "Remcos",
+                    "confidence": 2.33
+                },
+                {
+                    "family": "NanoCore",
+                    "confidence": 1.67
+                }
+            ]
+        },
+        {
+            "sample": 4,
+            "actual_family": "Benign",
+            "predicted_family": "Benign",
+            "confidence": 83.33,
+            "top_3": [
+                {
+                    "family": "Benign",
+                    "confidence": 83.33
+                },
+                {
+                    "family": "NanoCore",
+                    "confidence": 2.0
+                },
+                {
+                    "family": "Gh0st",
+                    "confidence": 2.0
+                }
+            ]
+        },
+        {
+            "sample": 5,
+            "actual_family": "Benign",
+            "predicted_family": "Benign",
+            "confidence": 75.67,
+            "top_3": [
+                {
+                    "family": "Benign",
+                    "confidence": 75.67
+                },
+                {
+                    "family": "Ursnif",
+                    "confidence": 3.0
+                },
+                {
+                    "family": "Shade",
+                    "confidence": 2.67
+                }
+            ]
+        },
+        {
+            "sample": 6,
+            "actual_family": "Remcos",
+            "predicted_family": "Remcos",
+            "confidence": 81.0,
+            "top_3": [
+                {
+                    "family": "Remcos",
+                    "confidence": 81.0
+                },
+                {
+                    "family": "RedLine",
+                    "confidence": 5.0
+                },
+                {
+                    "family": "njRat",
+                    "confidence": 5.0
+                }
+            ]
+        },
+        {
+            "sample": 7,
+            "actual_family": "Ryuk",
+            "predicted_family": "Ryuk",
+            "confidence": 100.0,
+            "top_3": [
+                {
+                    "family": "Ryuk",
+                    "confidence": 100.0
+                },
+                {
+                    "family": "WannaCry",
+                    "confidence": 0.0
+                },
+                {
+                    "family": "njRat",
+                    "confidence": 0.0
+                }
+            ]
+        },
+        {
+            "sample": 8,
+            "actual_family": "Benign",
+            "predicted_family": "Benign",
+            "confidence": 86.33,
+            "top_3": [
+                {
+                    "family": "Benign",
+                    "confidence": 86.33
+                },
+                {
+                    "family": "Gh0st",
+                    "confidence": 2.67
+                },
+                {
+                    "family": "Raccoon",
+                    "confidence": 1.67
+                }
+            ]
+        },
+        {
+            "sample": 9,
+            "actual_family": "Benign",
+            "predicted_family": "Benign",
+            "confidence": 97.33,
+            "top_3": [
+                {
+                    "family": "Benign",
+                    "confidence": 97.33
+                },
+                {
+                    "family": "njRat",
+                    "confidence": 1.67
+                },
+                {
+                    "family": "RedLine",
+                    "confidence": 0.33
+                }
+            ]
+        },
+        {
+            "sample": 10,
+            "actual_family": "Shade",
+            "predicted_family": "Shade",
+            "confidence": 99.67,
+            "top_3": [
+                {
+                    "family": "Shade",
+                    "confidence": 99.67
+                },
+                {
+                    "family": "Remcos",
+                    "confidence": 0.33
+                },
+                {
+                    "family": "njRat",
+                    "confidence": 0.0
+                }
+            ]
+        },
+        {
+            "sample": 11,
+            "actual_family": "Benign",
+            "predicted_family": "Benign",
+            "confidence": 92.67,
+            "top_3": [
+                {
+                    "family": "Benign",
+                    "confidence": 92.67
+                },
+                {
+                    "family": "Gh0st",
+                    "confidence": 2.67
+                },
+                {
+                    "family": "Shade",
+                    "confidence": 1.67
+                }
+            ]
+        },
+        {
+            "sample": 12,
+            "actual_family": "Benign",
+            "predicted_family": "Gh0st",
+            "confidence": 24.33,
+            "top_3": [
+                {
+                    "family": "Gh0st",
+                    "confidence": 24.33
+                },
+                {
+                    "family": "Benign",
+                    "confidence": 23.67
+                },
+                {
+                    "family": "Guloader",
+                    "confidence": 14.67
+                }
+            ]
+        },
+        {
+            "sample": 13,
+            "actual_family": "Remcos",
+            "predicted_family": "Remcos",
+            "confidence": 75.33,
+            "top_3": [
+                {
+                    "family": "Remcos",
+                    "confidence": 75.33
+                },
+                {
+                    "family": "NanoCore",
+                    "confidence": 17.67
+                },
+                {
+                    "family": "Snake",
+                    "confidence": 3.33
+                }
+            ]
+        },
+        {
+            "sample": 14,
+            "actual_family": "RedLine",
+            "predicted_family": "RedLine",
+            "confidence": 77.0,
+            "top_3": [
+                {
+                    "family": "RedLine",
+                    "confidence": 77.0
+                },
+                {
+                    "family": "Remcos",
+                    "confidence": 6.67
+                },
+                {
+                    "family": "Benign",
+                    "confidence": 5.67
+                }
+            ]
+        },
+        {
+            "sample": 15,
+            "actual_family": "Benign",
+            "predicted_family": "Benign",
+            "confidence": 86.33,
+            "top_3": [
+                {
+                    "family": "Benign",
+                    "confidence": 86.33
+                },
+                {
+                    "family": "Agenttesla",
+                    "confidence": 5.0
+                },
+                {
+                    "family": "DarkSide",
+                    "confidence": 2.33
+                }
+            ]
+        }
+    ]
+}

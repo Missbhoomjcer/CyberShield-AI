@@ -1,0 +1,113 @@
+{
+    "project": "CyberShield-AI",
+    "validation": "Final End-to-End ML Pipeline Validation",
+    "components": [
+        "XGBoost Binary Malware Classifier",
+        "Random Forest Family Classifier",
+        "LSTM Behavioral Detector",
+        "Threat Decision Engine"
+    ],
+    "dataset": "C:\\CyberShieldData\\ransom.csv",
+    "dataset_shape": [
+        21752,
+        77
+    ],
+    "total_scenarios": 3,
+    "passed": 3,
+    "checked": 0,
+    "failed": 0,
+    "overall_status": "ALL END-TO-END ML TESTS PASSED",
+    "results": [
+        {
+            "scenario": "Benign + Normal Behavior",
+            "static": {
+                "malware_probability": 0.01,
+                "family": "Benign",
+                "family_confidence": 97.33
+            },
+            "behavioral": {
+                "probability": 6.392482646333519e-06,
+                "prediction": "NORMAL",
+                "expected": "NORMAL",
+                "match": true
+            },
+            "decision": {
+                "static_risk": 1.0,
+                "behavioral_risk": 0.0,
+                "evidence_score": 0.0,
+                "overall_risk": 0.44,
+                "threat_level": "LOW",
+                "action": "ALLOW",
+                "confidence": "LOW",
+                "reasons": [
+                    "No strong behavioral indicators detected"
+                ]
+            },
+            "status": "PASS"
+        },
+        {
+            "scenario": "Malware + Suspicious Behavior",
+            "static": {
+                "malware_probability": 99.97,
+                "family": "Cerber",
+                "family_confidence": 98.0
+            },
+            "behavioral": {
+                "probability": 0.9903534650802612,
+                "prediction": "SUSPICIOUS",
+                "expected": "SUSPICIOUS",
+                "match": true
+            },
+            "decision": {
+                "static_risk": 99.97,
+                "behavioral_risk": 99.04,
+                "evidence_score": 62.0,
+                "overall_risk": 92.04,
+                "threat_level": "CRITICAL",
+                "action": "BLOCK_AND_QUARANTINE",
+                "confidence": "HIGH",
+                "reasons": [
+                    "High suspicious behavior score",
+                    "Elevated file-change activity detected",
+                    "Suspicious process activity detected",
+                    "Elevated network connection activity",
+                    "Registry changes detected"
+                ]
+            },
+            "status": "PASS"
+        },
+        {
+            "scenario": "Ransomware-like Extreme Behavior",
+            "static": {
+                "malware_probability": 99.97,
+                "family": "Cerber",
+                "family_confidence": 98.0
+            },
+            "behavioral": {
+                "probability": 0.9999959468841553,
+                "prediction": "SUSPICIOUS",
+                "expected": "SUSPICIOUS",
+                "match": true
+            },
+            "decision": {
+                "static_risk": 99.97,
+                "behavioral_risk": 100.0,
+                "evidence_score": 100.0,
+                "overall_risk": 99.99,
+                "threat_level": "CRITICAL",
+                "action": "BLOCK_AND_QUARANTINE",
+                "confidence": "HIGH",
+                "reasons": [
+                    "Very high suspicious behavior score",
+                    "Rapid file-change activity detected",
+                    "Multiple suspicious processes detected",
+                    "High network connection activity",
+                    "High registry-change activity",
+                    "Very high CPU usage",
+                    "Very high memory usage"
+                ]
+            },
+            "status": "PASS"
+        }
+    ]
+}

@@ -80,6 +80,7 @@ def calculate_md5(file_path):
 def safe_get(obj, attribute, default=0):
 
     try:
+
         value = getattr(
             obj,
             attribute
@@ -91,6 +92,7 @@ def safe_get(obj, attribute, default=0):
         return value
 
     except Exception:
+
         return default
 
 
@@ -99,8 +101,11 @@ def extract_pe_features(file_path):
     """
     Extract PE features from an EXE/DLL file.
 
-    Returns a dictionary containing the features
-    required by the CyberShield-AI pipeline.
+    Returns:
+        Dictionary containing:
+        - exactly the 72 ML features expected by the
+          trained CyberShield-AI static model
+        - file metadata used outside the ML feature matrix
     """
 
     if not os.path.exists(file_path):
@@ -145,409 +150,433 @@ def extract_pe_features(file_path):
         )
 
 
-    # ========================================================
-    # DOS HEADER
-    # ========================================================
-
-    dos = pe.DOS_HEADER
-
-    result = {
-
-        "file_extension":
-            os.path.splitext(
-                file_path
-            )[1].lower(),
-
-        "EntryPoint":
-            safe_get(
-                dos,
-                "e_ip"
-            ),
-
-        "PEType":
-            safe_get(
-                pe.FILE_HEADER,
-                "Machine"
-            ),
-
-        "MachineType":
-            safe_get(
-                pe.FILE_HEADER,
-                "Machine"
-            ),
-
-        "magic_number":
-            safe_get(
-                dos,
-                "e_magic"
-            ),
-
-        "bytes_on_last_page":
-            safe_get(
-                dos,
-                "e_cblp"
-            ),
-
-        "pages_in_file":
-            safe_get(
-                dos,
-                "e_cp"
-            ),
-
-        "relocations":
-            safe_get(
-                dos,
-                "e_crlc"
-            ),
-
-        "size_of_header":
-            safe_get(
-                dos,
-                "e_cparhdr"
-            ),
-
-        "min_extra_paragraphs":
-            safe_get(
-                dos,
-                "e_minalloc"
-            ),
-
-        "max_extra_paragraphs":
-            safe_get(
-                dos,
-                "e_maxalloc"
-            ),
-
-        "init_ss_value":
-            safe_get(
-                dos,
-                "e_ss"
-            ),
-
-        "init_sp_value":
-            safe_get(
-                dos,
-                "e_sp"
-            ),
-
-        "init_ip_value":
-            safe_get(
-                dos,
-                "e_ip"
-            ),
-
-        "init_cs_value":
-            safe_get(
-                dos,
-                "e_cs"
-            ),
-
-        "over_lay_number":
-            safe_get(
-                dos,
-                "e_ovno"
-            ),
-
-        "oem_identifier":
-            safe_get(
-                dos,
-                "e_oemid"
-            ),
-
-        "address_of_ne_header":
-            safe_get(
-                dos,
-                "e_lfanew"
-            )
-    }
-
-
-    # ========================================================
-    # FILE HEADER
-    # ========================================================
-
-    file_header = pe.FILE_HEADER
-
-    result.update({
-
-        "MachineType":
-            safe_get(
-                file_header,
-                "Machine"
-            ),
-
-        "over_lay_number":
-            safe_get(
-                file_header,
-                "NumberOfSections"
-            )
-    })
-
-
-    # ========================================================
-    # OPTIONAL HEADER
-    # ========================================================
-
-    optional = pe.OPTIONAL_HEADER
-
-    optional_attributes = [
-
-        "Magic",
-
-        "SizeOfCode",
-
-        "SizeOfInitializedData",
-
-        "SizeOfUninitializedData",
-
-        "AddressOfEntryPoint",
-
-        "BaseOfCode",
-
-        "BaseOfData",
-
-        "ImageBase",
-
-        "SectionAlignment",
-
-        "FileAlignment",
-
-        "MajorOperatingSystemVersion",
-
-        "MajorImageVersion",
-
-        "SizeOfImage",
-
-        "SizeOfHeaders",
-
-        "CheckSum",
-
-        "Subsystem",
-
-        "DllCharacteristics",
-
-        "SizeOfStackReserve",
-
-        "SizeOfStackCommit",
-
-        "SizeOfHeapCommit",
-
-        "SizeOfHeapReserve",
-
-        "LoaderFlags"
-    ]
-
-
-    for attribute in optional_attributes:
-
-        if attribute == "MajorOperatingSystemVersion":
-
-            column = "OperatingSystemVersion"
-
-        elif attribute == "MajorImageVersion":
-
-            column = "ImageVersion"
-
-        elif attribute == "CheckSum":
-
-            column = "Checksum"
-
-        else:
-
-            column = attribute
-
-        result[column] = safe_get(
-            optional,
-            attribute
-        )
-
-
-    # ========================================================
-    # SECTION FEATURES
-    # ========================================================
-
-    section_names = [
-        ".text",
-        ".rdata"
-    ]
-
-
-    for section_name in section_names:
-
-        prefix = section_name.replace(
-            ".",
-            ""
-        )
-
-
-        found_section = None
-
-
-        for section in pe.sections:
-
-            name = (
-                section.Name
-                .decode(
-                    errors="ignore"
+    try:
+
+        # ====================================================
+        # DOS HEADER
+        # ====================================================
+
+        dos = pe.DOS_HEADER
+
+        result = {
+
+            "file_extension":
+                os.path.splitext(
+                    file_path
+                )[1].lower(),
+
+            "EntryPoint":
+                safe_get(
+                    dos,
+                    "e_ip"
+                ),
+
+            "PEType":
+                safe_get(
+                    pe.FILE_HEADER,
+                    "Machine"
+                ),
+
+            "MachineType":
+                safe_get(
+                    pe.FILE_HEADER,
+                    "Machine"
+                ),
+
+            "magic_number":
+                safe_get(
+                    dos,
+                    "e_magic"
+                ),
+
+            "bytes_on_last_page":
+                safe_get(
+                    dos,
+                    "e_cblp"
+                ),
+
+            "pages_in_file":
+                safe_get(
+                    dos,
+                    "e_cp"
+                ),
+
+            "relocations":
+                safe_get(
+                    dos,
+                    "e_crlc"
+                ),
+
+            "size_of_header":
+                safe_get(
+                    dos,
+                    "e_cparhdr"
+                ),
+
+            "min_extra_paragraphs":
+                safe_get(
+                    dos,
+                    "e_minalloc"
+                ),
+
+            "max_extra_paragraphs":
+                safe_get(
+                    dos,
+                    "e_maxalloc"
+                ),
+
+            "init_ss_value":
+                safe_get(
+                    dos,
+                    "e_ss"
+                ),
+
+            "init_sp_value":
+                safe_get(
+                    dos,
+                    "e_sp"
+                ),
+
+            "init_ip_value":
+                safe_get(
+                    dos,
+                    "e_ip"
+                ),
+
+            "init_cs_value":
+                safe_get(
+                    dos,
+                    "e_cs"
+                ),
+
+            "over_lay_number":
+                safe_get(
+                    dos,
+                    "e_ovno"
+                ),
+
+            "oem_identifier":
+                safe_get(
+                    dos,
+                    "e_oemid"
+                ),
+
+            "address_of_ne_header":
+                safe_get(
+                    dos,
+                    "e_lfanew"
                 )
-                .rstrip("\x00")
+        }
+
+
+        # ====================================================
+        # FILE HEADER
+        # ====================================================
+
+        file_header = pe.FILE_HEADER
+
+        result.update({
+
+            "MachineType":
+                safe_get(
+                    file_header,
+                    "Machine"
+                ),
+
+            "over_lay_number":
+                safe_get(
+                    file_header,
+                    "NumberOfSections"
+                )
+        })
+
+
+        # ====================================================
+        # OPTIONAL HEADER
+        #
+        # IMPORTANT:
+        # These names must exactly match the 72-feature
+        # model artifact.
+        # ====================================================
+
+        optional = pe.OPTIONAL_HEADER
+
+        optional_attributes = [
+
+            "Magic",
+
+            "SizeOfCode",
+
+            "SizeOfInitializedData",
+
+            "SizeOfUninitializedData",
+
+            "AddressOfEntryPoint",
+
+            "BaseOfCode",
+
+            "BaseOfData",
+
+            "ImageBase",
+
+            "SectionAlignment",
+
+            "FileAlignment",
+
+            "MajorOperatingSystemVersion",
+
+            "MajorImageVersion",
+
+            "SizeOfImage",
+
+            "SizeOfHeaders",
+
+            "CheckSum",
+
+            "Subsystem",
+
+            "DllCharacteristics",
+
+            "SizeOfStackReserve",
+
+            "SizeOfStackCommit",
+
+            "SizeOfHeapCommit",
+
+            "SizeOfHeapReserve",
+
+            "LoaderFlags"
+        ]
+
+
+        for attribute in optional_attributes:
+
+            if attribute == "MajorOperatingSystemVersion":
+
+                column = "OperatingSystemVersion"
+
+            elif attribute == "MajorImageVersion":
+
+                column = "ImageVersion"
+
+            elif attribute == "CheckSum":
+
+                column = "Checksum"
+
+            elif attribute == "SizeOfStackReserve":
+
+                column = "SizeofStackReserve"
+
+            elif attribute == "SizeOfStackCommit":
+
+                column = "SizeofStackCommit"
+
+            elif attribute == "SizeOfHeapCommit":
+
+                column = "SizeofHeapCommit"
+
+            elif attribute == "SizeOfHeapReserve":
+
+                column = "SizeofHeapReserve"
+
+            else:
+
+                column = attribute
+
+            result[column] = safe_get(
+                optional,
+                attribute
             )
 
-            if name.lower() == section_name:
 
-                found_section = section
+        # ====================================================
+        # SECTION FEATURES
+        # ====================================================
 
-                break
+        section_names = [
+            ".text",
+            ".rdata"
+        ]
 
 
-        if found_section is None:
+        for section_name in section_names:
 
-            result[
-                f"{prefix}_VirtualSize"
-            ] = 0
-
-            result[
-                f"{prefix}_VirtualAddress"
-            ] = 0
-
-            result[
-                f"{prefix}_SizeOfRawData"
-            ] = 0
-
-            result[
-                f"{prefix}_PointerToRawData"
-            ] = 0
-
-            result[
-                f"{prefix}_PointerToRelocations"
-            ] = 0
-
-            result[
-                f"{prefix}_PointerToLineNumbers"
-            ] = 0
-
-            result[
-                f"{prefix}_Characteristics"
-            ] = 0
-
-        else:
-
-            result[
-                f"{prefix}_VirtualSize"
-            ] = safe_get(
-                found_section,
-                "Misc_VirtualSize"
+            prefix = section_name.replace(
+                ".",
+                ""
             )
 
-            result[
-                f"{prefix}_VirtualAddress"
-            ] = safe_get(
-                found_section,
-                "VirtualAddress"
-            )
-
-            result[
-                f"{prefix}_SizeOfRawData"
-            ] = safe_get(
-                found_section,
-                "SizeOfRawData"
-            )
-
-            result[
-                f"{prefix}_PointerToRawData"
-            ] = safe_get(
-                found_section,
-                "PointerToRawData"
-            )
-
-            result[
-                f"{prefix}_PointerToRelocations"
-            ] = safe_get(
-                found_section,
-                "PointerToRelocations"
-            )
-
-            result[
-                f"{prefix}_PointerToLineNumbers"
-            ] = safe_get(
-                found_section,
-                "PointerToLinenumbers"
-            )
-
-            result[
-                f"{prefix}_Characteristics"
-            ] = safe_get(
-                found_section,
-                "Characteristics"
-            )
+            found_section = None
 
 
-    # ========================================================
-    # BEHAVIOURAL FEATURES
-    #
-    # These cannot be obtained from a static PE file.
-    # They will be populated later by the real-time
-    # monitoring/simulation module.
-    # ========================================================
+            for section in pe.sections:
 
-    behavioural_features = [
+                name = (
+                    section.Name
+                    .decode(
+                        errors="ignore"
+                    )
+                    .rstrip("\x00")
+                )
 
-        "registry_read",
-        "registry_write",
-        "registry_delete",
-        "registry_total",
+                if name.lower() == section_name:
 
-        "network_threats",
-        "network_dns",
-        "network_http",
-        "network_connections",
+                    found_section = section
 
-        "processes_malicious",
-        "processes_suspicious",
-        "processes_monitored",
-        "total_procsses",
-
-        "files_malicious",
-        "files_suspicious",
-        "files_text",
-        "files_unknown",
-
-        "dlls_calls",
-        "apis"
-    ]
+                    break
 
 
-    for feature in behavioural_features:
+            if found_section is None:
 
-        result[feature] = 0
+                result[
+                    f"{prefix}_VirtualSize"
+                ] = 0
+
+                result[
+                    f"{prefix}_VirtualAddress"
+                ] = 0
+
+                result[
+                    f"{prefix}_SizeOfRawData"
+                ] = 0
+
+                result[
+                    f"{prefix}_PointerToRawData"
+                ] = 0
+
+                result[
+                    f"{prefix}_PointerToRelocations"
+                ] = 0
+
+                result[
+                    f"{prefix}_PointerToLineNumbers"
+                ] = 0
+
+                result[
+                    f"{prefix}_Characteristics"
+                ] = 0
+
+            else:
+
+                result[
+                    f"{prefix}_VirtualSize"
+                ] = safe_get(
+                    found_section,
+                    "Misc_VirtualSize"
+                )
+
+                result[
+                    f"{prefix}_VirtualAddress"
+                ] = safe_get(
+                    found_section,
+                    "VirtualAddress"
+                )
+
+                result[
+                    f"{prefix}_SizeOfRawData"
+                ] = safe_get(
+                    found_section,
+                    "SizeOfRawData"
+                )
+
+                result[
+                    f"{prefix}_PointerToRawData"
+                ] = safe_get(
+                    found_section,
+                    "PointerToRawData"
+                )
+
+                result[
+                    f"{prefix}_PointerToRelocations"
+                ] = safe_get(
+                    found_section,
+                    "PointerToRelocations"
+                )
+
+                result[
+                    f"{prefix}_PointerToLineNumbers"
+                ] = safe_get(
+                    found_section,
+                    "PointerToLinenumbers"
+                )
+
+                result[
+                    f"{prefix}_Characteristics"
+                ] = safe_get(
+                    found_section,
+                    "Characteristics"
+                )
 
 
-    # ========================================================
-    # EXTRA INFORMATION
-    # ========================================================
+        # ====================================================
+        # BEHAVIOURAL FEATURES
+        #
+        # Static PE files cannot provide these values.
+        # Runtime monitoring populates them later.
+        # ====================================================
 
-    result["_file_size"] = file_size
+        behavioural_features = [
 
-    result["_entropy"] = calculate_entropy(
-        open(
+            "registry_read",
+            "registry_write",
+            "registry_delete",
+            "registry_total",
+
+            "network_threats",
+            "network_dns",
+            "network_http",
+            "network_connections",
+
+            "processes_malicious",
+            "processes_suspicious",
+            "processes_monitored",
+            "total_procsses",
+
+            "files_malicious",
+            "files_suspicious",
+            "files_text",
+            "files_unknown",
+
+            "dlls_calls",
+            "apis"
+        ]
+
+
+        for feature in behavioural_features:
+
+            result[feature] = 0
+
+
+        # ====================================================
+        # EXTRA FILE METADATA
+        #
+        # These are NOT ML features.
+        # They are retained for API/reporting purposes.
+        # ====================================================
+
+        result["_file_size"] = file_size
+
+        with open(
             file_path,
             "rb"
-        ).read()
-    )
+        ) as file:
 
-    result["_sha256"] = sha256
+            file_data = file.read()
 
-    result["_md5"] = md5
+        result["_entropy"] = calculate_entropy(
+            file_data
+        )
 
+        result["_sha256"] = sha256
 
-    # ========================================================
-    # CLOSE PE
-    # ========================================================
-
-    pe.close()
+        result["_md5"] = md5
 
 
-    return result
+        return result
+
+    finally:
+
+        pe.close()
 
 
 # ============================================================
