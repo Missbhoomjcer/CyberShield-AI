@@ -14,13 +14,36 @@ function Login({ onLogin }) {
     event.preventDefault()
     setError('')
 
-    if (!email.trim() || !password.trim()) {
-      setError('Please enter your email and password.')
+    const cleanEmail = email.trim()
+    const cleanPassword = password.trim()
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if (!cleanEmail) {
+      setError('Please enter your email address.')
       return
     }
 
+    if (!emailRegex.test(cleanEmail)) {
+      setError('Please enter a valid email address.')
+      return
+    }
+
+    // Password validation
+    if (!cleanPassword) {
+      setError('Please enter your password.')
+      return
+    }
+
+    if (cleanPassword.length < 8) {
+      setError('Password must be at least 8 characters long.')
+      return
+    }
+
+    // Frontend validation passed
     const user = {
-      username: email.trim(),
+      username: cleanEmail,
       role: 'User',
       rememberMe,
     }
@@ -107,7 +130,10 @@ function Login({ onLogin }) {
               id="email"
               type="email"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => {
+                setEmail(event.target.value)
+                setError('')
+              }}
               placeholder="Enter your email"
               autoComplete="email"
             />
@@ -135,7 +161,10 @@ function Login({ onLogin }) {
               id="password"
               type="password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => {
+                setPassword(event.target.value)
+                setError('')
+              }}
               placeholder="Enter your password"
               autoComplete="current-password"
             />
@@ -143,7 +172,6 @@ function Login({ onLogin }) {
 
           {/* Remember me */}
           <div className="remember-row">
-
             <label className="remember-label">
               <input
                 type="checkbox"
@@ -155,7 +183,6 @@ function Login({ onLogin }) {
 
               <span>Remember me</span>
             </label>
-
           </div>
 
           {/* Error */}
@@ -212,6 +239,7 @@ function Login({ onLogin }) {
         {/* Sign up */}
         <div className="signup-text">
           Don't have an account?
+
           <button
             type="button"
             onClick={() =>
