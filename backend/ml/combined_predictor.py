@@ -6,7 +6,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from family_predictor import FamilyPredictor
+from backend.ml.family_predictor import FamilyPredictor
 
 
 class CombinedPredictor:

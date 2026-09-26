@@ -1,6 +1,6 @@
 import pandas as pd
 
-from combined_predictor import CombinedPredictor
+from backend.ml.combined_predictor import CombinedPredictor
 
 
 # ============================================================
