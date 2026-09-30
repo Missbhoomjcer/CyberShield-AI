@@ -1,8 +1,11 @@
+from api.management import router as management_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.upload import router as upload_router
 
-# Create FastAPI app FIRST
+from api.upload import router as upload_router
+from api.monitoring import router as monitoring_router
+
+# Create FastAPI app
 app = FastAPI(
     title="CyberShield AI",
     description="AI-Powered Ransomware Detection and Threat Hunting Platform",
@@ -18,8 +21,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register APIs AFTER app is created
+# Register APIs
 app.include_router(upload_router)
+app.include_router(monitoring_router)
+app.include_router(management_router)
+
 
 @app.get("/")
 def home():
@@ -28,6 +34,7 @@ def home():
         "version": "1.0.0",
         "status": "Backend Running Successfully 🚀"
     }
+
 
 @app.get("/health")
 def health():

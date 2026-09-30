@@ -7,6 +7,15 @@ import pandas as pd
 # ============================================================
 # CyberShield-AI
 # ML Prediction Engine
+#
+# IMPORTANT:
+# Class 0 = Benign
+# Class 1 = Malware
+# ============================================================
+
+
+# ============================================================
+# PATHS
 # ============================================================
 
 BASE_DIR = os.path.dirname(
@@ -25,6 +34,16 @@ MODEL_PATH = os.path.join(
     "xgboost.pkl"
 )
 
+SCALER_PATH = os.path.join(
+    MODELS_DIR,
+    "scaler.pkl"
+)
+
+ENCODERS_PATH = os.path.join(
+    MODELS_DIR,
+    "label_encoders.pkl"
+)
+
 FEATURE_INFO_PATH = os.path.join(
     MODELS_DIR,
     "feature_info.json"
@@ -37,9 +56,53 @@ FEATURE_INFO_PATH = os.path.join(
 
 print("Loading CyberShield-AI XGBoost model...")
 
-model = joblib.load(MODEL_PATH)
+model = joblib.load(
+    MODEL_PATH
+)
 
 print("XGBoost model loaded successfully.")
+
+
+# ============================================================
+# LOAD SCALER
+# ============================================================
+
+scaler = None
+
+if os.path.exists(
+    SCALER_PATH
+):
+
+    scaler = joblib.load(
+        SCALER_PATH
+    )
+
+    print("Feature scaler loaded successfully.")
+
+else:
+
+    print(
+        "WARNING: Scaler not found."
+    )
+
+
+# ============================================================
+# LOAD LABEL ENCODERS
+# ============================================================
+
+label_encoders = {}
+
+if os.path.exists(
+    ENCODERS_PATH
+):
+
+    label_encoders = joblib.load(
+        ENCODERS_PATH
+    )
+
+    print(
+        "Label encoders loaded successfully."
+    )
 
 
 # ============================================================
@@ -51,61 +114,121 @@ with open(
     "r"
 ) as file:
 
-    feature_info = json.load(file)
+    feature_info = json.load(
+        file
+    )
 
 
 FEATURE_COLUMNS = feature_info[
     "feature_columns"
 ]
 
-TARGET_MAPPING = feature_info.get(
-    "target_mapping",
-    {}
+
+# ============================================================
+# FIXED CLASS MAPPING
+# ============================================================
+
+CLASS_MAPPING = {
+    0: "Benign",
+    1: "Malware"
+}
+
+
+print(
+    "Features expected:",
+    len(FEATURE_COLUMNS)
+)
+
+print(
+    "Class mapping:",
+    CLASS_MAPPING
 )
 
 
 # ============================================================
-# PREDICTION FUNCTION
+# PREPARE INPUT
 # ============================================================
 
-def predict_ransomware(features):
-    """
-    Predict whether a file is benign or malicious.
-
-    Parameters
-    ----------
-    features : dict
-        Dictionary containing the features extracted
-        from the uploaded file.
-
-    Returns
-    -------
-    dict
-        Prediction result.
-    """
-
-    # --------------------------------------------------------
-    # Create dataframe
-    # --------------------------------------------------------
+def prepare_features(
+    features
+):
 
     input_data = {}
 
     for column in FEATURE_COLUMNS:
 
-        if column in features:
+        # ----------------------------------------------------
+        # Get feature value
+        # ----------------------------------------------------
 
-            value = features[column]
+        value = features.get(
+            column,
+            0
+        )
 
-            if value is None:
+        if value is None:
+
+            value = 0
+
+
+        # ----------------------------------------------------
+        # Handle categorical features
+        # ----------------------------------------------------
+
+        if column in label_encoders:
+
+            encoder = label_encoders[
+                column
+            ]
+
+            try:
+
+                value_string = str(
+                    value
+                )
+
+                if value_string in encoder.classes_:
+
+                    value = encoder.transform(
+                        [value_string]
+                    )[0]
+
+                else:
+
+                    # Unknown category
+                    value = 0
+
+            except Exception:
+
                 value = 0
 
-            input_data[column] = value
 
-        else:
+        # ----------------------------------------------------
+        # Convert numeric values
+        # ----------------------------------------------------
 
-            # Missing features are temporarily filled with 0.
-            input_data[column] = 0
+        try:
 
+            value = float(
+                value
+            )
+
+        except (
+            ValueError,
+            TypeError
+        ):
+
+            value = 0
+
+
+        input_data[
+            column
+        ] = value
+
+
+    # --------------------------------------------------------
+    # EXACT FEATURE ORDER
+    # --------------------------------------------------------
 
     df = pd.DataFrame(
         [input_data],
@@ -114,29 +237,91 @@ def predict_ransomware(features):
 
 
     # --------------------------------------------------------
-    # Clean values
+    # CLEAN INVALID VALUES
     # --------------------------------------------------------
 
     df = df.replace(
-        [float("inf"), float("-inf")],
+        [
+            float("inf"),
+            float("-inf")
+        ],
         float("nan")
     )
 
-    df = df.fillna(0)
+    df = df.fillna(
+        0
+    )
+
+
+    return df
+
+
+# ============================================================
+# PREDICTION FUNCTION
+# ============================================================
+
+def predict_ransomware(
+    features
+):
+
+    # --------------------------------------------------------
+    # PREPARE FEATURES
+    # --------------------------------------------------------
+
+    df = prepare_features(
+        features
+    )
 
 
     # --------------------------------------------------------
-    # Prediction
+    # KEEP ORIGINAL FEATURES FOR MODEL
+    #
+    # IMPORTANT:
+    # Check what the XGBoost model was trained on.
+    #
+    # If train.py uses processed_dataset.csv,
+    # the model expects scaled data.
     # --------------------------------------------------------
 
-    prediction = model.predict(df)[0]
+    model_input = df.copy()
 
 
     # --------------------------------------------------------
-    # Probability
+    # APPLY SCALING
     # --------------------------------------------------------
 
-    threat_probability = None
+    if scaler is not None:
+
+        scaled_values = scaler.transform(
+            df[FEATURE_COLUMNS]
+        )
+
+        model_input = pd.DataFrame(
+            scaled_values,
+            columns=FEATURE_COLUMNS
+        )
+
+
+    # --------------------------------------------------------
+    # MODEL PREDICTION
+    # --------------------------------------------------------
+
+    prediction = int(
+        model.predict(
+            model_input
+        )[0]
+    )
+
+
+    # --------------------------------------------------------
+    # MALWARE PROBABILITY
+    #
+    # Always specifically get probability of class 1.
+    # --------------------------------------------------------
+
+    malware_probability = None
+    benign_probability = None
+
 
     if hasattr(
         model,
@@ -144,49 +329,64 @@ def predict_ransomware(features):
     ):
 
         probabilities = model.predict_proba(
-            df
+            model_input
         )[0]
 
         classes = list(
             model.classes_
         )
 
-        if prediction in classes:
 
-            prediction_index = classes.index(
-                prediction
+        # Probability of BENIGN = class 0
+
+        if 0 in classes:
+
+            benign_index = classes.index(
+                0
             )
 
-            threat_probability = float(
+            benign_probability = float(
                 probabilities[
-                    prediction_index
+                    benign_index
+                ]
+            )
+
+
+        # Probability of MALWARE = class 1
+
+        if 1 in classes:
+
+            malware_index = classes.index(
+                1
+            )
+
+            malware_probability = float(
+                probabilities[
+                    malware_index
                 ]
             )
 
 
     # --------------------------------------------------------
-    # Convert prediction
+    # CLASS LABEL
     # --------------------------------------------------------
 
-    prediction_label = str(
-        prediction
+    prediction_label = CLASS_MAPPING.get(
+        prediction,
+        "Unknown"
     )
 
-    if str(prediction) in TARGET_MAPPING:
-
-        prediction_label = TARGET_MAPPING[
-            str(prediction)
-        ]
-
 
     # --------------------------------------------------------
-    # Threat score
+    # THREAT SCORE
+    #
+    # Threat score must ALWAYS represent malware probability.
     # --------------------------------------------------------
 
-    if threat_probability is not None:
+    if malware_probability is not None:
 
         threat_score = round(
-            threat_probability * 100,
+            malware_probability * 100,
             2
         )
 
@@ -196,17 +396,22 @@ def predict_ransomware(features):
 
 
     # --------------------------------------------------------
-    # Result
+    # FINAL RESULT
     # --------------------------------------------------------
 
     result = {
 
-        "prediction": prediction_label,
+        "prediction":
+            prediction_label,
 
-        "class": int(prediction),
+        "class":
+            prediction,
 
         "threat_probability":
-            threat_probability,
+            malware_probability,
+
+        "benign_probability":
+            benign_probability,
 
         "threat_score":
             threat_score,
@@ -228,10 +433,19 @@ def predict_ransomware(features):
 
 if __name__ == "__main__":
 
-    print("\n")
-    print("=" * 60)
-    print("CyberShield-AI Prediction Engine")
-    print("=" * 60)
+    print()
+
+    print(
+        "=" * 70
+    )
+
+    print(
+        "CyberShield-AI Prediction Engine"
+    )
+
+    print(
+        "=" * 70
+    )
 
     print(
         "Model:",
@@ -244,7 +458,21 @@ if __name__ == "__main__":
     )
 
     print(
+        "Class 0:",
+        "Benign"
+    )
+
+    print(
+        "Class 1:",
+        "Malware"
+    )
+
+    print()
+
+    print(
         "Prediction engine loaded successfully."
     )
 
-    print("=" * 60)
+    print(
+        "=" * 70
+    )

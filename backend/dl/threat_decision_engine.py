@@ -1,18 +1,22 @@
 """
-CyberShield-AI
-Threat Decision Engine
+CyberShield-AI Threat Decision Engine
 
 Combines:
-- XGBoost static risk
-- LSTM behavioral risk
-- Behavioral evidence
+1. Static ML risk
+2. Behavioral LSTM risk
+3. Real-time behavioral evidence
 
-Output:
-- Overall risk score
-- Threat level
-- Recommended protection action
-- Confidence
-- Reasons
+The engine produces:
+- overall risk score
+- threat level
+- recommended protection action
+- confidence
+- reasons
+
+Important:
+This module only makes a threat decision.
+It does not kill processes or delete files.
+Actual protection is handled by the protection/quarantine layer.
 """
 
 from dataclasses import dataclass
@@ -25,6 +29,7 @@ from typing import Optional
 
 @dataclass
 class ThreatDecision:
+
     static_risk: float
     behavioral_risk: float
     evidence_score: float
@@ -36,7 +41,7 @@ class ThreatDecision:
 
 
 # ============================================================
-# UTILITY FUNCTIONS
+# UTILITY
 # ============================================================
 
 def clamp(
@@ -60,9 +65,12 @@ def normalize_probability(
 
     probability = float(probability)
 
-    # Accept:
+    # Accept either:
+    #
     # 0.0 - 1.0
+    #
     # OR
+    #
     # 0 - 100
 
     if probability <= 1.0:
@@ -90,7 +98,7 @@ def calculate_behavior_evidence(
     reasons = []
 
     # --------------------------------------------------------
-    # Overall suspicious behavior score
+    # SUSPICIOUS SCORE
     # --------------------------------------------------------
 
     suspicious_score = clamp(
@@ -122,9 +130,10 @@ def calculate_behavior_evidence(
         )
 
     # --------------------------------------------------------
-    # FILE ACTIVITY
+    # FILE CHANGES
     #
-    # Important ransomware indicator.
+    # Rapid file modification is one of the strongest
+    # ransomware-related behavioral indicators.
     # --------------------------------------------------------
 
     if file_change_count >= 50:
@@ -172,7 +181,7 @@ def calculate_behavior_evidence(
         )
 
     # --------------------------------------------------------
-    # NETWORK ACTIVITY
+    # NETWORK CONNECTIONS
     # --------------------------------------------------------
 
     if network_connection_count >= 50:
@@ -192,7 +201,7 @@ def calculate_behavior_evidence(
         )
 
     # --------------------------------------------------------
-    # REGISTRY ACTIVITY
+    # REGISTRY CHANGES
     # --------------------------------------------------------
 
     if registry_change_count >= 20:
@@ -215,7 +224,7 @@ def calculate_behavior_evidence(
     # CPU
     #
     # Supporting evidence only.
-    # High CPU alone is NOT ransomware.
+    # High CPU by itself is NOT malware evidence.
     # --------------------------------------------------------
 
     if cpu_usage >= 90:
@@ -230,7 +239,7 @@ def calculate_behavior_evidence(
     # MEMORY
     #
     # Supporting evidence only.
-    # High memory alone is NOT ransomware.
+    # High memory by itself is NOT malware evidence.
     # --------------------------------------------------------
 
     if memory_usage >= 90:
@@ -244,19 +253,17 @@ def calculate_behavior_evidence(
     # --------------------------------------------------------
     # PROCESS COUNT
     #
-    # INTENTIONALLY NOT USED.
+    # IMPORTANT:
     #
-    # A normal Windows machine can easily have hundreds
-    # of processes because of:
+    # process_count is deliberately NOT used as threat
+    # evidence.
     #
-    # - Windows services
-    # - browsers
-    # - VS Code
-    # - Python
-    # - antivirus
-    # - background applications
+    # A large number of Windows processes can be normal
+    # because of browsers, VS Code, Python, Windows services,
+    # antivirus software, drivers and background applications.
     #
-    # Therefore process count alone is NOT ransomware evidence.
+    # Suspicious processes are handled separately through
+    # suspicious_process_count.
     # --------------------------------------------------------
 
     return clamp(evidence), reasons
@@ -280,7 +287,7 @@ def decide_threat(
 ) -> ThreatDecision:
 
     # ========================================================
-    # NORMALIZE MODEL PROBABILITIES
+    # NORMALIZE MODEL OUTPUTS
     # ========================================================
 
     static_risk = normalize_probability(
@@ -292,7 +299,7 @@ def decide_threat(
     )
 
     # ========================================================
-    # CALCULATE BEHAVIORAL EVIDENCE
+    # BEHAVIORAL EVIDENCE
     # ========================================================
 
     evidence_score, reasons = calculate_behavior_evidence(
@@ -315,57 +322,191 @@ def decide_threat(
     )
 
     # ========================================================
-    # ML RISK FUSION
-    #
-    # XGBoost  = 55%
-    # LSTM     = 45%
-    #
-    # If one model is unavailable, the available model is
-    # used without treating the missing model as zero risk.
+    # COUNT AVAILABLE ML MODELS
     # ========================================================
 
-    weighted_total = 0.0
-    weight_total = 0.0
+    available_models = sum(
+        value is not None
+        for value in [
+            static_risk,
+            behavioral_risk
+        ]
+    )
 
-    if static_risk is not None:
+    # ========================================================
+    # ML RISK FUSION
+    #
+    # BOTH MODELS:
+    #
+    # XGBoost = 55%
+    # LSTM    = 45%
+    #
+    # ONLY STATIC:
+    #
+    # Static model is used directly.
+    #
+    # ONLY LSTM:
+    #
+    # LSTM model is used directly.
+    #
+    # NO MODEL:
+    #
+    # ML risk = 0.
+    # ========================================================
 
-        weighted_total += (
-            static_risk * 0.55
-        )
-
-        weight_total += 0.55
-
-    if behavioral_risk is not None:
-
-        weighted_total += (
-            behavioral_risk * 0.45
-        )
-
-        weight_total += 0.45
-
-    if weight_total > 0:
+    if (
+        static_risk is not None
+        and behavioral_risk is not None
+    ):
 
         ml_risk = (
-            weighted_total / weight_total
+            static_risk * 0.55
+            + behavioral_risk * 0.45
         )
+
+    elif static_risk is not None:
+
+        ml_risk = static_risk
+
+    elif behavioral_risk is not None:
+
+        ml_risk = behavioral_risk
 
     else:
 
         ml_risk = 0.0
 
-    # ========================================================
-    # FINAL RISK
-    #
-    # ML models       = 80%
-    # Behavioral      = 20%
-    # ========================================================
-
-    overall_risk = (
-
-        ml_risk * 0.80
-
-        + evidence_score * 0.20
+    ml_risk = clamp(
+        ml_risk
     )
+
+    # ========================================================
+    # BASE FINAL RISK
+    #
+    # BOTH MODELS:
+    #
+    # ML risk       = 80%
+    # Evidence      = 20%
+    #
+    # ONE MODEL:
+    #
+    # Same base fusion is used, but a high-confidence
+    # single-model prediction is preserved instead of being
+    # artificially reduced because the second model is absent.
+    #
+    # NO MODEL:
+    #
+    # Behavioral evidence provides the initial risk.
+    # ========================================================
+
+    if available_models == 2:
+
+        overall_risk = (
+            ml_risk * 0.80
+            + evidence_score * 0.20
+        )
+
+    elif available_models == 1:
+
+        overall_risk = (
+            ml_risk * 0.80
+            + evidence_score * 0.20
+        )
+
+        # Preserve a high-risk single-model prediction.
+        #
+        # Example:
+        # Static = 90%
+        #
+        # Without this safeguard:
+        # 90 × 0.80 = 72%
+        #
+        # That would incorrectly downgrade a 90% model
+        # prediction to MEDIUM.
+        if ml_risk >= 75:
+
+            overall_risk = max(
+                overall_risk,
+                ml_risk
+            )
+
+    else:
+
+        # No ML model available.
+        #
+        # Behavioral evidence alone is intentionally
+        # conservative.
+        overall_risk = (
+            evidence_score * 0.50
+        )
+
+    # ========================================================
+    # CORRELATED RANSOMWARE-LIKE BEHAVIOR
+    #
+    # A single behavioral indicator should NOT automatically
+    # trigger quarantine.
+    #
+    # However, the following combination is meaningful:
+    #
+    #   1. High suspicious behavior score
+    #   2. Rapid file changes
+    #   3. Multiple suspicious processes
+    #
+    # This prevents strong ransomware-like behavior from
+    # incorrectly remaining LOW simply because the ML scores
+    # are temporarily low.
+    # ========================================================
+
+    ransomware_behavior_pattern = (
+
+        suspicious_score >= 60
+
+        and file_change_count >= 50
+
+        and suspicious_process_count >= 2
+    )
+
+    if ransomware_behavior_pattern:
+
+        # ----------------------------------------------------
+        # Strong ML + strong behavioral evidence
+        # ----------------------------------------------------
+
+        if ml_risk >= 75:
+
+            overall_risk = max(
+                overall_risk,
+                75.0
+            )
+
+        # ----------------------------------------------------
+        # Weak ML + strong behavioral evidence
+        #
+        # Do not automatically quarantine.
+        # Raise to MEDIUM for inspection.
+        # ----------------------------------------------------
+
+        else:
+
+            overall_risk = max(
+                overall_risk,
+                50.0
+            )
+
+            if (
+                "Correlated ransomware-like "
+                "behavioral pattern detected"
+                not in reasons
+            ):
+
+                reasons.append(
+                    "Correlated ransomware-like "
+                    "behavioral pattern detected"
+                )
+
+    # ========================================================
+    # FINAL CLAMP
+    # ========================================================
 
     overall_risk = clamp(
         overall_risk
@@ -392,16 +533,39 @@ def decide_threat(
         threat_level = "LOW"
 
     # ========================================================
-    # CONFIDENCE
+    # CRITICAL DECISION SAFEGUARD
+    #
+    # When only one ML model is available, we do not allow
+    # that single model to independently produce CRITICAL.
+    #
+    # A CRITICAL decision requires corroboration from both
+    # ML models.
+    #
+    # This reduces the chance that one model's false positive
+    # immediately causes the highest protection action.
     # ========================================================
 
-    available_models = sum(
-        value is not None
-        for value in [
-            static_risk,
-            behavioral_risk
-        ]
-    )
+    if (
+        threat_level == "CRITICAL"
+        and available_models < 2
+    ):
+
+        threat_level = "HIGH"
+
+        if (
+            "Critical level requires "
+            "multi-model corroboration"
+            not in reasons
+        ):
+
+            reasons.append(
+                "Critical level requires "
+                "multi-model corroboration"
+            )
+
+    # ========================================================
+    # CONFIDENCE
+    # ========================================================
 
     if (
         available_models == 2
@@ -488,7 +652,7 @@ def decide_threat(
 
 
 # ============================================================
-# PRINT DECISION
+# DISPLAY RESULT
 # ============================================================
 
 def print_decision(
@@ -554,17 +718,17 @@ def print_decision(
 
 
 # ============================================================
-# SAFE LOCAL TESTS
+# LOCAL TESTS
 # ============================================================
 
 if __name__ == "__main__":
 
-    # ========================================================
-    # TEST 1 - NORMAL
-    # ========================================================
+    # --------------------------------------------------------
+    # TEST 1: NORMAL WINDOWS ACTIVITY
+    # --------------------------------------------------------
 
     print(
-        "\nTEST 1: NORMAL ACTIVITY"
+        "\nTEST 1: NORMAL WINDOWS ACTIVITY"
     )
 
     result = decide_threat(
@@ -573,28 +737,30 @@ if __name__ == "__main__":
 
         lstm_probability=5,
 
-        suspicious_score=5,
+        suspicious_score=8,
 
         cpu_usage=25,
 
-        memory_usage=50,
+        memory_usage=85,
 
-        process_count=328,
+        process_count=325,
 
-        file_change_count=2,
+        file_change_count=0,
 
-        network_connection_count=5,
+        network_connection_count=18,
 
         suspicious_process_count=0,
 
         registry_change_count=0,
     )
 
-    print_decision(result)
+    print_decision(
+        result
+    )
 
-    # ========================================================
-    # TEST 2 - SUSPICIOUS
-    # ========================================================
+    # --------------------------------------------------------
+    # TEST 2: SUSPICIOUS ACTIVITY
+    # --------------------------------------------------------
 
     print(
         "\nTEST 2: SUSPICIOUS ACTIVITY"
@@ -612,7 +778,7 @@ if __name__ == "__main__":
 
         memory_usage=75,
 
-        process_count=328,
+        process_count=325,
 
         file_change_count=25,
 
@@ -623,11 +789,13 @@ if __name__ == "__main__":
         registry_change_count=6,
     )
 
-    print_decision(result)
+    print_decision(
+        result
+    )
 
-    # ========================================================
-    # TEST 3 - HIGH RISK SIMULATION
-    # ========================================================
+    # --------------------------------------------------------
+    # TEST 3: HIGH-RISK SIMULATED ACTIVITY
+    # --------------------------------------------------------
 
     print(
         "\nTEST 3: HIGH-RISK SIMULATED ACTIVITY"
@@ -645,7 +813,7 @@ if __name__ == "__main__":
 
         memory_usage=93,
 
-        process_count=328,
+        process_count=325,
 
         file_change_count=70,
 
@@ -656,4 +824,6 @@ if __name__ == "__main__":
         registry_change_count=25,
     )
 
-    print_decision(result)
+    print_decision(
+        result
+    )

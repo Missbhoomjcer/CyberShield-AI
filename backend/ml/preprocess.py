@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 # ============================================================
 # CyberShield-AI
-# DATASET PREPROCESSING
+# DATASET PREPROCESSING - LOCAL DATA VERSION
 # ============================================================
 
 print("=" * 70)
@@ -30,18 +30,21 @@ PROJECT_DIR = os.path.dirname(
     BACKEND_DIR
 )
 
+
+# ------------------------------------------------------------
+# IMPORTANT:
+# Dataset is now stored outside OneDrive.
+# ------------------------------------------------------------
+
+LOCAL_DATA_DIR = r"C:\CyberShieldData"
+
 DATASET_PATH = os.path.join(
-    PROJECT_DIR,
-    "datasets",
-    "ransomware",
+    LOCAL_DATA_DIR,
     "ransom.csv"
 )
 
-PROCESSED_DIR = os.path.join(
-    PROJECT_DIR,
-    "datasets",
-    "processed"
-)
+PROCESSED_DIR = LOCAL_DATA_DIR
+
 
 MODELS_DIR = os.path.join(
     BACKEND_DIR,
@@ -64,6 +67,11 @@ os.makedirs(
 # ============================================================
 
 print("\nLoading Dataset...")
+
+print(
+    "Dataset:",
+    DATASET_PATH
+)
 
 if not os.path.exists(DATASET_PATH):
 
@@ -121,15 +129,6 @@ print("Done")
 # ============================================================
 # CREATE TARGET
 # ============================================================
-#
-# Dataset:
-#
-# Benign  -> 0
-# Malware -> 1
-#
-# This is the target used for binary
-# malware detection.
-# ============================================================
 
 print("\nCreating target labels...")
 
@@ -145,7 +144,9 @@ df["Class"] = (
 )
 
 
-# Check for unexpected labels
+# ============================================================
+# CHECK FOR UNKNOWN LABELS
+# ============================================================
 
 if df["Class"].isna().any():
 
@@ -215,9 +216,6 @@ print("\nConverting numeric columns...")
 for column in FEATURE_COLUMNS:
 
     if df[column].dtype == "object":
-
-        # Keep categorical columns for
-        # LabelEncoder below.
 
         continue
 
@@ -322,21 +320,15 @@ X_scaled_df = pd.DataFrame(
 
 processed_df = X_scaled_df.copy()
 
-
 processed_df[
     "Class"
 ] = y.values
-
-
-# Keep Category and Family
-# for analysis/reference only.
 
 processed_df[
     "Category"
 ] = df[
     "Category"
 ].values
-
 
 processed_df[
     "Family"
@@ -346,12 +338,20 @@ processed_df[
 
 
 # ============================================================
-# SAVE PROCESSED DATASET
+# SAVE PROCESSED DATASET LOCALLY
 # ============================================================
 
 processed_dataset_path = os.path.join(
     PROCESSED_DIR,
     "processed_dataset.csv"
+)
+
+print(
+    "\nSaving processed dataset:"
+)
+
+print(
+    processed_dataset_path
 )
 
 processed_df.to_csv(
@@ -499,5 +499,5 @@ print(
 )
 
 print(
-    "\nCyberShield-AI preprocessing complete! 🚀"
+    "\nCyberShield-AI preprocessing complete!"
 )

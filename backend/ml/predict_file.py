@@ -1,29 +1,67 @@
 import os
 import sys
 import json
-import joblib
 import pandas as pd
 
 
 # ============================================================
 # CyberShield-AI
-# COMPLETE FILE PREDICTION PIPELINE
-# PE Extraction -> Feature Mapping -> XGBoost
+# FINAL FILE PREDICTION PIPELINE
+#
+# Uses:
+# - PE feature extraction
+# - Final XGBoost model
+# - Static scaler
+# - Family classifier
+# - SHAP explainability
+#
+# Public API:
+#     predict_file(file_path)
 # ============================================================
 
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-BACKEND_DIR = os.path.dirname(CURRENT_DIR)
-PROJECT_DIR = os.path.dirname(BACKEND_DIR)
+
+CURRENT_DIR = os.path.dirname(
+    os.path.abspath(__file__)
+)
+
+BACKEND_DIR = os.path.dirname(
+    CURRENT_DIR
+)
 
 MODELS_DIR = os.path.join(
     BACKEND_DIR,
     "models"
 )
 
-MODEL_PATH = os.path.join(
-    MODELS_DIR,
-    "xgboost.pkl"
+
+# ============================================================
+# IMPORT PROJECT MODULES
+# ============================================================
+
+if BACKEND_DIR not in sys.path:
+
+    sys.path.insert(
+        0,
+        BACKEND_DIR
+    )
+
+
+from ml.feature_engineering import (
+    extract_pe_features
 )
+
+from ml.combined_predictor import (
+    CombinedPredictor
+)
+
+from ml.shap_explainer import (
+    explain_prediction
+)
+
+
+# ============================================================
+# LOAD FEATURE INFORMATION
+# ============================================================
 
 FEATURE_INFO_PATH = os.path.join(
     MODELS_DIR,
@@ -31,90 +69,34 @@ FEATURE_INFO_PATH = os.path.join(
 )
 
 
-# Allow importing feature_engineering.py
-if CURRENT_DIR not in sys.path:
-    sys.path.insert(0, CURRENT_DIR)
+with open(
+    FEATURE_INFO_PATH,
+    "r"
+) as file:
 
-from feature_engineering import extract_pe_features
+    FEATURE_INFO = json.load(
+        file
+    )
 
 
-# ============================================================
-# LOAD MODEL
-# ============================================================
-
-print("Loading XGBoost model...")
-
-model = joblib.load(MODEL_PATH)
-
-print("XGBoost model loaded.")
+FEATURE_COLUMNS = FEATURE_INFO[
+    "feature_columns"
+]
 
 
 # ============================================================
-# LOAD FEATURE INFORMATION
+# INITIALIZE FINAL PREDICTOR
 # ============================================================
-
-with open(FEATURE_INFO_PATH, "r") as file:
-    feature_info = json.load(file)
-
-FEATURE_COLUMNS = feature_info["feature_columns"]
-
-TARGET_MAPPING = feature_info.get(
-    "target_mapping",
-    {}
-)
-
 
 print(
-    "Expected ML features:",
-    len(FEATURE_COLUMNS)
+    "[predict_file] Initializing final ML predictor..."
 )
 
+PREDICTOR = CombinedPredictor()
 
-# ============================================================
-# FILE EXTENSION ENCODING
-# ============================================================
-
-def encode_file_extension(extension):
-    """
-    Convert file extension into the numeric representation
-    expected by the trained model.
-
-    IMPORTANT:
-    The training dataset encoded file_extension.
-    For an unknown extension we use 0 rather than passing
-    a string to XGBoost.
-    """
-
-    if extension is None:
-        return 0.0
-
-    extension = str(
-        extension
-    ).lower().strip()
-
-    # Common extensions from the dataset.
-    #
-    # This is a fallback mapping only.
-    # The model receives a numeric value.
-
-    extension_map = {
-
-        ".exe": 0.0,
-        ".dll": 1.0,
-        ".sys": 2.0,
-        ".scr": 3.0,
-        ".com": 4.0,
-        ".bat": 5.0,
-        ".cmd": 6.0,
-        ".msi": 7.0
-    }
-
-    return float(
-        extension_map.get(
-            extension,
-            0.0
-        )
-    )
+print(
+    "[predict_file] Final ML predictor ready."
+)
 
 
 # ============================================================
@@ -122,193 +104,100 @@ def encode_file_extension(extension):
 # ============================================================
 
 def predict_file(file_path):
+    """
+    Analyze a Windows PE file using the finalized
+    CyberShield-AI ML pipeline.
 
-    print("\n")
-    print("=" * 70)
-    print("CyberShield-AI FILE ANALYSIS")
-    print("=" * 70)
+    Pipeline:
 
-    print(
-        "File:",
-        file_path
-    )
+        PE file
+            ↓
+        Feature extraction
+            ↓
+        XGBoost binary classification
+            ↓
+        Family classification
+            ↓
+        SHAP explainability
+
+    Returns a dictionary compatible with the
+    existing upload API.
+    """
+
+    # ========================================================
+    # VALIDATE FILE
+    # ========================================================
+
+    if not os.path.exists(file_path):
+
+        raise FileNotFoundError(
+            f"File not found: {file_path}"
+        )
 
 
     # ========================================================
-    # STEP 1
-    # PE FEATURE EXTRACTION
+    # EXTRACT PE FEATURES
     # ========================================================
-
-    print(
-        "\n[1/4] Extracting PE features..."
-    )
 
     features = extract_pe_features(
         file_path
     )
 
-    print(
-        "Extracted:",
-        len(features),
-        "values"
+
+    # ========================================================
+    # FINAL COMBINED PREDICTION
+    # ========================================================
+
+    prediction_result = PREDICTOR.predict(
+        features
     )
 
 
     # ========================================================
-    # STEP 2
-    # PREPARE EXACT MODEL FEATURES
+    # PREPARE SHAP INPUT
+    #
+    # SHAP expects exactly the same 72 features
+    # used by the XGBoost model.
+    #
+    # Metadata fields such as:
+    # _file_size
+    # _entropy
+    # _sha256
+    # _md5
+    #
+    # are deliberately excluded.
     # ========================================================
 
-    print(
-        "\n[2/4] Preparing ML features..."
-    )
-
-    model_features = {}
-
-
-    for column in FEATURE_COLUMNS:
-
-        if column in features:
-
-            value = features[column]
-
-        else:
-
-            # Behavioural features are not yet
-            # collected by our real-time monitor.
-
-            value = 0
-
-
-        # ----------------------------------------------------
-        # file_extension
-        # ----------------------------------------------------
-
-        if column == "file_extension":
-
-            value = encode_file_extension(
-                value
-            )
-
-
-        model_features[column] = value
-
-
-    # ========================================================
-    # CREATE DATAFRAME
-    # ========================================================
-
-    X = pd.DataFrame(
-        [model_features],
-        columns=FEATURE_COLUMNS
+    shap_input = pd.DataFrame(
+        [features]
+    ).reindex(
+        columns=FEATURE_COLUMNS,
+        fill_value=0
     )
 
 
     # ========================================================
-    # FORCE NUMERIC
+    # SHAP EXPLANATION
     # ========================================================
 
-    for column in X.columns:
+    try:
 
-        X[column] = pd.to_numeric(
-            X[column],
-            errors="coerce"
+        shap_explanation = explain_prediction(
+            shap_input
         )
 
+    except Exception as e:
 
-    X = X.replace(
-        [float("inf"), float("-inf")],
-        float("nan")
-    )
-
-    X = X.fillna(0)
-
-
-    print(
-        "ML features ready:",
-        X.shape
-    )
-
-
-    # ========================================================
-    # STEP 3
-    # XGBOOST PREDICTION
-    # ========================================================
-
-    print(
-        "\n[3/4] Running XGBoost..."
-    )
-
-    prediction = model.predict(
-        X
-    )[0]
-
-
-    # ========================================================
-    # PREDICTION PROBABILITY
-    # ========================================================
-
-    probability = None
-
-    if hasattr(
-        model,
-        "predict_proba"
-    ):
-
-        probabilities = model.predict_proba(
-            X
-        )[0]
-
-        classes = list(
-            model.classes_
+        print(
+            "[predict_file] SHAP explanation failed:",
+            str(e)
         )
 
-        if prediction in classes:
-
-            prediction_index = classes.index(
-                prediction
-            )
-
-            probability = float(
-                probabilities[
-                    prediction_index
-                ]
-            )
+        shap_explanation = []
 
 
     # ========================================================
-    # LABEL
-    # ========================================================
-
-    prediction_label = str(
-        prediction
-    )
-
-    if str(prediction) in TARGET_MAPPING:
-
-        prediction_label = TARGET_MAPPING[
-            str(prediction)
-        ]
-
-
-    # ========================================================
-    # THREAT SCORE
-    # ========================================================
-
-    if probability is not None:
-
-        threat_score = round(
-            probability * 100,
-            2
-        )
-
-    else:
-
-        threat_score = None
-
-
-    # ========================================================
-    # FILE INFORMATION
+    # FILE METADATA
     # ========================================================
 
     filename = os.path.basename(
@@ -317,12 +206,12 @@ def predict_file(file_path):
 
     file_size = features.get(
         "_file_size",
-        0
+        os.path.getsize(file_path)
     )
 
     entropy = features.get(
         "_entropy",
-        0
+        0.0
     )
 
     sha256 = features.get(
@@ -332,25 +221,41 @@ def predict_file(file_path):
 
 
     # ========================================================
-    # FINAL RESULT
+    # RESULT
     # ========================================================
 
     result = {
+
+        # ----------------------------------------------------
+        # Existing API fields
+        # ----------------------------------------------------
 
         "filename":
             filename,
 
         "prediction":
-            prediction_label,
+            (
+                "Malware"
+                if prediction_result[
+                    "malware_prediction"
+                ] == 1
+                else "Benign"
+            ),
 
         "class":
-            int(prediction),
+            prediction_result[
+                "malware_prediction"
+            ],
 
         "threat_score":
-            threat_score,
+            prediction_result[
+                "malware_probability"
+            ],
 
         "probability":
-            probability,
+            prediction_result[
+                "malware_probability"
+            ],
 
         "model":
             "XGBoost",
@@ -365,65 +270,46 @@ def predict_file(file_path):
             entropy,
 
         "sha256":
-            sha256
+            sha256,
+
+        "shap_explanation":
+            shap_explanation,
+
+
+        # ----------------------------------------------------
+        # New family-classification fields
+        # ----------------------------------------------------
+
+        "family":
+            prediction_result[
+                "family"
+            ],
+
+        "family_confidence":
+            prediction_result[
+                "family_confidence"
+            ],
+
+        "family_top_3":
+            prediction_result[
+                "family_top_3"
+            ],
+
+
+        # ----------------------------------------------------
+        # Explicit probability fields
+        # ----------------------------------------------------
+
+        "malware_probability":
+            prediction_result[
+                "malware_probability"
+            ],
+
+        "benign_probability":
+            prediction_result[
+                "benign_probability"
+            ]
     }
-
-
-    # ========================================================
-    # DISPLAY RESULT
-    # ========================================================
-
-    print("\n")
-    print("=" * 70)
-    print("CYBERSHIELD-AI RESULT")
-    print("=" * 70)
-
-    print(
-        "Filename     :",
-        filename
-    )
-
-    print(
-        "Prediction   :",
-        prediction_label
-    )
-
-    print(
-        "Threat Score :",
-        threat_score
-    )
-
-    print(
-        "Probability  :",
-        probability
-    )
-
-    print(
-        "Model        :",
-        "XGBoost"
-    )
-
-    print(
-        "Features     :",
-        len(FEATURE_COLUMNS)
-    )
-
-    print(
-        "File Size    :",
-        file_size
-    )
-
-    print(
-        "Entropy      :",
-        entropy
-    )
-
-    print(
-        "SHA256       :",
-        sha256
-    )
-
-    print("=" * 70)
 
 
     return result
@@ -435,66 +321,123 @@ def predict_file(file_path):
 
 if __name__ == "__main__":
 
-    TEST_FILE = r"C:\Windows\System32\notepad.exe"
+    print()
+    print("=" * 70)
+    print(
+        "CYBERSHIELD-AI FINAL FILE PREDICTION TEST"
+    )
+    print("=" * 70)
 
+    test_file = (
+        r"C:\Windows\System32\notepad.exe"
+    )
 
-    if not os.path.exists(
-        TEST_FILE
-    ):
+    try:
+
+        result = predict_file(
+            test_file
+        )
+
+        print()
+        print(
+            "Filename:",
+            result["filename"]
+        )
 
         print(
-            "Test file not found:"
+            "Prediction:",
+            result["prediction"]
         )
 
         print(
-            TEST_FILE
+            "Malware probability:",
+            result["malware_probability"],
+            "%"
         )
 
-        sys.exit(1)
-
-
-    result = predict_file(
-        TEST_FILE
-    )
-
-
-    # ========================================================
-    # SAVE TEST RESULT
-    # ========================================================
-
-    REPORTS_DIR = os.path.join(
-        BACKEND_DIR,
-        "reports"
-    )
-
-    os.makedirs(
-        REPORTS_DIR,
-        exist_ok=True
-    )
-
-
-    OUTPUT_PATH = os.path.join(
-        REPORTS_DIR,
-        "test_prediction.json"
-    )
-
-
-    with open(
-        OUTPUT_PATH,
-        "w"
-    ) as file:
-
-        json.dump(
-            result,
-            file,
-            indent=4
+        print(
+            "Benign probability:",
+            result["benign_probability"],
+            "%"
         )
 
+        print(
+            "Family:",
+            result["family"]
+        )
 
-    print(
-        "\nPrediction saved to:"
-    )
+        print(
+            "Family confidence:",
+            result["family_confidence"],
+            "%"
+        )
 
-    print(
-        OUTPUT_PATH
-    )
+        print(
+            "Top 3 families:"
+        )
+
+        for item in result[
+            "family_top_3"
+        ]:
+
+            print(
+                "  -",
+                item["family"],
+                ":",
+                item["confidence"],
+                "%"
+            )
+
+        print()
+        print(
+            "Top SHAP features:"
+        )
+
+        for index, item in enumerate(
+            result[
+                "shap_explanation"
+            ],
+            start=1
+        ):
+
+            print(
+                f"  {index}. "
+                f"{item['feature']} "
+                f"| SHAP: "
+                f"{item['shap_value']:.6f}"
+            )
+
+        print()
+        print(
+            "Features used:",
+            result["features_used"]
+        )
+
+        print(
+            "Entropy:",
+            result["entropy"]
+        )
+
+        print(
+            "SHA256:",
+            result["sha256"]
+        )
+
+        print()
+        print(
+            "FINAL FILE PREDICTION TEST PASSED"
+        )
+
+    except Exception as e:
+
+        print()
+        print(
+            "FINAL FILE PREDICTION TEST FAILED"
+        )
+
+        print(
+            "Error:",
+            str(e)
+        )
+
+        raise
