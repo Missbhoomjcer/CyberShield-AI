@@ -1,227 +1,641 @@
 import { NavLink } from 'react-router-dom'
+
+import { useLanguage } from '../../context/LanguageContext.jsx'
+
 import './Sidebar.css'
 
-function Icon({ name }) {
-  const icons = {
-    dashboard: (
-      <svg viewBox="0 0 24 24">
-        <rect x="4" y="4" width="6" height="6" rx="1" />
-        <rect x="14" y="4" width="6" height="6" rx="1" />
-        <rect x="4" y="14" width="6" height="6" rx="1" />
-        <rect x="14" y="14" width="6" height="6" rx="1" />
-      </svg>
-    ),
-
-    scan: (
-      <svg viewBox="0 0 24 24">
-        <circle cx="11" cy="11" r="6" />
-        <path d="M16 16l4 4" />
-        <path d="M8 11h6" />
-        <path d="M11 8v6" />
-      </svg>
-    ),
-
-    protection: (
-      <svg viewBox="0 0 24 24">
-        <path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3z" />
-        <path d="M9 12l2 2 4-4" />
-      </svg>
-    ),
-
-    threats: (
-      <svg viewBox="0 0 24 24">
-        <path d="M12 4l8 15H4L12 4z" />
-        <path d="M12 9v4" />
-        <circle cx="12" cy="16" r="0.7" />
-      </svg>
-    ),
-
-    quarantine: (
-      <svg viewBox="0 0 24 24">
-        <rect x="4" y="6" width="16" height="14" rx="2" />
-        <path d="M8 6V4h8v2" />
-        <path d="M9 10v6M12 10v6M15 10v6" />
-      </svg>
-    ),
-
-    ai: (
-      <svg viewBox="0 0 24 24">
-        <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
-        <path d="M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" />
-        <circle cx="12" cy="12" r="4" />
-      </svg>
-    ),
-
-    devices: (
-      <svg viewBox="0 0 24 24">
-        <rect x="3" y="4" width="18" height="12" rx="2" />
-        <path d="M8 20h8M12 16v4" />
-      </svg>
-    ),
-
-    reports: (
-      <svg viewBox="0 0 24 24">
-        <path d="M6 3h9l4 4v14H6z" />
-        <path d="M14 3v5h5" />
-        <path d="M9 13h6M9 16h6M9 10h2" />
-      </svg>
-    ),
-
-    subscription: (
-      <svg viewBox="0 0 24 24">
-        <rect x="3" y="5" width="18" height="14" rx="2" />
-        <path d="M3 10h18" />
-        <path d="M7 15h4" />
-      </svg>
-    ),
-
-    settings: (
-      <svg viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M19.4 15a1.7 1.7 0 000-6l-1.1-.4-.4-1.1.5-1.1a1.7 1.7 0 00-2.4-2.4l-1.1.5-1.1-.4L13.4 3a1.7 1.7 0 00-6 0L7 4.1l-1.1.4-1.1-.5a1.7 1.7 0 00-2.4 2.4l.5 1.1-.4 1.1L1.4 9a1.7 1.7 0 000 6l1.1.4.4 1.1-.5 1.1a1.7 1.7 0 002.4 2.4l1.1-.5 1.1.4.4 1.1a1.7 1.7 0 006 0l.4-1.1 1.1-.4 1.1.5a1.7 1.7 0 002.4-2.4l-.5-1.1.4-1.1 1.1-.4z" />
-      </svg>
-    )
-  }
-
-  return <span className="sidebar-icon">{icons[name]}</span>
-}
-
-const protectionItems = [
-  { path: '/', label: 'Dashboard', icon: 'dashboard', end: true },
-  { path: '/scan', label: 'Scan', icon: 'scan' },
-  { path: '/protection', label: 'Protection', icon: 'protection' },
-  { path: '/threats', label: 'Threats', icon: 'threats' },
-  { path: '/quarantine', label: 'Quarantine', icon: 'quarantine' },
-  { path: '/ai-security', label: 'AI Security', icon: 'ai' }
-]
-
-const managementItems = [
-  { path: '/devices', label: 'Devices', icon: 'devices' },
-  { path: '/reports', label: 'Reports', icon: 'reports' },
-  { path: '/subscription', label: 'Subscription', icon: 'subscription' },
-  { path: '/settings', label: 'Settings', icon: 'settings' }
-]
 
 function Sidebar() {
+
+  const { t } = useLanguage()
+
+
   return (
+
     <aside className="sidebar">
 
-      {/* Brand */}
+
+      {/* =====================================================
+          BRAND
+          ===================================================== */}
+
       <div className="sidebar-brand">
-        <div className="brand-logo">
-          <svg viewBox="0 0 48 48">
+
+        <div className="sidebar-brand-icon">
+
+          <svg
+            viewBox="0 0 48 52"
+            aria-hidden="true"
+          >
+
             <path
-              d="M24 4L40 10v11c0 10.5-6.7 18.4-16 23C14.7 39.4 8 31.5 8 21V10L24 4z"
-              fill="white"
-              stroke="#176ef5"
+              d="M24 2L43 9v13c0 12-7.8 22.1-19 27C12.8 44.1 5 34 5 22V9L24 2Z"
+              fill="none"
+              stroke="currentColor"
               strokeWidth="2.5"
             />
+
             <path
-              d="M16 24l5 5 11-12"
+              d="M15 25l6 6 12-13"
               fill="none"
-              stroke="#16b66a"
+              stroke="currentColor"
               strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
+
           </svg>
+
         </div>
 
-        <div className="brand-text">
-          <h2>CyberShield-AI</h2>
-          <span>SMART ENDPOINT PROTECTION</span>
-        </div>
-      </div>
 
-      <div className="sidebar-content">
+        <div className="sidebar-brand-text">
 
-        {/* Protection */}
-        <div className="sidebar-section">
-          <div className="sidebar-section-title">
-            PROTECTION
-          </div>
+          <strong>
+            CyberShield-AI
+          </strong>
 
-          <nav className="sidebar-nav">
-            {protectionItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.end}
-                className={({ isActive }) =>
-                  `sidebar-link ${isActive ? 'active' : ''}`
-                }
-              >
-                <Icon name={item.icon} />
-                <span>{item.label}</span>
-              </NavLink>
-            ))}
-          </nav>
-        </div>
+          <span>
+            SMART ENDPOINT PROTECTION
+          </span>
 
-        {/* Management */}
-        <div className="sidebar-section management-section">
-          <div className="sidebar-section-title">
-            MANAGEMENT
-          </div>
-
-          <nav className="sidebar-nav">
-            {managementItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `sidebar-link ${isActive ? 'active' : ''}`
-                }
-              >
-                <Icon name={item.icon} />
-                <span>{item.label}</span>
-              </NavLink>
-            ))}
-          </nav>
         </div>
 
       </div>
 
-      {/* Bottom */}
+
+      {/* =====================================================
+          PROTECTION
+          ===================================================== */}
+
+      <div className="sidebar-section">
+
+        <div className="sidebar-section-title">
+          PROTECTION
+        </div>
+
+
+        <SidebarItem
+          to="/"
+          label={t('dashboard')}
+          icon="dashboard"
+        />
+
+        <SidebarItem
+          to="/scan"
+          label={t('scan')}
+          icon="scan"
+        />
+
+        <SidebarItem
+          to="/activity-monitor"
+          label={t('realTimeMonitoring')}
+          icon="monitor"
+        />
+
+        <SidebarItem
+          to="/protection"
+          label={t('protection')}
+          icon="shield"
+        />
+
+        <SidebarItem
+          to="/threats"
+          label={t('threats')}
+          icon="threat"
+        />
+
+        <SidebarItem
+          to="/quarantine"
+          label={t('quarantine')}
+          icon="quarantine"
+        />
+
+        <SidebarItem
+          to="/ai-security"
+          label={t('aiSecurity')}
+          icon="ai"
+        />
+
+      </div>
+
+
+      {/* =====================================================
+          MANAGEMENT
+          ===================================================== */}
+
+      <div className="sidebar-section">
+
+        <div className="sidebar-section-title">
+          {t('management')}
+        </div>
+
+
+        <SidebarItem
+          to="/devices"
+          label={t('devices')}
+          icon="device"
+        />
+
+        <SidebarItem
+          to="/windows-agent"
+          label={t('windowsAgent')}
+          icon="windows"
+        />
+
+        <SidebarItem
+          to="/reports"
+          label={t('reports')}
+          icon="reports"
+        />
+
+        <SidebarItem
+          to="/subscription"
+          label={t('subscription')}
+          icon="subscription"
+        />
+
+        <SidebarItem
+          to="/settings"
+          label={t('settings')}
+          icon="settings"
+        />
+
+      </div>
+
+
+      {/* =====================================================
+          BOTTOM STATUS
+          ===================================================== */}
+
       <div className="sidebar-bottom">
 
-        <div className="protected-box">
-          <div className="protected-icon">
+
+        {/* PROTECTION STATUS */}
+
+        <div className="sidebar-protection-status">
+
+          <div className="sidebar-status-icon">
+
             <svg viewBox="0 0 24 24">
+
               <path
                 d="M5 12l4 4 10-10"
                 fill="none"
-                stroke="white"
-                strokeWidth="2.5"
+                stroke="currentColor"
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
+
             </svg>
+
           </div>
+
 
           <div>
-            <strong>Protected</strong>
-            <span>Your device is secure</span>
+
+            <strong>
+              {t('protected')}
+            </strong>
+
+            <span>
+              {t('deviceSecure')}
+            </span>
+
           </div>
+
         </div>
 
+
+        {/* USER */}
+
         <div className="sidebar-user">
-          <div className="user-avatar">
+
+          <div className="sidebar-user-avatar">
             H
           </div>
 
-          <div className="user-info">
-            <strong>Harshita</strong>
-            <span>Personal device</span>
+
+          <div className="sidebar-user-info">
+
+            <strong>
+              Harshita
+            </strong>
+
+            <span>
+              {t('personalDevice')}
+            </span>
+
           </div>
 
-          <span className="user-status"></span>
+
+          <span className="sidebar-user-online"></span>
+
         </div>
 
       </div>
 
     </aside>
+
   )
 }
+
+
+/* =========================================================
+   SIDEBAR ITEM
+   ========================================================= */
+
+function SidebarItem({
+  to,
+  label,
+  icon
+}) {
+
+  return (
+
+    <NavLink
+      to={to}
+      end={to === '/'}
+      className={({ isActive }) =>
+        `sidebar-item ${
+          isActive ? 'active' : ''
+        }`
+      }
+    >
+
+      <SidebarIcon type={icon} />
+
+      <span>
+        {label}
+      </span>
+
+    </NavLink>
+
+  )
+}
+
+
+/* =========================================================
+   ICONS
+   ========================================================= */
+
+function SidebarIcon({ type }) {
+
+  if (type === 'dashboard') {
+
+    return (
+      <svg viewBox="0 0 24 24">
+
+        <rect
+          x="4"
+          y="4"
+          width="6"
+          height="6"
+          rx="1"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+
+        <rect
+          x="14"
+          y="4"
+          width="6"
+          height="6"
+          rx="1"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+
+        <rect
+          x="4"
+          y="14"
+          width="6"
+          height="6"
+          rx="1"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+
+        <rect
+          x="14"
+          y="14"
+          width="6"
+          height="6"
+          rx="1"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+
+      </svg>
+    )
+  }
+
+
+  if (type === 'scan') {
+
+    return (
+      <svg viewBox="0 0 24 24">
+
+        <circle
+          cx="10.5"
+          cy="10.5"
+          r="5.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+
+        <path
+          d="M15 15l5 5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+
+      </svg>
+    )
+  }
+
+
+  if (type === 'monitor') {
+
+    return (
+      <svg viewBox="0 0 24 24">
+
+        <circle
+          cx="12"
+          cy="12"
+          r="7"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+
+        <circle
+          cx="12"
+          cy="12"
+          r="2"
+          fill="currentColor"
+        />
+
+        <path
+          d="M12 2v3M12 19v3M2 12h3M19 12h3"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
+
+      </svg>
+    )
+  }
+
+
+  if (type === 'shield') {
+
+    return (
+      <svg viewBox="0 0 24 24">
+
+        <path
+          d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+
+        <path
+          d="M9 12l2 2 4-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+      </svg>
+    )
+  }
+
+
+  if (type === 'threat') {
+
+    return (
+      <svg viewBox="0 0 24 24">
+
+        <path
+          d="M12 4l9 16H3L12 4z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+
+        <path
+          d="M12 9v5"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+
+        <circle
+          cx="12"
+          cy="17"
+          r="0.8"
+          fill="currentColor"
+        />
+
+      </svg>
+    )
+  }
+
+
+  if (type === 'quarantine') {
+
+    return (
+      <svg viewBox="0 0 24 24">
+
+        <path
+          d="M5 7h14v13H5z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+
+        <path
+          d="M8 7V4h8v3M9 11v5M12 11v5M15 11v5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+
+      </svg>
+    )
+  }
+
+
+  if (type === 'ai') {
+
+    return (
+      <svg viewBox="0 0 24 24">
+
+        <circle
+          cx="12"
+          cy="12"
+          r="7"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+
+        <path
+          d="M9 15l2-6 2 6M10 13h3"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+      </svg>
+    )
+  }
+
+
+  if (type === 'device') {
+
+    return (
+      <svg viewBox="0 0 24 24">
+
+        <rect
+          x="4"
+          y="4"
+          width="16"
+          height="12"
+          rx="2"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+
+        <path
+          d="M8 20h8M12 16v4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+
+      </svg>
+    )
+  }
+
+
+  if (type === 'windows') {
+
+    return (
+      <svg viewBox="0 0 24 24">
+
+        <path
+          d="M4 5l7-1v7H4V5zM13 3.7l7-1.1v8.4h-7V3.7zM4 13h7v7l-7-1V13zM13 13h7v8.4l-7-1.1V13z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+        />
+
+      </svg>
+    )
+  }
+
+
+  if (type === 'reports') {
+
+    return (
+      <svg viewBox="0 0 24 24">
+
+        <path
+          d="M6 3h9l3 3v15H6V3z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+
+        <path
+          d="M9 11h6M9 15h6M9 7h3"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+
+      </svg>
+    )
+  }
+
+
+  if (type === 'subscription') {
+
+    return (
+      <svg viewBox="0 0 24 24">
+
+        <rect
+          x="3"
+          y="5"
+          width="18"
+          height="14"
+          rx="2"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+
+        <path
+          d="M3 9h18"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+
+        <path
+          d="M7 14h4"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+
+      </svg>
+    )
+  }
+
+
+  return (
+    <svg viewBox="0 0 24 24">
+
+      <path
+        d="M12 3a3 3 0 0 0-3 3v1.1a6.9 6.9 0 0 0-2 1.4l-1-.6a3 3 0 1 0-3 5.2l1 .6c-.1.4-.1.9-.1 1.3s0 .9.1 1.3l-1 .6a3 3 0 1 0 3 5.2l1-.6a6.9 6.9 0 0 0 2 1.4V22a3 3 0 1 0 6 0v-1.1a6.9 6.9 0 0 0 2-1.4l1 .6a3 3 0 1 0 3-5.2l-1-.6c.1-.4.1-.9.1-1.3s0-.9-.1-1.3l1-.6a3 3 0 1 0-3-5.2l-1 .6a6.9 6.9 0 0 0-2-1.4V6a3 3 0 0 0-3-3z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.4"
+      />
+
+      <circle
+        cx="12"
+        cy="14"
+        r="2.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.4"
+      />
+
+    </svg>
+  )
+}
+
 
 export default Sidebar

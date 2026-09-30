@@ -1,17 +1,72 @@
-.activity-monitor h1 { font-size: 24px; }
+/* =========================================================
+   CYBERSHIELD AI — REAL-TIME MONITORING
+   ========================================================= */
 
-.page-subtitle {
-  color: var(--text-secondary);
-  font-size: 13px;
-  margin-top: 4px;
-  margin-bottom: 20px;
+.activity-monitor {
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
+  padding-bottom: 40px;
 }
 
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.activity-monitor h1 {
+  margin: 0;
+  color: #172033;
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.page-subtitle {
+  margin: 5px 0 22px;
+  color: #738198;
+  font-size: 13px;
+}
+
+/* =========================================================
+   COMMON PANEL
+   ========================================================= */
+
+.activity-monitor .panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 13px;
+  padding: 21px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 8px rgba(30, 55, 90, 0.03);
+}
+
+.activity-monitor .panel h2 {
+  margin: 0 0 15px;
+  color: #172033;
+  font-size: 17px;
+  font-weight: 650;
+}
+
+/* =========================================================
+   PROTECTION STATUS
+   ========================================================= */
+
 .protection-panel {
+  min-height: 96px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+
+  gap: 20px;
+
+  background: linear-gradient(
+    135deg,
+    #eef9ff 0%,
+    #f8fcff 100%
+  ) !important;
+
+  border-color: #dcebf8 !important;
 }
 
 .protection-status {
@@ -21,97 +76,378 @@
 }
 
 .status-dot-large {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
-  background: var(--text-muted);
+
+  background: #a7b1bf;
+
   flex-shrink: 0;
 }
 
 .status-dot-large.active {
-  background: var(--sev-low);
-  box-shadow: 0 0 10px var(--sev-low);
+  background: #1bb86a;
+
+  box-shadow:
+    0 0 0 5px #dff6e9,
+    0 0 12px rgba(27, 184, 106, 0.25);
 }
 
 .protection-title {
-  font-size: 15px;
-  font-weight: 600;
+  color: #172033;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .protection-sub {
-  font-size: 12.5px;
-  color: var(--text-secondary);
-  margin-top: 2px;
+  margin-top: 4px;
+
+  color: #68778d;
+  font-size: 12px;
 }
+
+/* =========================================================
+   MONITORING BUTTON
+   ========================================================= */
 
 .btn-toggle {
-  background: var(--accent-cyan);
-  color: #06131a;
-  border: none;
-  padding: 11px 22px;
-  border-radius: 8px;
-  font-size: 13.5px;
-  font-weight: 600;
-}
+  min-width: 145px;
 
-.btn-toggle.stop {
-  background: var(--sev-critical);
-  color: #fff;
+  border: none;
+  border-radius: 8px;
+
+  padding: 11px 18px;
+
+  background: #146ef5;
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
 }
 
 .btn-toggle:hover {
-  filter: brightness(1.1);
+  background: #075bd6;
+  transform: translateY(-1px);
 }
+
+.btn-toggle.stop {
+  background: #e5484d;
+}
+
+.btn-toggle.stop:hover {
+  background: #cf343a;
+}
+
+.btn-toggle:disabled {
+  opacity: 0.65;
+  cursor: wait;
+  transform: none;
+}
+
+/* =========================================================
+   API / AGENT STATUS
+   ========================================================= */
+
+.activity-monitor .scan-error {
+  margin-bottom: 18px;
+
+  padding: 12px 15px;
+
+  border: 1px solid #f3c6c8;
+  border-radius: 9px;
+
+  background: #fff5f5;
+
+  color: #c73b40;
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   BEHAVIORAL DETECTION
+   ========================================================= */
+
+.activity-monitor .result-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 13px;
+}
+
+.result-field {
+  min-height: 82px;
+
+  padding: 15px;
+
+  border: 1px solid #e3e9f0;
+  border-radius: 10px;
+
+  background: #f9fbfd;
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.result-field:hover {
+  border-color: #cfdceb;
+
+  box-shadow:
+    0 3px 10px rgba(30, 55, 90, 0.04);
+}
+
+.field-label {
+  display: block;
+
+  margin-bottom: 9px;
+
+  color: #78869a;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.05em;
+}
+
+.field-value {
+  display: block;
+
+  color: #172033;
+
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.field-value.mono {
+  font-family:
+    "Consolas",
+    "Courier New",
+    monospace;
+}
+
+/* =========================================================
+   LIVE METRIC CARDS
+   ========================================================= */
 
 .metric-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
-  margin-bottom: 20px;
+
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+
+  gap: 13px;
+
+  margin-bottom: 18px;
 }
+
+/*
+   MetricGauge is rendered inside these containers.
+   The rules below make its outer structure behave
+   like individual endpoint-security metric cards.
+*/
+
+.metric-grid > * {
+  min-width: 0;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  padding: 17px;
+
+  box-shadow:
+    0 2px 8px rgba(30, 55, 90, 0.03);
+
+  transition:
+    border-color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.metric-grid > *:hover {
+  border-color: #cbd9eb;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 5px 14px rgba(30, 55, 90, 0.06);
+}
+
+/* Common MetricGauge text */
+
+.metric-grid > * h3,
+.metric-grid > * h4,
+.metric-grid > * .metric-label {
+  color: #78869a;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metric-grid > * .metric-value {
+  color: #172033;
+  font-size: 23px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   LIVE ACTIVITY
+   ========================================================= */
 
 .activity-log {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  max-height: 360px;
+
+  max-height: 340px;
+
   overflow-y: auto;
+
+  border-top: 1px solid #edf1f5;
+}
+
+.activity-log::-webkit-scrollbar {
+  width: 5px;
+}
+
+.activity-log::-webkit-scrollbar-thumb {
+  background: #dce4ed;
+  border-radius: 10px;
+}
+
+.activity-log::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .log-entry {
-  display: flex;
+  display: grid;
+
+  grid-template-columns:
+    82px minmax(0, 1fr);
+
   gap: 14px;
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
-  font-size: 12px;
-  align-items: baseline;
+
+  align-items: center;
+
+  min-height: 46px;
+
+  padding: 9px 8px;
+
+  border-bottom: 1px solid #edf1f5;
+
+  font-size: 11px;
+}
+
+.log-entry:last-child {
+  border-bottom: none;
 }
 
 .log-time {
-  color: var(--text-muted);
-  flex-shrink: 0;
-  width: 90px;
+  color: #8a96a8;
+
+  font-family:
+    "Consolas",
+    "Courier New",
+    monospace;
+
+  font-size: 10px;
 }
 
 .log-text {
-  color: var(--text-secondary);
+  color: #536277;
+
+  font-family:
+    "Consolas",
+    "Courier New",
+    monospace;
+
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+}
+
+.log-entry.log-warning {
+  background: #fffaf2;
 }
 
 .log-entry.log-warning .log-text {
-  color: var(--sev-high);
+  color: #d37a16;
 }
 
 .log-entry.log-process .log-text {
-  color: var(--accent-purple);
+  color: #7653d8;
 }
 
 .empty-state {
+  padding: 48px 20px;
+
   text-align: center;
-  padding: 32px;
-  color: var(--text-muted);
-  font-size: 13px;
+
+  color: #8a96a8;
+
+  font-size: 12px;
 }
 
-@media (max-width: 1100px) {
-  .metric-grid { grid-template-columns: repeat(2, 1fr); }
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+  .metric-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .result-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .protection-panel {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .btn-toggle {
+    width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .activity-monitor h1 {
+    font-size: 23px;
+  }
+
+  .activity-monitor .panel {
+    padding: 15px;
+  }
+
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .log-entry {
+    grid-template-columns:
+      70px minmax(0, 1fr);
+
+    gap: 8px;
+  }
 }

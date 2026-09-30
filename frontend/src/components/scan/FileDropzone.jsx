@@ -1,60 +1,133 @@
 import { useRef, useState } from 'react'
+
+import { useLanguage } from '../../context/LanguageContext.jsx'
+
 import './FileDropzone.css'
 
-function FileDropzone({ selectedFile, onFileSelect }) {
-  const [isDragging, setIsDragging] = useState(false)
+
+function FileDropzone({
+  selectedFile,
+  onFileSelect
+}) {
+
+  const { t } = useLanguage()
+
+  const [isDragging, setIsDragging] =
+    useState(false)
+
   const inputRef = useRef(null)
 
-  const handleDrop = (e) => {
-    e.preventDefault()
+
+  /* =========================================================
+     DROP
+     ========================================================= */
+
+  const handleDrop = (event) => {
+
+    event.preventDefault()
+
     setIsDragging(false)
 
-    const file = e.dataTransfer.files[0]
 
-    if (file) {
-      onFileSelect(file)
-    }
-  }
+    const file =
+      event.dataTransfer.files[0]
 
-  const handleChange = (e) => {
-    const file = e.target.files[0]
 
     if (file) {
       onFileSelect(file)
     }
 
-    e.target.value = ''
   }
+
+
+  /* =========================================================
+     FILE INPUT
+     ========================================================= */
+
+  const handleChange = (event) => {
+
+    const file =
+      event.target.files[0]
+
+
+    if (file) {
+      onFileSelect(file)
+    }
+
+
+    event.target.value = ''
+
+  }
+
+
+  /* =========================================================
+     OPEN FILE PICKER
+     ========================================================= */
 
   const openFilePicker = () => {
+
     inputRef.current?.click()
+
   }
 
+
   return (
+
     <div
-      className={`dropzone${isDragging ? ' dragging' : ''}`}
-      onDragOver={(e) => {
-        e.preventDefault()
+
+      className={
+        `dropzone${
+          isDragging
+            ? ' dragging'
+            : ''
+        }`
+      }
+
+      onDragOver={(event) => {
+
+        event.preventDefault()
+
         setIsDragging(true)
+
       }}
-      onDragLeave={() => setIsDragging(false)}
+
+      onDragLeave={() =>
+        setIsDragging(false)
+      }
+
       onDrop={handleDrop}
+
       onClick={openFilePicker}
+
     >
+
+
       <input
+
         ref={inputRef}
+
         type="file"
+
         accept=".exe,.dll"
+
         hidden
+
         onChange={handleChange}
+
       />
 
-      {/* Upload Icon */}
+
+      {/* =====================================================
+          UPLOAD ICON
+          ===================================================== */}
+
       <div className="dropzone-icon">
+
         <svg
           viewBox="0 0 24 24"
           aria-hidden="true"
         >
+
           <path
             d="M12 16V4"
             fill="none"
@@ -79,57 +152,133 @@ function FileDropzone({ selectedFile, onFileSelect }) {
             strokeWidth="1.8"
             strokeLinecap="round"
           />
+
         </svg>
+
       </div>
+
+
+      {/* =====================================================
+          SELECTED FILE
+          ===================================================== */}
 
       {selectedFile ? (
+
         <>
+
           <div className="dropzone-selected">
-            <span className="selected-check">✓</span>
+
+            <span className="selected-check">
+              ✓
+            </span>
+
 
             <div>
+
               <div className="dropzone-filename">
+
                 {selectedFile.name}
+
               </div>
+
 
               <div className="dropzone-file-info">
-                {(selectedFile.size / 1024).toFixed(1)} KB
+
+                {(selectedFile.size / 1024).toFixed(1)}
+                {' KB'}
+
               </div>
+
             </div>
+
           </div>
 
+
           <div className="dropzone-hint">
-            Click or drop another file to replace
+
+            {t('clickOrDropAnother')}
+
           </div>
+
         </>
+
       ) : (
+
         <>
+
           <div className="dropzone-title">
-            Drag &amp; drop an EXE or DLL file
+
+            {t('dragDropFile')}
+
           </div>
 
+
           <div className="dropzone-hint">
-            or click to browse from your computer
+
+            {t('orClickBrowse')}
+
           </div>
+
         </>
+
       )}
 
+
+      {/* =====================================================
+          CHOOSE FILE
+          ===================================================== */}
+
       <button
+
         type="button"
+
         className="btn-choose"
-        onClick={(e) => {
-          e.stopPropagation()
+
+        onClick={(event) => {
+
+          event.stopPropagation()
+
           openFilePicker()
+
         }}
+
       >
-        Choose File
+
+        {t('chooseFile')}
+
       </button>
 
+
+      {/* =====================================================
+          SUPPORTED FILES
+          ===================================================== */}
+
       <div className="dropzone-supported">
-        Supported files: <strong>.EXE</strong> and <strong>.DLL</strong>
+
+        {t('supportedFiles')}:
+
+        {' '}
+
+        <strong>
+          .EXE
+        </strong>
+
+        {' '}
+
+        and
+
+        {' '}
+
+        <strong>
+          .DLL
+        </strong>
+
       </div>
+
     </div>
+
   )
 }
+
 
 export default FileDropzone

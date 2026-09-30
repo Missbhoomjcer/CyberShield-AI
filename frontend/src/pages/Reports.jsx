@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { jsPDF } from 'jspdf'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import SeverityBadge from '../components/threats/SeverityBadge.jsx'
 import './Reports.css'
 
@@ -28,12 +29,168 @@ function getThreatLevel(threatScore) {
 }
 
 function Reports() {
+  const { language } = useLanguage()
+
   const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedReport, setSelectedReport] = useState(null)
   const [viewLoading, setViewLoading] = useState(false)
   const [downloadLoading, setDownloadLoading] = useState(null)
+
+  const text = {
+    English: {
+      title: 'Reports',
+
+      subtitle:
+        'Generated scan reports and threat analysis summaries',
+
+      loadingReports: 'Loading scan reports...',
+
+      noReports:
+        'No scan reports available.',
+
+      reportId: 'Report ID',
+      scanDate: 'Scan Date',
+      fileName: 'File Name',
+      prediction: 'Prediction',
+      threatLevel: 'Threat Level',
+      actions: 'Actions',
+
+      view: 'View',
+      close: 'Close',
+
+      generating: 'Generating...',
+      download: 'Download',
+
+      loadingDetails:
+        'Loading report details...',
+
+      scanReport: 'Scan Report',
+
+      fileType: 'File Type',
+      fileSize: 'File Size',
+      threatScore: 'Threat Score',
+      confidence: 'Confidence',
+      entropy: 'Entropy',
+      model: 'Model',
+      sha256: 'SHA-256',
+      createdAt: 'Created At',
+
+      analysisSummary: 'Analysis Summary',
+
+      malwareSummary:
+        'The analyzed file was classified as malicious with a threat score of',
+
+      benignSummary:
+        'The analyzed file was classified as benign with a threat score of',
+
+      unableToLoadHistory:
+        'Unable to load scan history.',
+
+      unableToLoadDetails:
+        'Unable to load report details.',
+
+      unableToGenerate:
+        'Unable to generate PDF report.',
+
+      noData: 'N/A',
+
+      malware: 'Malware',
+      benign: 'Benign',
+
+      critical: 'Critical',
+      high: 'High',
+      medium: 'Medium',
+      low: 'Low',
+    },
+
+    Hindi: {
+      title: 'रिपोर्ट',
+
+      subtitle:
+        'स्कैन रिपोर्ट और खतरे के विश्लेषण का सारांश',
+
+      loadingReports:
+        'स्कैन रिपोर्ट लोड हो रही हैं...',
+
+      noReports:
+        'कोई स्कैन रिपोर्ट उपलब्ध नहीं है।',
+
+      reportId: 'रिपोर्ट ID',
+      scanDate: 'स्कैन दिनांक',
+      fileName: 'फ़ाइल नाम',
+      prediction: 'पूर्वानुमान',
+      threatLevel: 'खतरे का स्तर',
+      actions: 'कार्रवाई',
+
+      view: 'देखें',
+      close: 'बंद करें',
+
+      generating: 'बनाया जा रहा है...',
+      download: 'डाउनलोड',
+
+      loadingDetails:
+        'रिपोर्ट विवरण लोड हो रहा है...',
+
+      scanReport: 'स्कैन रिपोर्ट',
+
+      fileType: 'फ़ाइल प्रकार',
+      fileSize: 'फ़ाइल आकार',
+      threatScore: 'खतरा स्कोर',
+      confidence: 'विश्वास स्तर',
+      entropy: 'एंट्रॉपी',
+      model: 'मॉडल',
+      sha256: 'SHA-256',
+      createdAt: 'बनाया गया',
+
+      analysisSummary: 'विश्लेषण सारांश',
+
+      malwareSummary:
+        'विश्लेषित फ़ाइल को दुर्भावनापूर्ण पाया गया। खतरा स्कोर',
+
+      benignSummary:
+        'विश्लेषित फ़ाइल को सुरक्षित पाया गया। खतरा स्कोर',
+
+      unableToLoadHistory:
+        'स्कैन इतिहास लोड नहीं किया जा सका।',
+
+      unableToLoadDetails:
+        'रिपोर्ट विवरण लोड नहीं किया जा सका।',
+
+      unableToGenerate:
+        'PDF रिपोर्ट बनाई नहीं जा सकी।',
+
+      noData: 'उपलब्ध नहीं',
+
+      malware: 'मैलवेयर',
+      benign: 'सुरक्षित',
+
+      critical: 'गंभीर',
+      high: 'उच्च',
+      medium: 'मध्यम',
+      low: 'कम',
+    },
+  }
+
+  const t = text[language] || text.English
+
+  const translatePrediction = (prediction) => {
+    if (prediction === 'Malware') {
+      return t.malware
+    }
+
+    return t.benign
+  }
+
+  const translateThreatLevel = (level) => {
+    if (level === 'Critical') return t.critical
+    if (level === 'High') return t.high
+    if (level === 'Medium') return t.medium
+    if (level === 'Low') return t.low
+
+    return level
+  }
 
   // ==========================================
   // FETCH SCAN HISTORY
@@ -57,7 +214,9 @@ function Reports() {
           )
         }
 
-        const formattedReports = (data.scans || []).map((scan) => {
+        const formattedReports = (
+          data.scans || []
+        ).map((scan) => {
           const threatScore = Number(
             scan.threat_score || 0
           )
@@ -102,9 +261,8 @@ function Reports() {
           }
         })
 
-        setReports(
-          formattedReports
-        )
+        setReports(formattedReports)
+
       } catch (err) {
         console.error(
           'Reports API error:',
@@ -113,10 +271,11 @@ function Reports() {
 
         setError(
           err.message ||
-            'Unable to load scan history.'
+            t.unableToLoadHistory
         )
 
         setReports([])
+
       } finally {
         setLoading(false)
       }
@@ -148,6 +307,7 @@ function Reports() {
       }
 
       setSelectedReport(data)
+
     } catch (err) {
       console.error(
         'Report details error:',
@@ -156,8 +316,9 @@ function Reports() {
 
       setError(
         err.message ||
-          'Unable to load report details.'
+          t.unableToLoadDetails
       )
+
     } finally {
       setViewLoading(false)
     }
@@ -172,7 +333,6 @@ function Reports() {
       setDownloadLoading(report.id)
       setError('')
 
-      // Get the most complete scan data
       const response = await fetch(
         `${API_URL}/history/${report.id}`
       )
@@ -218,12 +378,19 @@ function Reports() {
             ).toLocaleString()
           : 'N/A'
 
-      // Create PDF
+      // ==========================================
+      // CREATE PDF
+      // ==========================================
+
       const doc = new jsPDF()
 
       // Header
       doc.setFontSize(20)
-      doc.setFont('helvetica', 'bold')
+      doc.setFont(
+        'helvetica',
+        'bold'
+      )
+
       doc.text(
         'CyberShield AI',
         20,
@@ -231,7 +398,11 @@ function Reports() {
       )
 
       doc.setFontSize(14)
-      doc.setFont('helvetica', 'normal')
+      doc.setFont(
+        'helvetica',
+        'normal'
+      )
+
       doc.text(
         'Security Scan Report',
         20,
@@ -240,6 +411,7 @@ function Reports() {
 
       // Divider
       doc.setLineWidth(0.5)
+
       doc.line(
         20,
         35,
@@ -249,14 +421,21 @@ function Reports() {
 
       // Report information
       doc.setFontSize(11)
-      doc.setFont('helvetica', 'bold')
+      doc.setFont(
+        'helvetica',
+        'bold'
+      )
+
       doc.text(
         `Scan ID: ${data.id ?? report.id}`,
         20,
         48
       )
 
-      doc.setFont('helvetica', 'normal')
+      doc.setFont(
+        'helvetica',
+        'normal'
+      )
 
       let y = 60
 
@@ -268,6 +447,7 @@ function Reports() {
           'helvetica',
           'bold'
         )
+
         doc.text(
           `${label}:`,
           20,
@@ -279,12 +459,13 @@ function Reports() {
           'normal'
         )
 
-        const wrapped = doc.splitTextToSize(
-          String(
-            value ?? 'N/A'
-          ),
-          125
-        )
+        const wrapped =
+          doc.splitTextToSize(
+            String(
+              value ?? 'N/A'
+            ),
+            125
+          )
 
         doc.text(
           wrapped,
@@ -292,11 +473,10 @@ function Reports() {
           y
         )
 
-        y +=
-          Math.max(
-            8,
-            wrapped.length * 6
-          )
+        y += Math.max(
+          8,
+          wrapped.length * 6
+        )
       }
 
       addField(
@@ -365,7 +545,9 @@ function Reports() {
         'helvetica',
         'bold'
       )
+
       doc.setFontSize(13)
+
       doc.text(
         'Analysis Summary',
         20,
@@ -378,6 +560,7 @@ function Reports() {
         'helvetica',
         'normal'
       )
+
       doc.setFontSize(10)
 
       const summary =
@@ -407,6 +590,7 @@ function Reports() {
 
       // Footer
       doc.setFontSize(9)
+
       doc.setTextColor(
         100,
         100,
@@ -433,15 +617,15 @@ function Reports() {
         String(
           data.filename ||
             `scan-${report.id}`
+        ).replace(
+          /[^a-zA-Z0-9._-]/g,
+          '_'
         )
-          .replace(
-            /[^a-zA-Z0-9._-]/g,
-            '_'
-          )
 
       doc.save(
         `CyberShield_Report_${safeFilename}.pdf`
       )
+
     } catch (err) {
       console.error(
         'PDF generation error:',
@@ -450,8 +634,9 @@ function Reports() {
 
       setError(
         err.message ||
-          'Unable to generate PDF report.'
+          t.unableToGenerate
       )
+
     } finally {
       setDownloadLoading(null)
     }
@@ -460,49 +645,60 @@ function Reports() {
   return (
     <div className="reports">
 
-      <h1>Reports</h1>
+      {/* HEADER */}
+      <h1>
+        {t.title}
+      </h1>
 
       <p className="page-subtitle">
-        Generated scan reports and threat analysis summaries
+        {t.subtitle}
       </p>
 
-      {/* ERROR */}
 
+      {/* ERROR */}
       {error && (
         <div className="scan-error">
           {error}
         </div>
       )}
 
-      {/* REPORT TABLE */}
 
+      {/* REPORT TABLE */}
       <div className="panel">
 
         {loading ? (
+
           <div className="empty-state">
-            Loading scan reports...
+            {t.loadingReports}
           </div>
+
         ) : reports.length === 0 ? (
+
           <div className="empty-state">
-            No scan reports available.
+            {t.noReports}
           </div>
+
         ) : (
+
           <table className="data-table">
 
             <thead>
+
               <tr>
-                <th>Report ID</th>
-                <th>Scan Date</th>
-                <th>File Name</th>
-                <th>Prediction</th>
-                <th>Threat Level</th>
-                <th>Actions</th>
+                <th>{t.reportId}</th>
+                <th>{t.scanDate}</th>
+                <th>{t.fileName}</th>
+                <th>{t.prediction}</th>
+                <th>{t.threatLevel}</th>
+                <th>{t.actions}</th>
               </tr>
+
             </thead>
 
             <tbody>
 
               {reports.map((report) => (
+
                 <tr key={report.id}>
 
                   <td className="mono">
@@ -518,6 +714,7 @@ function Reports() {
                   </td>
 
                   <td>
+
                     <span
                       className={`badge ${
                         report.prediction ===
@@ -526,19 +723,25 @@ function Reports() {
                           : 'badge-low'
                       }`}
                     >
-                      {report.prediction}
+                      {translatePrediction(
+                        report.prediction
+                      )}
                     </span>
+
                   </td>
 
                   <td>
+
                     <SeverityBadge
                       level={
                         report.threatLevel
                       }
                     />
+
                   </td>
 
                   <td>
+
                     <div className="report-actions">
 
                       <button
@@ -547,7 +750,7 @@ function Reports() {
                           handleView(report)
                         }
                       >
-                        View
+                        {t.view}
                       </button>
 
                       <button
@@ -564,43 +767,49 @@ function Reports() {
                       >
                         {downloadLoading ===
                         report.id
-                          ? 'Generating...'
-                          : 'Download'}
+                          ? t.generating
+                          : t.download}
                       </button>
 
                     </div>
+
                   </td>
 
                 </tr>
+
               ))}
 
             </tbody>
 
           </table>
+
         )}
 
       </div>
 
-      {/* REPORT DETAILS LOADING */}
 
+      {/* REPORT DETAILS LOADING */}
       {viewLoading && (
         <div className="panel">
+
           <p>
-            Loading report details...
+            {t.loadingDetails}
           </p>
+
         </div>
       )}
 
-      {/* REPORT DETAILS */}
 
+      {/* REPORT DETAILS */}
       {selectedReport &&
         !viewLoading && (
+
           <div className="panel report-details">
 
             <div className="result-header">
 
               <h2>
-                Scan Report #
+                {t.scanReport} #
                 {selectedReport.id}
               </h2>
 
@@ -612,75 +821,95 @@ function Reports() {
                   )
                 }
               >
-                Close
+                {t.close}
               </button>
 
             </div>
 
+
             <div className="result-grid">
 
               <div className="result-field">
+
                 <span className="field-label">
-                  File Name
+                  {t.fileName}
                 </span>
 
                 <span className="field-value mono">
                   {selectedReport.filename ||
-                    'N/A'}
+                    t.noData}
                 </span>
+
               </div>
 
+
               <div className="result-field">
+
                 <span className="field-label">
-                  File Type
+                  {t.fileType}
                 </span>
 
                 <span className="field-value mono">
                   {selectedReport.file_type ||
-                    'N/A'}
+                    t.noData}
                 </span>
+
               </div>
 
+
               <div className="result-field">
+
                 <span className="field-label">
-                  File Size
+                  {t.fileSize}
                 </span>
 
                 <span className="field-value mono">
                   {selectedReport.file_size ??
-                    'N/A'}
+                    t.noData}
                 </span>
+
               </div>
 
+
               <div className="result-field">
+
                 <span className="field-label">
-                  Prediction
+                  {t.prediction}
                 </span>
 
                 <span className="field-value mono">
-                  {formatPrediction(
-                    selectedReport.prediction
+                  {translatePrediction(
+                    formatPrediction(
+                      selectedReport.prediction
+                    )
                   )}
                 </span>
+
               </div>
 
+
               <div className="result-field">
+
                 <span className="field-label">
-                  Threat Score
+                  {t.threatScore}
                 </span>
 
                 <span className="field-value mono">
                   {selectedReport.threat_score ??
-                    'N/A'}
+                    t.noData}
                 </span>
+
               </div>
 
+
               <div className="result-field">
+
                 <span className="field-label">
-                  Confidence
+                  {t.confidence}
                 </span>
 
                 <span className="field-value mono">
+
                   {selectedReport.confidence !==
                   undefined
                     ? `${(
@@ -688,60 +917,77 @@ function Reports() {
                           selectedReport.confidence
                         ) * 100
                       ).toFixed(2)}%`
-                    : 'N/A'}
+                    : t.noData}
+
                 </span>
+
               </div>
 
+
               <div className="result-field">
+
                 <span className="field-label">
-                  Entropy
+                  {t.entropy}
                 </span>
 
                 <span className="field-value mono">
                   {selectedReport.entropy ??
-                    'N/A'}
+                    t.noData}
                 </span>
+
               </div>
 
+
               <div className="result-field">
+
                 <span className="field-label">
-                  Model
+                  {t.model}
                 </span>
 
                 <span className="field-value mono">
                   {selectedReport.model ??
-                    'N/A'}
+                    t.noData}
                 </span>
+
               </div>
 
+
               <div className="result-field span-2">
+
                 <span className="field-label">
-                  SHA-256
+                  {t.sha256}
                 </span>
 
                 <span className="field-value mono hash">
                   {selectedReport.sha256 ??
-                    'N/A'}
+                    t.noData}
                 </span>
+
               </div>
 
+
               <div className="result-field span-2">
+
                 <span className="field-label">
-                  Created At
+                  {t.createdAt}
                 </span>
 
                 <span className="field-value mono">
+
                   {selectedReport.created_at
                     ? new Date(
                         selectedReport.created_at
                       ).toLocaleString()
-                    : 'N/A'}
+                    : t.noData}
+
                 </span>
+
               </div>
 
             </div>
 
           </div>
+
         )}
 
     </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import './AISecurity.css'
 
 function SparkIcon() {
@@ -47,9 +48,149 @@ function ArrowIcon() {
 }
 
 function AISecurity() {
+  const { language } = useLanguage()
+
   const [question, setQuestion] = useState('')
   const [asking, setAsking] = useState(false)
   const [answer, setAnswer] = useState('')
+
+  const text = {
+    English: {
+      title: 'AI Security',
+      description:
+        'AI-powered threat analysis and security assistance.',
+      engineReady: 'AI Engine Ready',
+
+      copilotLabel: 'CYBERSHIELD AI COPILOT',
+
+      heroTitle:
+        'Understand threats with AI-powered security analysis',
+
+      heroDescription:
+        'Ask questions about detected threats, suspicious files, ransomware behavior, and recommended security actions.',
+
+      online: 'Online',
+
+      threatAnalysis: 'Threat Analysis',
+      threatAnalysisDescription:
+        'AI interpretation of security findings',
+
+      latestAnalysis: 'Latest Analysis',
+      staticDetection: 'Static ML Detection',
+
+      detectionEngine: 'Detection Engine',
+      behaviorEngine: 'Behavior Engine',
+      explainability: 'Explainability',
+
+      viewThreatAnalysis: 'View threat analysis',
+
+      securityKnowledge: 'Security Knowledge',
+      securityKnowledgeDescription:
+        'Threat intelligence and security context',
+
+      ransomwareDetection: 'Ransomware detection',
+      malwareBehavior: 'Malware behavior',
+      mitreContext: 'MITRE ATT&CK context',
+      endpointProtection: 'Endpoint protection',
+
+      exploreKnowledge: 'Explore security knowledge',
+
+      askCopilot: 'Ask AI Security Copilot',
+      askCopilotDescription:
+        'Ask a security question and get an AI-assisted explanation.',
+
+      questionPlaceholder:
+        'Example: Why was this file detected as suspicious?',
+
+      analyzing: 'Analyzing...',
+      askAI: 'Ask AI',
+
+      answerLabel: 'AI SECURITY COPILOT',
+
+      aiResponse:
+        'AI Security Copilot is ready to analyze threats, explain detection results, and provide security recommendations.',
+
+      recentActivity: 'Recent AI Security Activity',
+      recentActivityDescription:
+        'AI-assisted security events and analysis.',
+
+      backendReady: 'Backend Ready',
+
+      noHistory: 'No AI analysis history yet',
+
+      noHistoryDescription:
+        'AI-generated threat explanations and recommendations will appear here.',
+    },
+
+    Hindi: {
+      title: 'AI सुरक्षा',
+      description:
+        'AI-संचालित खतरा विश्लेषण और सुरक्षा सहायता।',
+      engineReady: 'AI इंजन तैयार है',
+
+      copilotLabel: 'CYBERSHIELD AI COPILOT',
+
+      heroTitle:
+        'AI-संचालित सुरक्षा विश्लेषण के साथ खतरों को समझें',
+
+      heroDescription:
+        'पता लगाए गए खतरों, संदिग्ध फ़ाइलों, रैनसमवेयर व्यवहार और अनुशंसित सुरक्षा कार्रवाइयों के बारे में प्रश्न पूछें।',
+
+      online: 'ऑनलाइन',
+
+      threatAnalysis: 'खतरा विश्लेषण',
+      threatAnalysisDescription:
+        'सुरक्षा निष्कर्षों की AI व्याख्या',
+
+      latestAnalysis: 'नवीनतम विश्लेषण',
+      staticDetection: 'स्टैटिक ML डिटेक्शन',
+
+      detectionEngine: 'डिटेक्शन इंजन',
+      behaviorEngine: 'व्यवहार इंजन',
+      explainability: 'व्याख्या',
+
+      viewThreatAnalysis: 'खतरा विश्लेषण देखें',
+
+      securityKnowledge: 'सुरक्षा ज्ञान',
+      securityKnowledgeDescription:
+        'खतरा इंटेलिजेंस और सुरक्षा संदर्भ',
+
+      ransomwareDetection: 'रैनसमवेयर डिटेक्शन',
+      malwareBehavior: 'मैलवेयर व्यवहार',
+      mitreContext: 'MITRE ATT&CK संदर्भ',
+      endpointProtection: 'एंडपॉइंट सुरक्षा',
+
+      exploreKnowledge: 'सुरक्षा ज्ञान देखें',
+
+      askCopilot: 'AI Security Copilot से पूछें',
+      askCopilotDescription:
+        'सुरक्षा प्रश्न पूछें और AI-सहायता प्राप्त व्याख्या प्राप्त करें।',
+
+      questionPlaceholder:
+        'उदाहरण: इस फ़ाइल को संदिग्ध क्यों पाया गया?',
+
+      analyzing: 'विश्लेषण हो रहा है...',
+      askAI: 'AI से पूछें',
+
+      answerLabel: 'AI SECURITY COPILOT',
+
+      aiResponse:
+        'AI Security Copilot खतरों का विश्लेषण करने, डिटेक्शन परिणामों को समझाने और सुरक्षा सुझाव देने के लिए तैयार है।',
+
+      recentActivity: 'हाल की AI सुरक्षा गतिविधि',
+      recentActivityDescription:
+        'AI-सहायता प्राप्त सुरक्षा घटनाएँ और विश्लेषण।',
+
+      backendReady: 'बैकएंड तैयार',
+
+      noHistory: 'अभी कोई AI विश्लेषण इतिहास नहीं है',
+
+      noHistoryDescription:
+        'AI द्वारा बनाए गए खतरे के स्पष्टीकरण और सुरक्षा सुझाव यहाँ दिखाई देंगे।',
+    },
+  }
+
+  const t = text[language] || text.English
 
   const handleAsk = () => {
     const trimmedQuestion = question.trim()
@@ -60,9 +201,7 @@ function AISecurity() {
     setAnswer('')
 
     setTimeout(() => {
-      setAnswer(
-        'AI Security Copilot is ready to analyze threats, explain detection results, and provide security recommendations.'
-      )
+      setAnswer(t.aiResponse)
       setAsking(false)
     }, 700)
   }
@@ -72,25 +211,30 @@ function AISecurity() {
 
       {/* HEADER */}
       <div className="ai-security-header">
+
         <div>
           <div className="ai-security-title-row">
+
             <div className="ai-security-title-icon">
               <SparkIcon />
             </div>
 
             <div>
-              <h1>AI Security</h1>
+              <h1>{t.title}</h1>
+
               <p>
-                AI-powered threat analysis and security assistance.
+                {t.description}
               </p>
             </div>
+
           </div>
         </div>
 
         <div className="ai-security-status">
           <span></span>
-          AI Engine Ready
+          {t.engineReady}
         </div>
+
       </div>
 
 
@@ -102,23 +246,27 @@ function AISecurity() {
         </div>
 
         <div className="ai-hero-content">
+
           <span className="ai-hero-label">
-            CYBERSHIELD AI COPILOT
+            {t.copilotLabel}
           </span>
 
           <h2>
-            Understand threats with AI-powered security analysis
+            {t.heroTitle}
           </h2>
 
           <p>
-            Ask questions about detected threats, suspicious files,
-            ransomware behavior, and recommended security actions.
+            {t.heroDescription}
           </p>
+
         </div>
 
         <div className="ai-hero-status">
           <div className="ai-online-dot"></div>
-          <span>Online</span>
+
+          <span>
+            {t.online}
+          </span>
         </div>
 
       </section>
@@ -137,43 +285,49 @@ function AISecurity() {
             </div>
 
             <div>
-              <h3>Threat Analysis</h3>
+              <h3>
+                {t.threatAnalysis}
+              </h3>
+
               <p>
-                AI interpretation of security findings
+                {t.threatAnalysisDescription}
               </p>
             </div>
 
           </div>
 
+
           <div className="ai-analysis-box">
 
             <div className="ai-analysis-row">
-              <span>Latest Analysis</span>
-              <strong>Static ML Detection</strong>
+              <span>{t.latestAnalysis}</span>
+              <strong>{t.staticDetection}</strong>
             </div>
 
             <div className="ai-analysis-row">
-              <span>Detection Engine</span>
+              <span>{t.detectionEngine}</span>
               <strong>XGBoost</strong>
             </div>
 
             <div className="ai-analysis-row">
-              <span>Behavior Engine</span>
+              <span>{t.behaviorEngine}</span>
               <strong>LSTM</strong>
             </div>
 
             <div className="ai-analysis-row">
-              <span>Explainability</span>
+              <span>{t.explainability}</span>
               <strong>SHAP</strong>
             </div>
 
           </div>
 
+
           <button
             type="button"
             className="ai-card-link"
           >
-            View threat analysis
+            {t.viewThreatAnalysis}
+
             <ArrowIcon />
           </button>
 
@@ -190,43 +344,49 @@ function AISecurity() {
             </div>
 
             <div>
-              <h3>Security Knowledge</h3>
+              <h3>
+                {t.securityKnowledge}
+              </h3>
+
               <p>
-                Threat intelligence and security context
+                {t.securityKnowledgeDescription}
               </p>
             </div>
 
           </div>
 
+
           <div className="knowledge-list">
 
             <div className="knowledge-item">
               <span className="knowledge-dot"></span>
-              Ransomware detection
+              {t.ransomwareDetection}
             </div>
 
             <div className="knowledge-item">
               <span className="knowledge-dot"></span>
-              Malware behavior
+              {t.malwareBehavior}
             </div>
 
             <div className="knowledge-item">
               <span className="knowledge-dot"></span>
-              MITRE ATT&amp;CK context
+              {t.mitreContext}
             </div>
 
             <div className="knowledge-item">
               <span className="knowledge-dot"></span>
-              Endpoint protection
+              {t.endpointProtection}
             </div>
 
           </div>
+
 
           <button
             type="button"
             className="ai-card-link"
           >
-            Explore security knowledge
+            {t.exploreKnowledge}
+
             <ArrowIcon />
           </button>
 
@@ -245,9 +405,12 @@ function AISecurity() {
           </div>
 
           <div>
-            <h2>Ask AI Security Copilot</h2>
+            <h2>
+              {t.askCopilot}
+            </h2>
+
             <p>
-              Ask a security question and get an AI-assisted explanation.
+              {t.askCopilotDescription}
             </p>
           </div>
 
@@ -258,8 +421,10 @@ function AISecurity() {
 
           <textarea
             value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Example: Why was this file detected as suspicious?"
+            onChange={(e) =>
+              setQuestion(e.target.value)
+            }
+            placeholder={t.questionPlaceholder}
             rows="3"
           />
 
@@ -269,11 +434,15 @@ function AISecurity() {
             onClick={handleAsk}
             disabled={!question.trim() || asking}
           >
+
             <span>
-              {asking ? 'Analyzing...' : 'Ask AI'}
+              {asking
+                ? t.analyzing
+                : t.askAI}
             </span>
 
             <ArrowIcon />
+
           </button>
 
         </div>
@@ -288,11 +457,15 @@ function AISecurity() {
             </div>
 
             <div>
+
               <span className="ai-answer-label">
-                AI SECURITY COPILOT
+                {t.answerLabel}
               </span>
 
-              <p>{answer}</p>
+              <p>
+                {answer}
+              </p>
+
             </div>
 
           </div>
@@ -306,16 +479,23 @@ function AISecurity() {
       <section className="ai-recent-card">
 
         <div className="ai-recent-header">
+
           <div>
-            <h2>Recent AI Security Activity</h2>
+
+            <h2>
+              {t.recentActivity}
+            </h2>
+
             <p>
-              AI-assisted security events and analysis.
+              {t.recentActivityDescription}
             </p>
+
           </div>
 
           <span className="ai-coming-soon">
-            Backend Ready
+            {t.backendReady}
           </span>
+
         </div>
 
 
@@ -325,11 +505,12 @@ function AISecurity() {
             <SearchIcon />
           </div>
 
-          <h3>No AI analysis history yet</h3>
+          <h3>
+            {t.noHistory}
+          </h3>
 
           <p>
-            AI-generated threat explanations and recommendations
-            will appear here.
+            {t.noHistoryDescription}
           </p>
 
         </div>

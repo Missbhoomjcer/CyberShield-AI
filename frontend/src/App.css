@@ -1,95 +1,67 @@
-/* =========================================================
-   CYBERSHIELD-AI
-   MAIN APP LAYOUT
-   ========================================================= */
-
 .app-layout {
-  width: 100%;
   min-height: 100vh;
   display: flex;
-  background: var(--bg-page, #f5f8fc);
+  background: #f5f8fc;
 }
-
-/* =========================================================
-   MAIN CONTENT
-   ========================================================= */
 
 .main-content {
   flex: 1;
   min-width: 0;
   min-height: 100vh;
-  padding: 34px 42px;
-  box-sizing: border-box;
+  padding: 24px 28px;
   overflow-x: hidden;
-  background: var(--bg-page, #f5f8fc);
 }
 
-/* Make page content use available width */
+/* Keep pages aligned with the reference layout */
 
 .main-content > * {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1380px;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* =========================================================
-   BUTTONS
-   ========================================================= */
+/* Common buttons */
 
 .primary-button {
   border: none;
-  background: var(--primary, #176ef5);
+  background: #146ef5;
   color: #ffffff;
   border-radius: 7px;
-  padding: 11px 20px;
-  font-size: 12px;
+  padding: 10px 18px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
 .primary-button:hover {
-  background: var(--primary-hover, #0d5fd7);
+  background: #075bd6;
 }
 
-/* =========================================================
-   COMMON CARD
-   ========================================================= */
+/* Common card */
 
 .card {
-  background: var(--bg-white, #ffffff);
-  border: 1px solid var(--border, #e2e8f0);
-  border-radius: var(--radius, 12px);
-  box-shadow: var(
-    --shadow-card,
-    0 2px 8px rgba(20, 40, 70, 0.04)
-  );
+  background: #ffffff;
+  border: 1px solid #e1e8f0;
+  border-radius: 10px;
 }
 
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
+/* Responsive */
 
 @media (max-width: 1100px) {
   .main-content {
-    padding: 28px;
+    padding: 20px;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 700px) {
   .app-layout {
     flex-direction: column;
   }
 
   .main-content {
     min-height: auto;
-    padding: 22px 18px;
-  }
-}
-
-@media (max-width: 480px) {
-  .main-content {
-    padding: 18px 14px;
+    padding: 16px;
   }
 }

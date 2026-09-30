@@ -1,183 +1,439 @@
 import { useState } from 'react'
 import './Settings.css'
 
+import { useLanguage } from '../context/LanguageContext.jsx'
+
+
 function Settings() {
+
+  const {
+    language,
+    setLanguage,
+    t
+  } = useLanguage()
+
+
   const [realTimeProtection, setRealTimeProtection] = useState(true)
-  const [ransomwareProtection, setRansomwareProtection] = useState(true)
-  const [behavioralMonitoring, setBehavioralMonitoring] = useState(true)
-  const [networkProtection, setNetworkProtection] = useState(true)
-  const [notifications, setNotifications] = useState(true)
-  const [autoUpdates, setAutoUpdates] = useState(true)
+
+  const [ransomwareProtection, setRansomwareProtection] =
+    useState(true)
+
+  const [behavioralMonitoring, setBehavioralMonitoring] =
+    useState(true)
+
+  const [networkProtection, setNetworkProtection] =
+    useState(true)
+
+  const [notifications, setNotifications] =
+    useState(true)
+
+  const [autoUpdates, setAutoUpdates] =
+    useState(true)
+
+
+  /* =========================================================
+     TOGGLE COMPONENT
+     ========================================================= */
+
+  const Toggle = ({
+    enabled,
+    onToggle,
+    label
+  }) => (
+
+    <button
+      type="button"
+      className={`settings-toggle ${
+        enabled ? 'enabled' : ''
+      }`}
+      onClick={onToggle}
+      aria-label={label}
+      aria-pressed={enabled}
+    >
+
+      <span />
+
+    </button>
+
+  )
+
 
   return (
+
     <div className="settings-page">
 
-      {/* Header */}
+
+      {/* =====================================================
+          HEADER
+          ===================================================== */}
+
       <div className="settings-header">
+
         <div>
-          <h1>Settings</h1>
-          <p>Manage your account and protection preferences.</p>
+
+          <h1>
+            {t('settings')}
+          </h1>
+
+          <p>
+            {t('manageSettings')}
+          </p>
+
         </div>
+
       </div>
 
-      {/* General Settings */}
+
+      {/* =====================================================
+          GENERAL SETTINGS
+          ===================================================== */}
+
       <section className="settings-card">
+
         <div className="settings-card-header">
+
           <div>
-            <h2>General Settings</h2>
-            <p>Configure your CyberShield preferences.</p>
+
+            <h2>
+              {t('generalSettings')}
+            </h2>
+
+            <p>
+              {t('generalSettingsDescription')}
+            </p>
+
           </div>
+
         </div>
 
+
+        {/* LANGUAGE */}
+
         <div className="settings-row">
+
           <div className="settings-row-info">
-            <h3>Language</h3>
-            <p>Select your preferred application language.</p>
+
+            <h3>
+              {t('language')}
+            </h3>
+
+            <p>
+              {t('languageDescription')}
+            </p>
+
           </div>
 
-          <select className="settings-select" defaultValue="English">
-            <option>English</option>
-            <option>Hindi</option>
+
+          <select
+            className="settings-select"
+            value={language}
+            onChange={(event) =>
+              setLanguage(event.target.value)
+            }
+          >
+
+            <option value="English">
+              {t('english')}
+            </option>
+
+            <option value="Hindi">
+              {t('hindi')}
+            </option>
+
           </select>
+
         </div>
+
+
+        {/* AUTOMATIC UPDATES */}
 
         <div className="settings-row">
+
           <div className="settings-row-info">
-            <h3>Automatic Updates</h3>
-            <p>Keep CyberShield updated automatically.</p>
+
+            <h3>
+              {t('automaticUpdates')}
+            </h3>
+
+            <p>
+              {t('automaticUpdatesDescription')}
+            </p>
+
           </div>
 
-          <button
-            className={`toggle ${autoUpdates ? 'on' : ''}`}
-            onClick={() => setAutoUpdates(!autoUpdates)}
-            aria-label="Toggle automatic updates"
-          >
-            <span />
-          </button>
+
+          <Toggle
+            enabled={autoUpdates}
+            onToggle={() =>
+              setAutoUpdates(!autoUpdates)
+            }
+            label={t('automaticUpdates')}
+          />
+
         </div>
+
       </section>
 
-      {/* Protection Settings */}
+
+      {/* =====================================================
+          PROTECTION
+          ===================================================== */}
+
       <section className="settings-card">
+
         <div className="settings-card-header">
+
           <div>
-            <h2>Protection</h2>
-            <p>Manage your security protection modules.</p>
+
+            <h2>
+              {t('protectionSettings')}
+            </h2>
+
+            <p>
+              {t('protectionSettingsDescription')}
+            </p>
+
           </div>
+
         </div>
+
+
+        {/* REAL-TIME PROTECTION */}
 
         <div className="settings-row">
+
           <div className="settings-row-info">
-            <h3>Real-Time Protection</h3>
-            <p>Monitor your device continuously for suspicious activity.</p>
+
+            <h3>
+              {t('realTimeProtection')}
+            </h3>
+
+            <p>
+              {t('realTimeProtectionDescription')}
+            </p>
+
           </div>
 
-          <button
-            className={`toggle ${realTimeProtection ? 'on' : ''}`}
-            onClick={() => setRealTimeProtection(!realTimeProtection)}
-            aria-label="Toggle real-time protection"
-          >
-            <span />
-          </button>
+
+          <Toggle
+            enabled={realTimeProtection}
+            onToggle={() =>
+              setRealTimeProtection(
+                !realTimeProtection
+              )
+            }
+            label={t('realTimeProtection')}
+          />
+
         </div>
+
+
+        {/* RANSOMWARE PROTECTION */}
 
         <div className="settings-row">
+
           <div className="settings-row-info">
-            <h3>Ransomware Protection</h3>
-            <p>Detect suspicious ransomware-related behavior.</p>
+
+            <h3>
+              {t('ransomwareProtection')}
+            </h3>
+
+            <p>
+              {t('ransomwareProtectionDescription')}
+            </p>
+
           </div>
 
-          <button
-            className={`toggle ${ransomwareProtection ? 'on' : ''}`}
-            onClick={() => setRansomwareProtection(!ransomwareProtection)}
-            aria-label="Toggle ransomware protection"
-          >
-            <span />
-          </button>
+
+          <Toggle
+            enabled={ransomwareProtection}
+            onToggle={() =>
+              setRansomwareProtection(
+                !ransomwareProtection
+              )
+            }
+            label={t('ransomwareProtection')}
+          />
+
         </div>
+
+
+        {/* BEHAVIORAL MONITORING */}
 
         <div className="settings-row">
+
           <div className="settings-row-info">
-            <h3>Behavioral Monitoring</h3>
-            <p>Use LSTM-based behavioral analysis to detect threats.</p>
+
+            <h3>
+              {t('behavioralMonitoring')}
+            </h3>
+
+            <p>
+              {t('behavioralMonitoringDescription')}
+            </p>
+
           </div>
 
-          <button
-            className={`toggle ${behavioralMonitoring ? 'on' : ''}`}
-            onClick={() => setBehavioralMonitoring(!behavioralMonitoring)}
-            aria-label="Toggle behavioral monitoring"
-          >
-            <span />
-          </button>
+
+          <Toggle
+            enabled={behavioralMonitoring}
+            onToggle={() =>
+              setBehavioralMonitoring(
+                !behavioralMonitoring
+              )
+            }
+            label={t('behavioralMonitoring')}
+          />
+
         </div>
+
+
+        {/* NETWORK PROTECTION */}
 
         <div className="settings-row">
+
           <div className="settings-row-info">
-            <h3>Network Protection</h3>
-            <p>Monitor network activity for suspicious connections.</p>
+
+            <h3>
+              {t('networkProtection')}
+            </h3>
+
+            <p>
+              {t('networkProtectionDescription')}
+            </p>
+
           </div>
 
-          <button
-            className={`toggle ${networkProtection ? 'on' : ''}`}
-            onClick={() => setNetworkProtection(!networkProtection)}
-            aria-label="Toggle network protection"
-          >
-            <span />
-          </button>
+
+          <Toggle
+            enabled={networkProtection}
+            onToggle={() =>
+              setNetworkProtection(
+                !networkProtection
+              )
+            }
+            label={t('networkProtection')}
+          />
+
         </div>
+
       </section>
 
-      {/* Notifications */}
+
+      {/* =====================================================
+          NOTIFICATIONS
+          ===================================================== */}
+
       <section className="settings-card">
+
         <div className="settings-card-header">
+
           <div>
-            <h2>Notifications</h2>
-            <p>Choose how CyberShield should notify you.</p>
+
+            <h2>
+              {t('notifications')}
+            </h2>
+
+            <p>
+              {t('notificationsDescription')}
+            </p>
+
           </div>
+
         </div>
+
 
         <div className="settings-row">
+
           <div className="settings-row-info">
-            <h3>Security Notifications</h3>
-            <p>Receive alerts when threats are detected.</p>
+
+            <h3>
+              {t('securityNotifications')}
+            </h3>
+
+            <p>
+              {t('securityNotificationsDescription')}
+            </p>
+
           </div>
 
-          <button
-            className={`toggle ${notifications ? 'on' : ''}`}
-            onClick={() => setNotifications(!notifications)}
-            aria-label="Toggle notifications"
-          >
-            <span />
-          </button>
+
+          <Toggle
+            enabled={notifications}
+            onToggle={() =>
+              setNotifications(!notifications)
+            }
+            label={t('securityNotifications')}
+          />
+
         </div>
+
       </section>
 
-      {/* Account */}
+
+      {/* =====================================================
+          ACCOUNT
+          ===================================================== */}
+
       <section className="settings-card">
+
         <div className="settings-card-header">
+
           <div>
-            <h2>Account</h2>
-            <p>Manage your CyberShield account information.</p>
+
+            <h2>
+              {t('account')}
+            </h2>
+
+            <p>
+              {t('accountDescription')}
+            </p>
+
           </div>
+
         </div>
+
 
         <div className="account-info">
-          <div className="account-avatar">H</div>
 
-          <div className="account-details">
-            <h3>Harshita</h3>
-            <p>Personal device</p>
-            <span>harshita@cybershield.ai</span>
+          <div className="account-avatar">
+            H
           </div>
 
-          <button className="secondary-button">
-            Edit Profile
+
+          <div className="account-details">
+
+            <h3>
+              Harshita
+            </h3>
+
+            <p>
+              {t('personalDevice')}
+            </p>
+
+            <span>
+              harshita@cybershield.ai
+            </span>
+
+          </div>
+
+
+          <button
+            type="button"
+            className="secondary-button"
+          >
+            {t('editProfile')}
           </button>
+
         </div>
+
       </section>
 
+
     </div>
+
   )
 }
+
 
 export default Settings

@@ -1,9 +1,14 @@
-import { useState } from 'react'
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 
 import Sidebar from './components/layout/Sidebar.jsx'
 
 import Landing from './pages/Landing.jsx'
+import Features from './pages/Features.jsx'
+import Security from './pages/Security.jsx'
+import About from './pages/About.jsx'
+import Demo from './pages/Demo.jsx'
+
 import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import ScanFile from './pages/ScanFile.jsx'
@@ -13,27 +18,40 @@ import Protection from './pages/Protection.jsx'
 import Quarantine from './pages/Quarantine.jsx'
 import AISecurity from './pages/AISecurity.jsx'
 import Devices from './pages/Devices.jsx'
+import WindowsAgent from './pages/WindowsAgent.jsx'
 import Reports from './pages/Reports.jsx'
-import Settings from './pages/Settings.jsx'
 import Subscription from './pages/Subscription.jsx'
+import Settings from './pages/Settings.jsx'
+import Payment from './pages/Payment.jsx'
 
 import './App.css'
 
 
+/* =========================================================
+   PROTECTED LAYOUT
+   ========================================================= */
+
 function ProtectedLayout({ children }) {
   return (
     <div className="app-layout">
+
       <Sidebar />
 
       <main className="main-content">
         {children}
       </main>
+
     </div>
   )
 }
 
 
+/* =========================================================
+   APP
+   ========================================================= */
+
 function App() {
+
   const [isLoggedIn, setIsLoggedIn] = useState(
     sessionStorage.getItem('cybershield_logged_in') === 'true'
   )
@@ -41,58 +59,105 @@ function App() {
   const navigate = useNavigate()
 
 
+  /* =======================================================
+     LOGIN
+     ======================================================= */
+
   const handleLogin = () => {
-    sessionStorage.setItem('cybershield_logged_in', 'true')
+
+    sessionStorage.setItem(
+      'cybershield_logged_in',
+      'true'
+    )
+
     setIsLoggedIn(true)
+
+    navigate('/dashboard')
+  }
+
+
+  /* =======================================================
+     LOGOUT
+     ======================================================= */
+
+  const handleLogout = () => {
+
+    sessionStorage.removeItem(
+      'cybershield_logged_in'
+    )
+
+    setIsLoggedIn(false)
+
     navigate('/')
   }
 
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('cybershield_logged_in')
-    setIsLoggedIn(false)
-    navigate('/login')
-  }
-
-
   return (
+
     <Routes>
 
-      {/* =====================================================
-          LANDING PAGE
-          ===================================================== */}
+      {/* ===================================================
+          PUBLIC WEBSITE
+          =================================================== */}
+
+      <Route
+        path="/"
+        element={<Landing />}
+      />
 
       <Route
         path="/landing"
         element={<Landing />}
       />
 
+      <Route
+        path="/features"
+        element={<Features />}
+      />
 
-      {/* =====================================================
+      <Route
+        path="/security"
+        element={<Security />}
+      />
+
+      <Route
+        path="/about"
+        element={<About />}
+      />
+
+      <Route
+        path="/demo"
+        element={<Demo />}
+      />
+
+
+      {/* ===================================================
           LOGIN
-          ===================================================== */}
+          =================================================== */}
 
       <Route
         path="/login"
         element={
           isLoggedIn ? (
             <Navigate
-              to="/"
+              to="/dashboard"
               replace
             />
           ) : (
-            <Login onLogin={handleLogin} />
+            <Login
+              onLogin={handleLogin}
+            />
           )
         }
       />
 
 
-      {/* =====================================================
+      {/* ===================================================
           DASHBOARD
-          ===================================================== */}
+          =================================================== */}
 
       <Route
-        path="/"
+        path="/dashboard"
         element={
           isLoggedIn ? (
             <ProtectedLayout>
@@ -108,9 +173,9 @@ function App() {
       />
 
 
-      {/* =====================================================
+      {/* ===================================================
           SCAN
-          ===================================================== */}
+          =================================================== */}
 
       <Route
         path="/scan"
@@ -129,9 +194,9 @@ function App() {
       />
 
 
-      {/* =====================================================
-          ACTIVITY MONITOR
-          ===================================================== */}
+      {/* ===================================================
+          REAL-TIME MONITORING
+          =================================================== */}
 
       <Route
         path="/activity-monitor"
@@ -150,9 +215,9 @@ function App() {
       />
 
 
-      {/* =====================================================
+      {/* ===================================================
           THREATS
-          ===================================================== */}
+          =================================================== */}
 
       <Route
         path="/threats"
@@ -171,9 +236,9 @@ function App() {
       />
 
 
-      {/* =====================================================
+      {/* ===================================================
           PROTECTION
-          ===================================================== */}
+          =================================================== */}
 
       <Route
         path="/protection"
@@ -192,9 +257,9 @@ function App() {
       />
 
 
-      {/* =====================================================
+      {/* ===================================================
           QUARANTINE
-          ===================================================== */}
+          =================================================== */}
 
       <Route
         path="/quarantine"
@@ -213,9 +278,9 @@ function App() {
       />
 
 
-      {/* =====================================================
+      {/* ===================================================
           AI SECURITY
-          ===================================================== */}
+          =================================================== */}
 
       <Route
         path="/ai-security"
@@ -234,9 +299,9 @@ function App() {
       />
 
 
-      {/* =====================================================
+      {/* ===================================================
           DEVICES
-          ===================================================== */}
+          =================================================== */}
 
       <Route
         path="/devices"
@@ -255,9 +320,30 @@ function App() {
       />
 
 
-      {/* =====================================================
+      {/* ===================================================
+          WINDOWS AGENT
+          =================================================== */}
+
+      <Route
+        path="/windows-agent"
+        element={
+          isLoggedIn ? (
+            <ProtectedLayout>
+              <WindowsAgent />
+            </ProtectedLayout>
+          ) : (
+            <Navigate
+              to="/login"
+              replace
+            />
+          )
+        }
+      />
+
+
+      {/* ===================================================
           REPORTS
-          ===================================================== */}
+          =================================================== */}
 
       <Route
         path="/reports"
@@ -276,30 +362,9 @@ function App() {
       />
 
 
-      {/* =====================================================
-          SETTINGS
-          ===================================================== */}
-
-      <Route
-        path="/settings"
-        element={
-          isLoggedIn ? (
-            <ProtectedLayout>
-              <Settings />
-            </ProtectedLayout>
-          ) : (
-            <Navigate
-              to="/login"
-              replace
-            />
-          )
-        }
-      />
-
-
-      {/* =====================================================
+      {/* ===================================================
           SUBSCRIPTION
-          ===================================================== */}
+          =================================================== */}
 
       <Route
         path="/subscription"
@@ -318,15 +383,57 @@ function App() {
       />
 
 
-      {/* =====================================================
-          UNKNOWN ROUTES
-          ===================================================== */}
+      {/* ===================================================
+          PAYMENT
+          =================================================== */}
+
+      <Route
+        path="/payment"
+        element={
+          isLoggedIn ? (
+            <ProtectedLayout>
+              <Payment />
+            </ProtectedLayout>
+          ) : (
+            <Navigate
+              to="/login"
+              replace
+            />
+          )
+        }
+      />
+
+
+      {/* ===================================================
+          SETTINGS
+          =================================================== */}
+
+      <Route
+        path="/settings"
+        element={
+          isLoggedIn ? (
+            <ProtectedLayout>
+              <Settings />
+            </ProtectedLayout>
+          ) : (
+            <Navigate
+              to="/login"
+              replace
+            />
+          )
+        }
+      />
+
+
+      {/* ===================================================
+          UNKNOWN ROUTE
+          =================================================== */}
 
       <Route
         path="*"
         element={
           <Navigate
-            to="/landing"
+            to="/"
             replace
           />
         }
@@ -335,6 +442,5 @@ function App() {
     </Routes>
   )
 }
-
 
 export default App

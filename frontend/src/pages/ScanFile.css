@@ -1,4 +1,8 @@
-.scan-file {
+/* =========================================================
+   SCAN PAGE
+   ========================================================= */
+
+.scan-page {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
@@ -6,679 +10,541 @@
   color: #172033;
 }
 
-/* ==========================================
+
+/* =========================================================
    HEADER
-========================================== */
+   ========================================================= */
 
 .scan-header {
   margin-bottom: 20px;
 }
 
-.scan-file h1 {
-  margin: 0;
+.scan-header h1 {
+  margin: 0 0 6px;
   color: #172033;
   font-size: 28px;
   font-weight: 700;
-  letter-spacing: -0.4px;
+  line-height: 1.2;
 }
 
-.page-subtitle {
-  margin: 6px 0 0;
-  color: #68758a;
+.scan-header p {
+  margin: 0;
+  color: #667892;
   font-size: 14px;
   line-height: 1.5;
 }
 
-/* ==========================================
-   SCAN MODES
-========================================== */
 
-.scan-mode-card {
+/* =========================================================
+   SCAN MODE BAR
+   ========================================================= */
+
+.scan-mode-bar {
+  width: 100%;
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 20px;
+
+  border: 1px solid #dfe7f1;
+  border-radius: 12px;
   background: #ffffff;
-  border: 1px solid #e1e8f1;
-  border-radius: 14px;
-  padding: 7px;
-  margin-bottom: 18px;
-  box-shadow: 0 2px 8px rgba(24, 48, 82, 0.03);
+  box-shadow: 0 2px 8px rgba(30, 70, 110, 0.04);
 }
 
-.scan-mode-tabs {
-  display: flex;
-  gap: 6px;
-}
+.scan-mode {
+  height: 48px;
 
-.scan-mode-tab {
-  position: relative;
-  flex: 1;
   border: none;
-  background: transparent;
-  color: #62738a;
   border-radius: 9px;
-  padding: 11px 15px;
+
+  background: transparent;
+  color: #8492a6;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
   font-size: 13px;
   font-weight: 600;
+
   cursor: pointer;
-  transition: 0.2s ease;
 }
 
-.scan-mode-tab:hover:not(.disabled) {
-  background: #f3f7fd;
-  color: #146ef5;
+.scan-mode span {
+  font-size: 14px;
 }
 
-.scan-mode-tab.active {
-  background: #146ef5;
+.scan-mode.active {
+  background: #176ef5;
   color: #ffffff;
-  box-shadow: 0 3px 8px rgba(20, 110, 245, 0.18);
+  box-shadow: 0 3px 8px rgba(23, 110, 245, 0.22);
 }
 
-.scan-mode-tab.disabled {
+.scan-mode.disabled {
   color: #9aa7b8;
   cursor: not-allowed;
 }
 
-.mode-icon {
-  margin-right: 7px;
-  font-size: 13px;
-}
+.scan-mode small {
+  padding: 3px 6px;
 
-.coming-soon {
-  margin-left: 7px;
-  padding: 2px 6px;
-  border-radius: 10px;
+  border-radius: 6px;
+
   background: #f1f4f8;
-  color: #8996a7;
-  font-size: 9px;
-  font-weight: 600;
+  color: #9aa6b5;
+
+  font-size: 8px;
+  font-weight: 700;
 }
 
-/* ==========================================
-   MAIN LAYOUT
-========================================== */
 
-.scan-content {
+/* =========================================================
+   MAIN GRID
+   ========================================================= */
+
+.scan-content-grid {
   display: grid;
-  grid-template-columns: minmax(390px, 0.9fr) minmax(450px, 1.1fr);
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
 }
 
-/* ==========================================
-   LEFT PANEL
-========================================== */
 
-.scan-panel {
+/* =========================================================
+   COMMON CARD
+   ========================================================= */
+
+.scan-card {
+  border: 1px solid #dfe7f1;
+  border-radius: 14px;
   background: #ffffff;
-  border: 1px solid #e1e8f1;
-  border-radius: 15px;
-  padding: 22px;
-  box-shadow: 0 2px 10px rgba(24, 48, 82, 0.03);
+  box-shadow: 0 2px 8px rgba(30, 70, 110, 0.04);
 }
 
-.scan-panel-header {
+
+/* =========================================================
+   UPLOAD CARD
+   ========================================================= */
+
+.scan-upload-card {
+  padding: 22px;
+}
+
+.scan-card-header {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
+  justify-content: space-between;
   gap: 15px;
+
   margin-bottom: 18px;
 }
 
-.scan-panel-header h2 {
+.scan-card-header h2 {
   margin: 0 0 5px;
+
   color: #172033;
-  font-size: 18px;
+  font-size: 20px;
+  font-weight: 700;
 }
 
-.scan-panel-header p {
+.scan-card-header p {
   margin: 0;
-  color: #7a8799;
+
+  color: #7b8ca3;
   font-size: 12px;
   line-height: 1.5;
 }
 
-.scan-status {
-  padding: 5px 9px;
-  border-radius: 20px;
-  background: #eaf8f0;
-  color: #15955a;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-
-/* ==========================================
-   SELECTED FILE
-========================================== */
-
-.selected-file-card {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  margin-top: 14px;
-  padding: 11px;
-  border: 1px solid #dce7f4;
-  background: #f7faff;
-  border-radius: 10px;
-}
-
-.selected-file-icon {
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.scan-ai-badge {
   flex-shrink: 0;
-  border-radius: 9px;
-  background: #e7f0ff;
-  color: #146ef5;
-  font-size: 9px;
-  font-weight: 800;
+
+  padding: 6px 9px;
+
+  border-radius: 20px;
+
+  background: #e8f8ef;
+  color: #168c58;
+
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
-.selected-file-info {
-  min-width: 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.scan-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+
+  border: 1px solid #ffd4d4;
+  border-radius: 8px;
+
+  background: #fff3f3;
+  color: #c63d3d;
+
+  font-size: 11px;
+  line-height: 1.4;
 }
 
-.selected-file-info strong {
-  color: #26364d;
-  font-size: 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
-.selected-file-info span {
-  color: #8491a3;
-  font-size: 10px;
-}
+/* =========================================================
+   START SCAN BUTTON
+   ========================================================= */
 
-.remove-file {
-  width: 27px;
-  height: 27px;
-  border: none;
-  border-radius: 7px;
-  background: #ffffff;
-  color: #8a96a7;
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.remove-file:hover {
-  background: #fff0f0;
-  color: #d64545;
-}
-
-/* ==========================================
-   SCAN BUTTON
-========================================== */
-
-.btn-scan {
+.scan-start-button {
   width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
+  height: 49px;
+
   margin-top: 16px;
+
   border: none;
-  background: #146ef5;
-  color: #ffffff;
   border-radius: 9px;
-  padding: 13px 18px;
+
+  background: #176ef5;
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
   font-size: 13px;
   font-weight: 600;
+
   cursor: pointer;
+
   transition:
-    background 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    background 0.15s ease,
+    transform 0.15s ease;
 }
 
-.btn-scan:hover:not(:disabled) {
+.scan-start-button:hover:not(:disabled) {
   background: #075bd6;
   transform: translateY(-1px);
-  box-shadow: 0 5px 12px rgba(20, 110, 245, 0.18);
 }
 
-.btn-scan:disabled {
-  background: #a9c6ef;
+.scan-start-button:disabled {
+  background: #a9c8f2;
   cursor: not-allowed;
   transform: none;
 }
 
-.scan-button-icon {
-  font-size: 16px;
+.scan-start-button span {
+  font-size: 14px;
 }
 
-/* ==========================================
-   SCANNING STATE
-========================================== */
 
-.scanning-state {
-  margin-top: 16px;
-  padding: 15px;
-  border: 1px solid #dce9f8;
-  background: #f4f9ff;
-  border-radius: 10px;
-}
+/* =========================================================
+   SUPPORTED TEXT
+   ========================================================= */
 
-.scanning-heading {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #275b9c;
-  font-size: 12px;
-}
+.scan-supported {
+  margin-top: 12px;
 
-.scanning-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #146ef5;
-  animation: scanningPulse 1s infinite;
-}
+  color: #8b97a7;
 
-.scanning-state p {
-  margin: 8px 0 12px 16px;
-  color: #708096;
-  font-size: 11px;
-}
-
-.scan-bar {
-  width: 100%;
-  height: 6px;
-  background: #dce8f5;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-bottom: 9px;
-}
-
-.scan-bar-fill {
-  height: 100%;
-  width: 45%;
-  background: #146ef5;
-  border-radius: 10px;
-  animation: scanProgress 1.2s ease-in-out infinite;
-}
-
-.scanning-state .mono {
-  color: #62738a;
-  font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
-  line-height: 1.5;
+  text-align: center;
 }
 
-@keyframes scanProgress {
-  0% {
-    transform: translateX(-120%);
-  }
 
-  100% {
-    transform: translateX(260%);
-  }
-}
+/* =========================================================
+   RIGHT COLUMN
+   ========================================================= */
 
-@keyframes scanningPulse {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-
-  50% {
-    opacity: 1;
-  }
-}
-
-/* ==========================================
-   ERROR
-========================================== */
-
-.scan-error {
+.scan-right-column {
   display: flex;
-  gap: 10px;
-  margin-top: 16px;
-  padding: 12px 14px;
-  background: #fff4f4;
-  border: 1px solid #f3d0d0;
-  border-radius: 9px;
-  color: #c44747;
-  font-size: 12px;
-  line-height: 1.5;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.error-icon {
-  width: 20px;
-  height: 20px;
+
+/* =========================================================
+   READY TO SCAN
+   ========================================================= */
+
+.scan-ready-card {
+  min-height: 330px;
+
+  padding: 32px 30px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.scan-ready-icon {
+  width: 82px;
+  height: 82px;
+
+  margin-bottom: 20px;
+
+  border-radius: 50%;
+
+  background: #edf5ff;
+
+  color: #176ef5;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: #fbe0e0;
-  color: #c44747;
+}
+
+.scan-ready-icon::before {
+  content: '';
+
+  position: absolute;
+}
+
+.scan-ready-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.scan-ready-card h2 {
+  margin: 0 0 7px;
+
+  color: #172033;
+
+  font-size: 21px;
   font-weight: 700;
 }
 
-.scan-error strong {
-  display: block;
-  margin-bottom: 2px;
-}
+.scan-ready-card > p {
+  max-width: 430px;
 
-.scan-error p {
   margin: 0;
-}
 
-/* ==========================================
-   SUPPORTED FILES
-========================================== */
+  color: #7c8da4;
 
-.supported-files {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 15px;
-  color: #8a97a9;
-  font-size: 10px;
-}
-
-.supported-files strong {
-  padding: 3px 6px;
-  border-radius: 5px;
-  background: #f0f5fb;
-  color: #61728a;
-  font-size: 9px;
-}
-
-/* ==========================================
-   RIGHT COLUMN
-========================================== */
-
-.scan-right-column {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-/* ==========================================
-   READY / PREVIEW
-========================================== */
-
-.scan-preview-card {
-  min-height: 375px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 35px;
-  background: #ffffff;
-  border: 1px solid #e1e8f1;
-  border-radius: 15px;
-  box-shadow: 0 2px 10px rgba(24, 48, 82, 0.03);
-}
-
-.large-scan-icon {
-  width: 125px;
-  height: 125px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  border-radius: 50%;
-  background: #edf5ff;
-}
-
-.scan-circle {
-  width: 82px;
-  height: 82px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 5px solid #cfe2ff;
-  border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 4px 15px rgba(20, 110, 245, 0.08);
-}
-
-.scan-circle span {
-  color: #146ef5;
-  font-size: 35px;
-}
-
-.scan-preview-card h2 {
-  margin: 0 0 8px;
-  color: #172033;
-  font-size: 20px;
-}
-
-.scan-preview-card > p {
-  max-width: 440px;
-  margin: 0;
-  color: #77859a;
   font-size: 12px;
   line-height: 1.6;
 }
 
-.analysis-points {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px 22px;
+
+/* =========================================================
+   CHECK GRID
+   ========================================================= */
+
+.scan-check-grid {
   width: 100%;
   max-width: 430px;
-  margin-top: 22px;
+
+  margin-top: 24px;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 20px;
+
   text-align: left;
 }
 
-.analysis-points div {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: #617189;
+.scan-check-grid span {
+  color: #5f7189;
+
   font-size: 10px;
+  line-height: 1.4;
 }
 
-.analysis-points span {
-  color: #19a766;
-  font-weight: 700;
+.scan-check-grid span::first-letter {
+  color: #18a866;
 }
 
-/* ==========================================
+
+/* =========================================================
    LAST SCAN
-========================================== */
+   ========================================================= */
 
-.last-scan-card {
-  background: #ffffff;
-  border: 1px solid #e1e8f1;
-  border-radius: 15px;
+.scan-last-card {
   padding: 18px;
-  box-shadow: 0 2px 10px rgba(24, 48, 82, 0.03);
 }
 
-.last-scan-header {
+.scan-last-header {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
+  justify-content: space-between;
+
+  padding-bottom: 14px;
+
+  border-bottom: 1px solid #edf1f5;
 }
 
-.last-scan-header h3 {
-  margin: 0 0 4px;
+.scan-last-header h2 {
+  margin: 0 0 3px;
+
   color: #172033;
-  font-size: 14px;
+
+  font-size: 15px;
+  font-weight: 700;
 }
 
-.last-scan-header p {
+.scan-last-header p {
   margin: 0;
-  color: #8995a6;
+
+  color: #8a95a5;
+
   font-size: 10px;
 }
 
-.last-scan-icon {
-  width: 29px;
-  height: 29px;
+.scan-last-check {
+  width: 30px;
+  height: 30px;
+
+  border-radius: 8px;
+
+  background: #e6f8ef;
+  color: #15965b;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  background: #e8f8f0;
-  color: #15955a;
-  font-size: 13px;
+
+  font-size: 14px;
   font-weight: 700;
 }
 
-.last-scan-result,
-.no-last-scan {
+.scan-last-empty {
+  min-height: 70px;
+
   display: flex;
   align-items: center;
-  gap: 11px;
-  margin-top: 15px;
-  padding-top: 14px;
-  border-top: 1px solid #edf1f5;
+
+  gap: 12px;
 }
 
-.last-file-icon {
-  width: 35px;
-  height: 35px;
+.scan-last-empty-icon {
+  width: 38px;
+  height: 38px;
+
+  border-radius: 50%;
+
+  background: #f2f5f8;
+  color: #91a0b2;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  border-radius: 8px;
-  background: #e8f8f0;
-  color: #15955a;
+
   font-size: 13px;
-  font-weight: 700;
 }
 
-.last-file-info {
-  flex: 1;
-  min-width: 0;
+.scan-last-empty div:last-child {
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
 
-.last-file-info strong {
-  color: #26364d;
-  font-size: 11px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+.scan-last-empty strong {
+  color: #4c5d73;
 
-.last-file-info span {
-  color: #8995a6;
-  font-size: 9px;
-}
-
-.last-scan-badge {
-  padding: 5px 8px;
-  border-radius: 12px;
-  font-size: 9px;
-  font-weight: 700;
-}
-
-.last-scan-badge.safe {
-  background: #e8f8f0;
-  color: #15955a;
-}
-
-.last-scan-badge.danger {
-  background: #fff0f0;
-  color: #d64545;
-}
-
-.no-last-scan > span {
-  width: 35px;
-  height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: #f1f5f9;
-  color: #8a97a8;
-}
-
-.no-last-scan strong {
-  display: block;
-  color: #64748a;
   font-size: 11px;
 }
 
-.no-last-scan p {
-  margin: 3px 0 0;
-  color: #9aa5b4;
+.scan-last-empty span {
+  color: #98a3b2;
+
   font-size: 9px;
 }
 
-/* ==========================================
+
+/* =========================================================
    RESULT
-========================================== */
+   ========================================================= */
 
-.scan-result-container {
+.scan-result-wrapper {
+  width: 100%;
   min-width: 0;
 }
 
-/* ==========================================
-   RESPONSIVE
-========================================== */
 
-@media (max-width: 1150px) {
-  .scan-content {
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1050px) {
+
+  .scan-content-grid {
     grid-template-columns: 1fr;
   }
 
-  .scan-preview-card {
-    min-height: 320px;
+  .scan-right-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
+
 }
 
-@media (max-width: 650px) {
-  .scan-file {
+
+@media (max-width: 760px) {
+
+  .scan-page {
     padding-bottom: 25px;
   }
 
-  .scan-file h1 {
+  .scan-header h1 {
     font-size: 24px;
   }
 
-  .page-subtitle {
-    font-size: 13px;
+  .scan-header p {
+    font-size: 12px;
   }
 
-  .scan-mode-tabs {
-    flex-direction: column;
+  .scan-mode-bar {
+    grid-template-columns: 1fr;
+    padding: 5px;
   }
 
-  .scan-mode-tab {
+  .scan-mode {
     width: 100%;
   }
 
-  .scan-panel {
-    padding: 16px;
-  }
-
-  .scan-panel-header {
-    flex-direction: column;
-  }
-
-  .scan-status {
-    align-self: flex-start;
-  }
-
-  .analysis-points {
+  .scan-right-column {
     grid-template-columns: 1fr;
   }
 
-  .scan-preview-card {
+  .scan-upload-card {
+    padding: 17px;
+  }
+
+  .scan-card-header {
+    flex-direction: column;
+  }
+
+  .scan-ready-card {
+    min-height: 280px;
     padding: 25px 18px;
   }
+
+  .scan-check-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .scan-header h1 {
+    font-size: 22px;
+  }
+
+  .scan-card-header h2 {
+    font-size: 18px;
+  }
+
+  .scan-ready-card h2 {
+    font-size: 19px;
+  }
+
 }
