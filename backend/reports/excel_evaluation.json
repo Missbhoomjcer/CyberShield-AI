@@ -1,0 +1,25 @@
+{
+  "dataset": "C:\\Users\\01bho\\Downloads\\Excel_All_Features.csv",
+  "samples": 20000,
+  "features": 48,
+  "benign_samples": 10000,
+  "malicious_samples": 10000,
+  "test_size": 0.2,
+  "random_state": 42,
+  "model": "XGBClassifier",
+  "metrics": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "roc_auc": 1.0,
+    "false_positive_rate": 0.0,
+    "false_negative_rate": 0.0
+  },
+  "confusion_matrix": {
+    "tn": 2000,
+    "fp": 0,
+    "fn": 0,
+    "tp": 2000
+  }
+}
