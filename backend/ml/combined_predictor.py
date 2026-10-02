@@ -14,6 +14,9 @@ class CombinedPredictor:
     Combines the existing XGBoost binary malware classifier
     with the family classification model.
 
+    Family classification is performed only when the primary
+    XGBoost classifier predicts the file as malware.
+
     This module does NOT modify the threat decision engine.
     """
 
@@ -133,19 +136,19 @@ class CombinedPredictor:
 
         # Remove metadata / target columns
         X = X.drop(
-    columns=[
-        "Class",
-        "Category",
-        "Family",
-        "md5",
-        "sha1",
-        "_file_size",
-        "_entropy",
-        "_sha256",
-        "_md5"
-    ],
-    errors="ignore"
-)
+            columns=[
+                "Class",
+                "Category",
+                "Family",
+                "md5",
+                "sha1",
+                "_file_size",
+                "_entropy",
+                "_sha256",
+                "_md5"
+            ],
+            errors="ignore"
+        )
 
         # Get expected feature names
         feature_names = self.feature_info.get(
@@ -230,13 +233,41 @@ class CombinedPredictor:
 
         # ====================================================
         # FAMILY PREDICTION
+        #
+        # Only run the family classifier when the primary
+        # XGBoost classifier predicts MALWARE.
+        #
+        # Benign files must never receive a malware family.
         # ====================================================
 
-        family_result = (
-            self.family_predictor.predict(
-                features
+        if int(binary_prediction) == 1:
+
+            family_result = (
+                self.family_predictor.predict(
+                    features
+                )
             )
-        )
+
+            family = family_result["family"]
+
+            family_confidence = (
+                family_result["confidence"]
+            )
+
+            family_top_3 = (
+                family_result["top_3"]
+            )
+
+        else:
+
+            # Primary classifier says BENIGN.
+            # Therefore there is no malware family.
+
+            family = "Benign"
+
+            family_confidence = 0.0
+
+            family_top_3 = []
 
         # ====================================================
         # COMBINED RESULT
@@ -260,13 +291,13 @@ class CombinedPredictor:
                 ),
 
             "family":
-                family_result["family"],
+                family,
 
             "family_confidence":
-                family_result["confidence"],
+                family_confidence,
 
             "family_top_3":
-                family_result["top_3"]
+                family_top_3
         }
 
 
@@ -297,6 +328,11 @@ if __name__ == "__main__":
 
     print(
         "  [2] Family Random Forest classifier"
+    )
+
+    print()
+    print(
+        "Family classification is skipped for benign files."
     )
 
     print()
