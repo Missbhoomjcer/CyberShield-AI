@@ -1,0 +1,449 @@
+.security-page {
+  min-height: 100vh;
+  background: #f7fbff;
+  color: #172033;
+}
+
+
+/* NAVBAR */
+
+.security-navbar {
+  min-height: 72px;
+  padding: 0 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-bottom: 1px solid #e5edf5;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.security-brand {
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  color: #172033;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.security-brand > span:last-child span {
+  color: #1677ff;
+}
+
+.security-brand-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: #eaf3ff;
+  color: #1677ff;
+}
+
+.security-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.security-nav button {
+  border: none;
+  background: transparent;
+  padding: 10px 14px;
+  border-radius: 7px;
+  color: #526071;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.security-nav button:hover,
+.security-nav button.active {
+  color: #1677ff;
+  background: #eef6ff;
+}
+
+.security-nav .security-signin {
+  margin-left: 12px;
+  border: 1px solid #d6e0eb;
+  background: #ffffff;
+  color: #26364a;
+}
+
+.security-nav .security-get-started {
+  background: #1677ff;
+  color: #ffffff;
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+
+/* HERO */
+
+.security-hero {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 105px 24px 90px;
+  text-align: center;
+}
+
+.security-eyebrow {
+  margin-bottom: 18px;
+  color: #1677ff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+}
+
+.security-hero h1 {
+  margin: 0;
+  font-size: clamp(46px, 6vw, 70px);
+  line-height: 1.06;
+  letter-spacing: -2.5px;
+}
+
+.security-hero h1 span {
+  color: #1677ff;
+}
+
+.security-hero p {
+  max-width: 680px;
+  margin: 25px auto 0;
+  color: #68778a;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+
+/* SECTION HEADING */
+
+.security-section-heading {
+  max-width: 700px;
+  margin: 0 auto 50px;
+  text-align: center;
+}
+
+.security-section-heading span {
+  color: #1677ff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+}
+
+.security-section-heading h2 {
+  margin: 12px 0;
+  font-size: 34px;
+}
+
+.security-section-heading p {
+  margin: 0;
+  color: #718094;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+
+/* PIPELINE */
+
+.security-pipeline-section {
+  padding: 90px 6%;
+  background: #ffffff;
+  border-top: 1px solid #e5edf5;
+  border-bottom: 1px solid #e5edf5;
+}
+
+.security-pipeline {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.security-pipeline-card {
+  flex: 1;
+  min-height: 230px;
+  padding: 27px;
+  border: 1px solid #e0e9f2;
+  border-radius: 14px;
+  background: #f9fcff;
+}
+
+.pipeline-number {
+  color: #b2c0cf;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pipeline-icon {
+  width: 46px;
+  height: 46px;
+  margin: 17px 0;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: #edf6ff;
+  color: #1677ff;
+  font-size: 20px;
+}
+
+.security-pipeline-card h3 {
+  margin: 0 0 10px;
+  font-size: 19px;
+}
+
+.security-pipeline-card p {
+  margin: 0;
+  color: #6c7b8e;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.pipeline-arrow {
+  color: #a9b8c7;
+  font-size: 23px;
+}
+
+
+/* TECHNOLOGIES */
+
+.security-technologies {
+  padding: 95px 6%;
+}
+
+.security-tech-grid {
+  max-width: 1150px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.security-tech-card {
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #e2eaf2;
+  border-radius: 14px;
+}
+
+.tech-icon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 20px;
+  border-radius: 11px;
+  background: #edf6ff;
+  color: #1677ff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.security-tech-card h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.security-tech-card p {
+  min-height: 100px;
+  margin: 0 0 18px;
+  color: #6d7c8e;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.security-tech-card strong {
+  color: #1677ff;
+  font-size: 11px;
+}
+
+
+/* PRINCIPLES */
+
+.security-principles {
+  padding: 90px 10%;
+  background: #eef7ff;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.security-principles > div:first-child > span {
+  color: #1677ff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.security-principles h2 {
+  margin: 13px 0;
+  font-size: 35px;
+}
+
+.security-principles > div:first-child > p {
+  max-width: 550px;
+  color: #68778a;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.security-principle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.security-principle-list > div {
+  padding: 22px;
+  background: #ffffff;
+  border: 1px solid #dfe9f3;
+  border-radius: 12px;
+}
+
+.security-principle-list span {
+  display: block;
+  margin-bottom: 7px;
+  color: #1677ff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.security-principle-list strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 15px;
+}
+
+.security-principle-list p {
+  margin: 0;
+  color: #718094;
+  font-size: 12px;
+}
+
+
+/* CTA */
+
+.security-cta {
+  padding: 90px 24px;
+  text-align: center;
+  background: #ffffff;
+}
+
+.security-cta h2 {
+  margin: 0;
+  font-size: 34px;
+}
+
+.security-cta p {
+  margin: 13px auto 25px;
+  color: #718094;
+  font-size: 14px;
+}
+
+.security-cta button {
+  border: none;
+  padding: 12px 25px;
+  border-radius: 7px;
+  background: #1677ff;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+
+/* FOOTER */
+
+.security-footer {
+  padding: 30px 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-top: 1px solid #e2eaf2;
+}
+
+.security-footer strong {
+  font-size: 17px;
+}
+
+.security-footer strong span {
+  color: #1677ff;
+}
+
+.security-footer p {
+  margin: 5px 0 0;
+  color: #7b8999;
+  font-size: 11px;
+}
+
+.security-footer > span {
+  color: #8a98a8;
+  font-size: 11px;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 1050px) {
+  .security-tech-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .security-pipeline {
+    flex-wrap: wrap;
+  }
+
+  .security-pipeline-card {
+    flex-basis: 42%;
+  }
+}
+
+@media (max-width: 760px) {
+  .security-navbar {
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px 20px;
+  }
+
+  .security-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .security-nav .security-signin {
+    margin-left: 0;
+  }
+
+  .security-principles {
+    grid-template-columns: 1fr;
+    padding: 70px 24px;
+    gap: 40px;
+  }
+
+  .security-pipeline-card {
+    flex-basis: 100%;
+  }
+
+  .pipeline-arrow {
+    transform: rotate(90deg);
+  }
+
+  .security-tech-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .security-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+}

@@ -1,16 +1,67 @@
-.app-shell {
-  display: flex;
+.app-layout {
   min-height: 100vh;
+  display: flex;
+  background: #f5f8fc;
 }
 
 .main-content {
   flex: 1;
-  padding: 32px 40px;
-  max-width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  padding: 24px 28px;
   overflow-x: hidden;
 }
 
-@media (max-width: 768px) {
-  .app-shell { flex-direction: column; }
-  .main-content { padding: 20px; }
+/* Keep pages aligned with the reference layout */
+
+.main-content > * {
+  width: 100%;
+  max-width: 1380px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Common buttons */
+
+.primary-button {
+  border: none;
+  background: #146ef5;
+  color: #ffffff;
+  border-radius: 7px;
+  padding: 10px 18px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.primary-button:hover {
+  background: #075bd6;
+}
+
+/* Common card */
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e1e8f0;
+  border-radius: 10px;
+}
+
+/* Responsive */
+
+@media (max-width: 1100px) {
+  .main-content {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 700px) {
+  .app-layout {
+    flex-direction: column;
+  }
+
+  .main-content {
+    min-height: auto;
+    padding: 16px;
+  }
 }
