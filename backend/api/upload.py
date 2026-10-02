@@ -1,13 +1,20 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from pathlib import Path
 import shutil
 import sys
+
+from sqlalchemy.orm import Session
+
+from database.database import get_db
+from database.crud import create_scan
+
 
 # =========================================================
 # ROUTER
 # =========================================================
 
 router = APIRouter()
+
 
 # =========================================================
 # PATHS
@@ -17,6 +24,7 @@ BACKEND_DIR = Path(__file__).resolve().parent.parent
 
 UPLOAD_DIR = BACKEND_DIR / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
 
 # =========================================================
 # LOAD PREDICTION ENGINE
@@ -31,23 +39,25 @@ try:
     PREDICTOR_ERROR = None
 
 except Exception as e:
-
     PREDICTOR_AVAILABLE = False
     PREDICTOR_ERROR = str(e)
+
 
 # =========================================================
 # UPLOAD ENDPOINT
 # =========================================================
 
 @router.post("/")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
 
     # -----------------------------------------------------
     # Check filename
     # -----------------------------------------------------
 
     if not file.filename:
-
         raise HTTPException(
             status_code=400,
             detail="No file selected."
@@ -68,7 +78,6 @@ async def upload_file(file: UploadFile = File(...)):
     try:
 
         with open(file_path, "wb") as buffer:
-
             shutil.copyfileobj(
                 file.file,
                 buffer
@@ -90,28 +99,22 @@ async def upload_file(file: UploadFile = File(...)):
     extension = file_path.suffix.lower()
 
     # -----------------------------------------------------
-    # Run ML prediction
+    # Check ML prediction engine
     # -----------------------------------------------------
 
     if not PREDICTOR_AVAILABLE:
 
         return {
-
             "status": "Upload Successful",
-
             "filename": filename,
-
             "extension": extension,
-
             "size": file_size,
-
             "ml_status": "Prediction engine unavailable",
-
             "error": PREDICTOR_ERROR
         }
 
     # -----------------------------------------------------
-    # Prediction
+    # Run ML prediction
     # -----------------------------------------------------
 
     try:
@@ -120,24 +123,43 @@ async def upload_file(file: UploadFile = File(...)):
             str(file_path)
         )
 
-        return {
+        # -------------------------------------------------
+        # Save scan result to database
+        # -------------------------------------------------
 
-            "status": "Analysis Completed",
-
+        scan_data = {
             "filename": filename,
+            "file_type": extension,
+            "file_size": file_size,
+            "sha256": result.get("sha256"),
+            "entropy": result.get("entropy"),
+            "prediction": result.get("prediction"),
+            "threat_score": result.get("threat_score"),
+            "confidence": result.get("probability"),
+            "model": result.get("model")
+        }
 
+        saved_scan = create_scan(
+            db,
+            scan_data
+        )
+
+        # -------------------------------------------------
+        # Return result
+        # -------------------------------------------------
+
+        return {
+            "status": "Analysis Completed",
+            "scan_id": saved_scan.id,
+            "filename": filename,
             "extension": extension,
-
             "size": file_size,
-
             "prediction": result
         }
 
     except Exception as e:
 
         raise HTTPException(
-
             status_code=500,
-
             detail=f"ML analysis failed: {str(e)}"
         )
