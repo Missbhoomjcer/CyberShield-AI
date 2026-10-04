@@ -3,7 +3,7 @@ import json
 import pickle
 import numpy as np
 
-from pdf_feature_extractor import extract_pdf_features
+from backend.ml.pdf_feature_extractor import extract_pdf_features
 
 
 MODEL_PATH = "backend/models/pdf_xgboost_model.pkl"
@@ -185,3 +185,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"ERROR: {e}")
         sys.exit(1)
+

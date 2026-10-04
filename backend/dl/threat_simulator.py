@@ -8,7 +8,7 @@ BACKEND_DIR = os.path.dirname(CURRENT_DIR)
 if BACKEND_DIR not in sys.path:
     sys.path.insert(0, BACKEND_DIR)
 
-from dl.threat_alert_engine import calculate_final_risk
+from backend.dl.threat_alert_engine import calculate_final_risk
 
 
 print("=" * 65)
@@ -110,3 +110,4 @@ print("No malware was executed.")
 print("No system files were modified.")
 print("No registry entries were modified.")
 print("=" * 65)
+

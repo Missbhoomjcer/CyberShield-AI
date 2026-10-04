@@ -8,8 +8,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT / "backend"))
 
 from ml.combined_predictor import CombinedPredictor
-from dl.lstm_predictor import predict as lstm_predict
-from dl.threat_decision_engine import decide_threat
+from backend.dl.lstm_predictor import predict as lstm_predict
+from backend.dl.threat_decision_engine import decide_threat
 
 
 DATASET_PATH = Path(r"C:\CyberShieldData\ransom.csv")
@@ -704,3 +704,5 @@ print(
 print(
     "=" * 80
 )
+
+

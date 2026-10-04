@@ -4,7 +4,7 @@ import json
 import pickle
 import numpy as np
 
-from word_feature_extractor import extract_word_features
+from backend.ml.word_feature_extractor import extract_word_features
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -153,3 +153,4 @@ if __name__ == "__main__":
         print()
 
         sys.exit(1)
+
