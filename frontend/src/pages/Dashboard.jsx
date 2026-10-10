@@ -5,7 +5,6 @@ import './Dashboard.css'
 
 const API_URL = 'http://127.0.0.1:8000'
 
-
 function Dashboard() {
   const navigate = useNavigate()
   const { language } = useLanguage()
@@ -16,7 +15,6 @@ function Dashboard() {
 
   const protectionScore = null
 
-
   /* =========================================================
      TRANSLATIONS
      ========================================================= */
@@ -24,7 +22,8 @@ function Dashboard() {
   const translations = {
     English: {
       greeting: 'Good evening, Harshita',
-      protectedMessage: 'Your device is protected and everything looks good.',
+      protectedMessage:
+        'Your device is protected and everything looks good.',
       protectionStatus: 'PROTECTION STATUS',
       protected: 'You are Protected',
       protectionDescription:
@@ -32,69 +31,63 @@ function Dashboard() {
       scanSystem: 'Scan Your System',
       openingScanner: 'Opening Scanner...',
       viewProtection: 'View Protection',
-
       protectionScore: 'Protection Score',
       awaitingAnalysis: 'Awaiting analysis',
       excellent: 'Excellent',
-
       securityOverview: 'Security Overview',
-      currentActivity: 'Current protection activity on this device',
-
+      currentActivity:
+        'Current protection activity on this device',
       filesScanned: 'Files Scanned',
       filesChecked: 'Files checked for threats',
-
       threatsDetected: 'Threats Detected',
       detectedByEngine: 'Detected by security engine',
-
       threatsBlocked: 'Threats Blocked',
       protectionResponse: 'Protection engine response',
-
       quarantined: 'Quarantined',
       isolatedFiles: 'Isolated files',
-
       recentActivity: 'Recent Security Activity',
-      latestEvents: 'Latest events from your protection system',
+      latestEvents:
+        'Latest events from your protection system',
       viewAll: 'View All',
       loadingActivity: 'Loading security activity...',
-      noActivity: 'No security activity available yet.',
+      noActivity:
+        'No security activity available yet.',
       threatDetected: 'Threat detected',
       scanCompleted: 'File scan completed',
       securityEvent: 'Security event',
-
       protectionModules: 'Protection Modules',
-      securityLayers: 'Security layers protecting this device',
+      securityLayers:
+        'Security layers protecting this device',
       manage: 'Manage',
-
       realtime: 'Real-Time Protection',
-      realtimeDescription: 'Continuous endpoint monitoring',
-
+      realtimeDescription:
+        'Continuous endpoint monitoring',
       ransomware: 'Ransomware Protection',
-      ransomwareDescription: 'Suspicious behavior detection',
-
+      ransomwareDescription:
+        'Suspicious behavior detection',
       aiDetection: 'AI Threat Detection',
       aiDescription: 'XGBoost + LSTM analysis',
-
       behavioral: 'Behavioral Monitoring',
-      behavioralDescription: 'Real-time activity analysis',
-
+      behavioralDescription:
+        'Real-time activity analysis',
       aiSecurity: 'AI SECURITY',
       aiCopilot: 'CyberShield AI Copilot',
-      aiDescriptionLong: 'Get explanations and security assistance',
+      aiDescriptionLong:
+        'Get explanations and security assistance',
       openAI: 'Open AI Security',
-
       protectedDevice: 'PROTECTED DEVICE',
       windowsPC: 'Windows PC',
       endpointAgent: 'CyberShield Endpoint Agent',
       agentProtected: 'Protected',
       agentStatus: 'Agent status',
-
       on: 'ON',
       alerts: 'View security alerts',
     },
 
     Hindi: {
       greeting: 'शुभ संध्या, Harshita',
-      protectedMessage: 'आपका डिवाइस सुरक्षित है और सब कुछ ठीक है।',
+      protectedMessage:
+        'आपका डिवाइस सुरक्षित है और सब कुछ ठीक है।',
       protectionStatus: 'सुरक्षा स्थिति',
       protected: 'आप सुरक्षित हैं',
       protectionDescription:
@@ -102,69 +95,65 @@ function Dashboard() {
       scanSystem: 'अपने सिस्टम को स्कैन करें',
       openingScanner: 'स्कैनर खोला जा रहा है...',
       viewProtection: 'सुरक्षा देखें',
-
       protectionScore: 'सुरक्षा स्कोर',
       awaitingAnalysis: 'विश्लेषण की प्रतीक्षा',
       excellent: 'उत्कृष्ट',
-
       securityOverview: 'सुरक्षा अवलोकन',
-      currentActivity: 'इस डिवाइस की वर्तमान सुरक्षा गतिविधि',
-
+      currentActivity:
+        'इस डिवाइस की वर्तमान सुरक्षा गतिविधि',
       filesScanned: 'स्कैन की गई फाइलें',
-      filesChecked: 'खतरों के लिए जांची गई फाइलें',
-
+      filesChecked:
+        'खतरों के लिए जांची गई फाइलें',
       threatsDetected: 'पता लगाए गए खतरे',
-      detectedByEngine: 'सुरक्षा इंजन द्वारा पता लगाए गए',
-
+      detectedByEngine:
+        'सुरक्षा इंजन द्वारा पता लगाए गए',
       threatsBlocked: 'ब्लॉक किए गए खतरे',
-      protectionResponse: 'सुरक्षा इंजन की प्रतिक्रिया',
-
+      protectionResponse:
+        'सुरक्षा इंजन की प्रतिक्रिया',
       quarantined: 'क्वारंटीन की गई फाइलें',
       isolatedFiles: 'अलग की गई फाइलें',
-
       recentActivity: 'हाल की सुरक्षा गतिविधि',
-      latestEvents: 'आपके सुरक्षा सिस्टम की नवीनतम घटनाएं',
+      latestEvents:
+        'आपके सुरक्षा सिस्टम की नवीनतम घटनाएं',
       viewAll: 'सभी देखें',
-      loadingActivity: 'सुरक्षा गतिविधि लोड हो रही है...',
-      noActivity: 'अभी कोई सुरक्षा गतिविधि उपलब्ध नहीं है।',
+      loadingActivity:
+        'सुरक्षा गतिविधि लोड हो रही है...',
+      noActivity:
+        'अभी कोई सुरक्षा गतिविधि उपलब्ध नहीं है।',
       threatDetected: 'खतरा पाया गया',
       scanCompleted: 'फाइल स्कैन पूरा हुआ',
       securityEvent: 'सुरक्षा घटना',
-
       protectionModules: 'सुरक्षा मॉड्यूल',
-      securityLayers: 'इस डिवाइस की सुरक्षा करने वाली सुरक्षा परतें',
+      securityLayers:
+        'इस डिवाइस की सुरक्षा करने वाली सुरक्षा परतें',
       manage: 'प्रबंधित करें',
-
       realtime: 'रीयल-टाइम सुरक्षा',
-      realtimeDescription: 'लगातार एंडपॉइंट मॉनिटरिंग',
-
+      realtimeDescription:
+        'लगातार एंडपॉइंट मॉनिटरिंग',
       ransomware: 'रैनसमवेयर सुरक्षा',
-      ransomwareDescription: 'संदिग्ध व्यवहार का पता लगाना',
-
+      ransomwareDescription:
+        'संदिग्ध व्यवहार का पता लगाना',
       aiDetection: 'AI खतरा पहचान',
       aiDescription: 'XGBoost + LSTM विश्लेषण',
-
       behavioral: 'व्यवहारिक मॉनिटरिंग',
-      behavioralDescription: 'रीयल-टाइम गतिविधि विश्लेषण',
-
+      behavioralDescription:
+        'रीयल-टाइम गतिविधि विश्लेषण',
       aiSecurity: 'AI सुरक्षा',
       aiCopilot: 'CyberShield AI Copilot',
-      aiDescriptionLong: 'स्पष्टीकरण और सुरक्षा सहायता प्राप्त करें',
+      aiDescriptionLong:
+        'स्पष्टीकरण और सुरक्षा सहायता प्राप्त करें',
       openAI: 'AI सुरक्षा खोलें',
-
       protectedDevice: 'सुरक्षित डिवाइस',
       windowsPC: 'Windows PC',
       endpointAgent: 'CyberShield Endpoint Agent',
       agentProtected: 'सुरक्षित',
       agentStatus: 'एजेंट स्थिति',
-
       on: 'चालू',
       alerts: 'सुरक्षा अलर्ट देखें',
     },
   }
 
   const t = translations[language] || translations.English
-
 
   /* =========================================================
      LOAD SECURITY HISTORY
@@ -173,7 +162,6 @@ function Dashboard() {
   useEffect(() => {
     fetchHistory()
   }, [])
-
 
   const fetchHistory = async () => {
     try {
@@ -196,15 +184,13 @@ function Dashboard() {
             : []
 
       setHistory(items)
-
-    } catch {
+    } catch (error) {
+      console.error('Failed to load security history:', error)
       setHistory([])
-
     } finally {
       setLoading(false)
     }
   }
-
 
   /* =========================================================
      SCAN YOUR SYSTEM
@@ -219,41 +205,38 @@ function Dashboard() {
     }, 400)
   }
 
-
   /* =========================================================
      SECURITY COUNTS
      ========================================================= */
 
   const detectedThreats = history.filter((item) => {
-    const prediction = String(
-      item.prediction ?? item.result ?? ''
-    ).toLowerCase()
+    const threatLevel = String(
+      item.threat_level ?? ''
+    ).toUpperCase()
+
+    const risk = Number(item.overall_risk ?? 0)
 
     return (
-      prediction.includes('malware') ||
-      prediction.includes('ransomware') ||
-      prediction === '1'
+      ['MEDIUM', 'HIGH', 'CRITICAL'].includes(threatLevel) ||
+      risk >= 50
     )
   })
 
-
   const quarantined = history.filter((item) => {
-    const status = String(
-      item.status ?? item.action ?? ''
-    ).toLowerCase()
+    const action = String(
+      item.action ?? ''
+    ).toUpperCase()
 
-    return status.includes('quarantine')
+    return action.includes('QUARANTINE')
   })
-
 
   const blocked = history.filter((item) => {
-    const status = String(
-      item.status ?? item.action ?? ''
-    ).toLowerCase()
+    const action = String(
+      item.action ?? ''
+    ).toUpperCase()
 
-    return status.includes('block')
+    return action.includes('BLOCK')
   })
-
 
   /* =========================================================
      TIME FORMAT
@@ -281,27 +264,27 @@ function Dashboard() {
     })
   }
 
-
   /* =========================================================
      ACTIVITY TITLE
      ========================================================= */
 
   const getActivityTitle = (item) => {
-    const prediction = String(
-      item.prediction ?? item.result ?? ''
-    ).toLowerCase()
+    const threatLevel = String(
+      item.threat_level ?? ''
+    ).toUpperCase()
 
-    if (
-      prediction.includes('malware') ||
-      prediction.includes('ransomware') ||
-      prediction === '1'
-    ) {
+    const risk = Number(item.overall_risk ?? 0)
+
+    const dangerous =
+      ['MEDIUM', 'HIGH', 'CRITICAL'].includes(threatLevel) ||
+      risk >= 50
+
+    if (dangerous) {
       return t.threatDetected
     }
 
     return t.scanCompleted
   }
-
 
   /* =========================================================
      RENDER
@@ -322,7 +305,6 @@ function Dashboard() {
           </p>
         </div>
 
-
         <div className="dashboard-header-actions">
 
           <button
@@ -331,9 +313,7 @@ function Dashboard() {
             aria-label={t.alerts}
             title={t.alerts}
           >
-
             <svg viewBox="0 0 24 24">
-
               <path
                 d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"
                 fill="none"
@@ -350,11 +330,8 @@ function Dashboard() {
                 strokeWidth="1.7"
                 strokeLinecap="round"
               />
-
             </svg>
-
           </button>
-
 
           <div className="dashboard-user">
 
@@ -369,7 +346,6 @@ function Dashboard() {
         </div>
 
       </header>
-
 
       {/* PROTECTION STATUS */}
 
@@ -399,7 +375,6 @@ function Dashboard() {
 
           </div>
 
-
           <div className="dashboard-protection-copy">
 
             <div className="dashboard-status-line">
@@ -410,14 +385,13 @@ function Dashboard() {
 
             </div>
 
-
-            <h2>{t.protected}</h2>
-
+            <h2>
+              {t.protected}
+            </h2>
 
             <p>
               {t.protectionDescription}
             </p>
-
 
             <div className="dashboard-protection-actions">
 
@@ -448,13 +422,11 @@ function Dashboard() {
 
                 </svg>
 
-
                 {scanning
                   ? t.openingScanner
                   : t.scanSystem}
 
               </button>
-
 
               <button
                 className="dashboard-more-button"
@@ -468,7 +440,6 @@ function Dashboard() {
           </div>
 
         </div>
-
 
         {/* PROTECTION SCORE */}
 
@@ -486,11 +457,9 @@ function Dashboard() {
 
           </div>
 
-
           <span className="score-label">
             {t.protectionScore}
           </span>
-
 
           <strong className="score-status">
 
@@ -504,21 +473,21 @@ function Dashboard() {
 
       </section>
 
-
       {/* SECURITY OVERVIEW */}
 
       <section className="dashboard-section">
 
         <div className="dashboard-section-title">
 
-          <h2>{t.securityOverview}</h2>
+          <h2>
+            {t.securityOverview}
+          </h2>
 
           <p>
             {t.currentActivity}
           </p>
 
         </div>
-
 
         <div className="dashboard-stats-grid">
 
@@ -549,23 +518,21 @@ function Dashboard() {
 
             </div>
 
-
             <span className="dashboard-stat-label">
               {t.filesScanned}
             </span>
 
-
             <strong>
-              {history.length || '—'}
+              {loading
+                ? '—'
+                : history.length || '—'}
             </strong>
-
 
             <small>
               {t.filesChecked}
             </small>
 
           </div>
-
 
           {/* THREATS */}
 
@@ -601,25 +568,21 @@ function Dashboard() {
 
             </div>
 
-
             <span className="dashboard-stat-label">
               {t.threatsDetected}
             </span>
 
-
             <strong>
-              {history.length
-                ? detectedThreats.length
-                : '—'}
+              {loading
+                ? '—'
+                : detectedThreats.length}
             </strong>
-
 
             <small>
               {t.detectedByEngine}
             </small>
 
           </div>
-
 
           {/* BLOCKED */}
 
@@ -642,25 +605,21 @@ function Dashboard() {
 
             </div>
 
-
             <span className="dashboard-stat-label">
               {t.threatsBlocked}
             </span>
 
-
             <strong>
-              {history.length
-                ? blocked.length
-                : '—'}
+              {loading
+                ? '—'
+                : blocked.length}
             </strong>
-
 
             <small>
               {t.protectionResponse}
             </small>
 
           </div>
-
 
           {/* QUARANTINE */}
 
@@ -689,18 +648,15 @@ function Dashboard() {
 
             </div>
 
-
             <span className="dashboard-stat-label">
               {t.quarantined}
             </span>
 
-
             <strong>
-              {history.length
-                ? quarantined.length
-                : '—'}
+              {loading
+                ? '—'
+                : quarantined.length}
             </strong>
-
 
             <small>
               {t.isolatedFiles}
@@ -711,7 +667,6 @@ function Dashboard() {
         </div>
 
       </section>
-
 
       {/* LOWER CONTENT */}
 
@@ -735,7 +690,6 @@ function Dashboard() {
 
             </div>
 
-
             <button
               className="dashboard-link-button"
               onClick={() => navigate('/threats')}
@@ -744,7 +698,6 @@ function Dashboard() {
             </button>
 
           </div>
-
 
           <div className="dashboard-activity-list">
 
@@ -766,18 +719,19 @@ function Dashboard() {
                 .slice(0, 4)
                 .map((item, index) => {
 
-                  const prediction = String(
-                    item.prediction ??
-                    item.result ??
-                    ''
-                  ).toLowerCase()
+                  const threatLevel = String(
+                    item.threat_level ?? ''
+                  ).toUpperCase()
 
+                  const risk = Number(
+                    item.overall_risk ?? 0
+                  )
 
                   const dangerous =
-                    prediction.includes('malware') ||
-                    prediction.includes('ransomware') ||
-                    prediction === '1'
-
+                    ['MEDIUM', 'HIGH', 'CRITICAL'].includes(
+                      threatLevel
+                    ) ||
+                    risk >= 50
 
                   return (
 
@@ -796,13 +750,11 @@ function Dashboard() {
                         {dangerous ? '!' : '✓'}
                       </div>
 
-
                       <div className="activity-content">
 
                         <strong>
                           {getActivityTitle(item)}
                         </strong>
-
 
                         <span>
                           {item.filename ??
@@ -812,7 +764,6 @@ function Dashboard() {
 
                       </div>
 
-
                       <time>
                         {formatTime(item)}
                       </time>
@@ -820,7 +771,6 @@ function Dashboard() {
                     </div>
 
                   )
-
                 })
 
             )}
@@ -828,7 +778,6 @@ function Dashboard() {
           </div>
 
         </section>
-
 
         {/* PROTECTION MODULES */}
 
@@ -848,7 +797,6 @@ function Dashboard() {
 
             </div>
 
-
             <button
               className="dashboard-link-button"
               onClick={() => navigate('/protection')}
@@ -857,7 +805,6 @@ function Dashboard() {
             </button>
 
           </div>
-
 
           <div className="dashboard-module-list">
 
@@ -868,7 +815,6 @@ function Dashboard() {
               status={t.on}
             />
 
-
             <DashboardModule
               type="ransomware"
               title={t.ransomware}
@@ -876,14 +822,12 @@ function Dashboard() {
               status={t.on}
             />
 
-
             <DashboardModule
               type="ai"
               title={t.aiDetection}
               description={t.aiDescription}
               status={t.on}
             />
-
 
             <DashboardModule
               type="behavior"
@@ -897,7 +841,6 @@ function Dashboard() {
         </section>
 
       </div>
-
 
       {/* AI SECURITY */}
 
@@ -927,7 +870,6 @@ function Dashboard() {
 
           </div>
 
-
           <div>
 
             <span>
@@ -946,7 +888,6 @@ function Dashboard() {
 
         </div>
 
-
         <button
           className="dashboard-more-button"
           onClick={() => navigate('/ai-security')}
@@ -955,7 +896,6 @@ function Dashboard() {
         </button>
 
       </section>
-
 
       {/* DEVICE */}
 
@@ -990,7 +930,6 @@ function Dashboard() {
 
           </div>
 
-
           <div>
 
             <span>
@@ -1008,7 +947,6 @@ function Dashboard() {
           </div>
 
         </div>
-
 
         <div className="dashboard-device-right">
 
@@ -1034,7 +972,6 @@ function Dashboard() {
   )
 }
 
-
 /* =========================================================
    PROTECTION MODULE COMPONENT
    ========================================================= */
@@ -1043,11 +980,9 @@ function DashboardModule({
   type,
   title,
   description,
-  status
+  status,
 }) {
-
   return (
-
     <div className="dashboard-module">
 
       <div className="module-icon">
@@ -1082,7 +1017,6 @@ function DashboardModule({
 
       </div>
 
-
       <div>
 
         <strong>
@@ -1095,15 +1029,12 @@ function DashboardModule({
 
       </div>
 
-
       <span className="module-status active">
         {status}
       </span>
 
     </div>
-
   )
 }
-
 
 export default Dashboard

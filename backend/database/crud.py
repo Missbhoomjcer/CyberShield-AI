@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from database.models import Scan, ActivityLog, Threat, Report
+from backend.database.models import Scan, ActivityLog, Threat, Report
 
 
 # ============================================================

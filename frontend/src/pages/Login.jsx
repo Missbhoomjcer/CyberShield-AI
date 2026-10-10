@@ -1,14 +1,17 @@
+
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { signInWithPopup } from 'firebase/auth'
+import { auth, googleProvider } from '../firebase'
 import './Login.css'
 
 function Login({ onLogin }) {
   const navigate = useNavigate()
-
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState('')
+  const [googleLoading, setGoogleLoading] = useState(false)
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -16,8 +19,6 @@ function Login({ onLogin }) {
 
     const cleanEmail = email.trim()
     const cleanPassword = password.trim()
-
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
     if (!cleanEmail) {
@@ -30,7 +31,6 @@ function Login({ onLogin }) {
       return
     }
 
-    // Password validation
     if (!cleanPassword) {
       setError('Please enter your password.')
       return
@@ -41,7 +41,7 @@ function Login({ onLogin }) {
       return
     }
 
-    // Frontend validation passed
+    // Existing frontend-only email/password flow is preserved.
     const user = {
       username: cleanEmail,
       role: 'User',
@@ -55,8 +55,90 @@ function Login({ onLogin }) {
     }
   }
 
-  const handleGoogleLogin = () => {
-    setError('Google sign-in will be connected later.')
+  const handleGoogleLogin = async () => {
+    setError('')
+    setGoogleLoading(true)
+
+    try {
+      // Step 1: Sign in with Google through Firebase.
+      const result = await signInWithPopup(auth, googleProvider)
+      const firebaseUser = result.user
+
+      // Step 2: Get a Firebase ID token.
+      const idToken = await firebaseUser.getIdToken()
+
+      // Step 3: Ask FastAPI to verify the token.
+      const response = await fetch('http://127.0.0.1:8000/auth/me', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(
+          response.status === 401
+            ? 'Backend authentication failed. Please sign in again.'
+            : 'Could not connect to the backend. Please try again.'
+        )
+      }
+
+      const backendUser = await response.json()
+
+      // Confirm that the backend verified the authenticated user.
+      if (
+        !backendUser.authenticated ||
+        backendUser.user?.uid !== firebaseUser.uid
+      ) {
+        throw new Error('User verification failed. Please try again.')
+      }
+
+      console.log('Backend authenticated user:', backendUser)
+
+      // Step 4: Preserve the existing dashboard login flow.
+      const user = {
+        username:
+          backendUser.user.email ||
+          firebaseUser.email ||
+          firebaseUser.displayName ||
+          'Google User',
+        displayName: firebaseUser.displayName || '',
+        photoURL: firebaseUser.photoURL || '',
+        uid: backendUser.user.uid,
+        role: 'User',
+        rememberMe: false,
+        provider: 'google',
+      }
+
+      if (onLogin) {
+        onLogin(user)
+      } else {
+        navigate('/')
+      }
+    } catch (authError) {
+      console.error('Google sign-in or backend authentication failed:', authError)
+
+      if (
+        authError.code === 'auth/popup-closed-by-user' ||
+        authError.code === 'auth/cancelled-popup-request'
+      ) {
+        setError('Google sign-in was cancelled. Please try again.')
+      } else if (authError.code === 'auth/unauthorized-domain') {
+        setError(
+          'This website domain is not authorized in Firebase. Add localhost in Firebase Authentication settings.'
+        )
+      } else if (authError.code === 'auth/popup-blocked') {
+        setError(
+          'Your browser blocked the Google sign-in popup. Allow popups and try again.'
+        )
+      } else {
+        setError(
+          authError.message || 'Google sign-in failed. Please try again.'
+        )
+      }
+    } finally {
+      setGoogleLoading(false)
+    }
   }
 
   const handleMicrosoftLogin = () => {
@@ -65,9 +147,7 @@ function Login({ onLogin }) {
 
   return (
     <div className="login-page">
-
       <div className="login-card">
-
         {/* Logo */}
         <div className="login-logo">
           <svg
@@ -81,7 +161,6 @@ function Login({ onLogin }) {
               stroke="#16b879"
               strokeWidth="3"
             />
-
             <path
               d="M17 24L21.5 28.5L31.5 18"
               fill="none"
@@ -90,18 +169,13 @@ function Login({ onLogin }) {
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-
             <path
               d="M24 3L42 10V14L24 7L6 14V10L24 3Z"
               fill="#1677ff"
             />
           </svg>
-
           <div className="login-logo-text">
-            <div className="login-brand-name">
-              CyberShield-AI
-            </div>
-
+            <div className="login-brand-name">CyberShield-AI</div>
             <div className="login-brand-sub">
               SMART PROTECTION. SAFER TOMORROW.
             </div>
@@ -111,21 +185,13 @@ function Login({ onLogin }) {
         {/* Header */}
         <div className="login-header">
           <h1>Welcome Back</h1>
-
-          <p>
-            Sign in to your account
-          </p>
+          <p>Sign in to your account</p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
-
-          {/* Email */}
           <div className="login-field">
-            <label htmlFor="email">
-              Email address
-            </label>
-
+            <label htmlFor="email">Email address</label>
             <input
               id="email"
               type="email"
@@ -139,13 +205,9 @@ function Login({ onLogin }) {
             />
           </div>
 
-          {/* Password */}
           <div className="login-field password-field">
             <div className="password-label-row">
-              <label htmlFor="password">
-                Password
-              </label>
-
+              <label htmlFor="password">Password</label>
               <button
                 type="button"
                 className="forgot-password"
@@ -156,7 +218,6 @@ function Login({ onLogin }) {
                 Forgot password?
               </button>
             </div>
-
             <input
               id="password"
               type="password"
@@ -170,36 +231,26 @@ function Login({ onLogin }) {
             />
           </div>
 
-          {/* Remember me */}
           <div className="remember-row">
             <label className="remember-label">
               <input
                 type="checkbox"
                 checked={rememberMe}
-                onChange={(event) =>
-                  setRememberMe(event.target.checked)
-                }
+                onChange={(event) => setRememberMe(event.target.checked)}
               />
-
               <span>Remember me</span>
             </label>
           </div>
 
-          {/* Error */}
           {error && (
-            <div className="login-error">
+            <div className="login-error" role="alert">
               {error}
             </div>
           )}
 
-          {/* Sign In */}
-          <button
-            type="submit"
-            className="login-button"
-          >
+          <button type="submit" className="login-button">
             Sign In
           </button>
-
         </form>
 
         {/* Divider */}
@@ -209,14 +260,14 @@ function Login({ onLogin }) {
 
         {/* Social buttons */}
         <div className="social-buttons">
-
           <button
             type="button"
             className="social-button"
             onClick={handleGoogleLogin}
+            disabled={googleLoading}
           >
             <span className="google-icon">G</span>
-            <span>Google</span>
+            <span>{googleLoading ? 'Connecting...' : 'Google'}</span>
           </button>
 
           <button
@@ -230,16 +281,13 @@ function Login({ onLogin }) {
               <span></span>
               <span></span>
             </span>
-
             <span>Microsoft</span>
           </button>
-
         </div>
 
         {/* Sign up */}
         <div className="signup-text">
           Don't have an account?
-
           <button
             type="button"
             onClick={() =>
@@ -249,11 +297,10 @@ function Login({ onLogin }) {
             Create one
           </button>
         </div>
-
       </div>
-
     </div>
   )
 }
 
 export default Login
+

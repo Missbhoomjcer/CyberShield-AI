@@ -94,10 +94,13 @@ function ScanResult({ result }) {
     const confidenceNumber = Number(rawConfidence)
 
     if (!isNaN(confidenceNumber)) {
-      displayConfidence =
-        confidenceNumber <= 1
-          ? `${(confidenceNumber * 100).toFixed(2)}%`
-          : `${confidenceNumber.toFixed(2)}%`
+      if (confidenceNumber <= 1) {
+        displayConfidence =
+          (confidenceNumber * 100).toFixed(2) + '%'
+      } else {
+        displayConfidence =
+          confidenceNumber.toFixed(2) + '%'
+      }
     }
   }
 
@@ -138,6 +141,26 @@ function ScanResult({ result }) {
     result.sha256 ??
     result.hash ??
     'N/A'
+
+  // ==============================
+  // SCAN DURATION
+  // ==============================
+
+  const rawScanTime = result.scan_time_seconds
+
+  let scanTime = 'N/A'
+
+  if (
+    rawScanTime !== null &&
+    rawScanTime !== undefined &&
+    rawScanTime !== ''
+  ) {
+    const scanTimeNumber = Number(rawScanTime)
+
+    if (!isNaN(scanTimeNumber)) {
+      scanTime = scanTimeNumber.toFixed(3) + ' seconds'
+    }
+  }
 
   // ==============================
   // ANALYSIS TIME
@@ -190,9 +213,7 @@ function ScanResult({ result }) {
             >
               {isMalware ? (
                 <svg viewBox="0 0 24 24">
-                  <path
-                    d="M12 4l8 15H4L12 4z"
-                  />
+                  <path d="M12 4l8 15H4L12 4z" />
                   <path d="M12 9v4" />
                   <circle cx="12" cy="16" r="0.8" />
                 </svg>
@@ -304,6 +325,11 @@ function ScanResult({ result }) {
           <div className="detail-item">
             <span>Model</span>
             <strong>{model}</strong>
+          </div>
+
+          <div className="detail-item">
+            <span>Scan duration</span>
+            <strong>{scanTime}</strong>
           </div>
 
           <div className="detail-item">

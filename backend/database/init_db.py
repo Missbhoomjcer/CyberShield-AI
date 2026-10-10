@@ -1,5 +1,5 @@
-from database.database import Base, engine
-from database.models import Scan, ActivityLog, Threat, Report
+from backend.database.database import Base, engine
+from backend.database.models import Scan, ActivityLog, Threat, Report
 
 
 def init_db():

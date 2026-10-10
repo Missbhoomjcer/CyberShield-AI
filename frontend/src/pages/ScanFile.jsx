@@ -1,129 +1,96 @@
+
 import { useState } from 'react'
 import { useLanguage } from '../context/LanguageContext.jsx'
-
 import FileDropzone from '../components/scan/FileDropzone.jsx'
 import ScanResult from '../components/scan/ScanResult.jsx'
-
 import './ScanFile.css'
-
 
 const API_URL = 'http://127.0.0.1:8000'
 
-
 function ScanFile() {
-
   const { t } = useLanguage()
 
   const [selectedFile, setSelectedFile] = useState(null)
-
   const [scanning, setScanning] = useState(false)
-
   const [result, setResult] = useState(null)
-
   const [error, setError] = useState('')
 
-
-  /* =========================================================
-     FILE SELECTION
-     ========================================================= */
-
+  // =========================================================
+  // FILE SELECTION
+  // =========================================================
   const handleFileSelect = (file) => {
-
     setSelectedFile(file)
-
     setResult(null)
-
     setError('')
-
   }
 
-
-  /* =========================================================
-     SCAN FILE
-     ========================================================= */
-
+  // =========================================================
+  // SCAN FILE
+  // =========================================================
   const handleScan = async () => {
-
     if (!selectedFile) {
       setError(t('chooseFile'))
       return
     }
 
-
     setScanning(true)
-
     setResult(null)
-
     setError('')
 
-
     try {
-
       const formData = new FormData()
 
-      formData.append(
-        'file',
-        selectedFile
-      )
+      formData.append('file', selectedFile)
 
-
+      // Backend endpoint: POST /upload
       const response = await fetch(
-        `${API_URL}/`,
+        'http://127.0.0.1:8000/upload',
         {
           method: 'POST',
           body: formData
         }
       )
 
-
       if (!response.ok) {
-
         throw new Error(
-          `Scan failed with status ${response.status}`
+          'Scan failed with status ' + response.status
         )
-
       }
-
 
       const data = await response.json()
 
-
-      /* =====================================================
-         NORMALIZE THREAT SCORE
-         ===================================================== */
-
-      let threatScore =
-        Number(
-          data.threat_score ??
-          data.threatScore ??
-          data.score ??
-          0
-        )
-
+      // =====================================================
+      // THREAT SCORE
+      // =====================================================
+      let threatScore = Number(
+        data.threat_decision?.overall_risk ??
+        data.threat_score ??
+        data.threatScore ??
+        data.score ??
+        0
+      )
 
       if (threatScore <= 1) {
-        threatScore *= 100
+        threatScore = threatScore * 100
       }
-
 
       threatScore = Math.max(
         0,
         Math.min(100, threatScore)
       )
 
-
-      /* =====================================================
-         PREDICTION
-         ===================================================== */
-
-      const rawPrediction =
-        String(
-          data.prediction ??
-          data.result ??
-          data.label ??
-          ''
-        ).toLowerCase()
-
+      // =====================================================
+      // PREDICTION
+      // =====================================================
+      const rawPrediction = String(
+        data.prediction?.verdict ??
+        data.prediction?.prediction ??
+        data.prediction?.label ??
+        data.prediction ??
+        data.result ??
+        data.label ??
+        ''
+      ).toLowerCase()
 
       const prediction =
         rawPrediction === '1' ||
@@ -133,49 +100,43 @@ function ScanFile() {
           ? 'Malware'
           : 'Benign'
 
-
-      /* =====================================================
-         CONFIDENCE
-         ===================================================== */
-
-      let confidence =
-        Number(
-          data.confidence ??
-          data.probability ??
-          threatScore / 100
-        )
-
+      // =====================================================
+      // CONFIDENCE
+      // =====================================================
+      let confidence = Number(
+        data.prediction?.confidence ??
+        data.confidence ??
+        data.probability ??
+        threatScore / 100
+      )
 
       if (confidence <= 1) {
-        confidence *= 100
+        confidence = confidence * 100
       }
-
 
       confidence = Math.max(
         0,
         Math.min(100, confidence)
       )
 
-
-      /* =====================================================
-         RESULT
-         ===================================================== */
-
+      // =====================================================
+      // RESULT
+      // =====================================================
       setResult({
-
         filename:
           data.filename ??
           selectedFile.name,
 
         file_type:
           data.file_type ??
-          selectedFile.name
-            .split('.')
-            .pop()
-            ?.toUpperCase(),
+          data.extension ??
+          (
+            selectedFile.name.split('.').pop() || 'N/A'
+          ).toUpperCase(),
 
         file_size:
           data.file_size ??
+          data.size ??
           selectedFile.size,
 
         sha256:
@@ -187,62 +148,68 @@ function ScanFile() {
           data.entropy ??
           null,
 
-        prediction,
+        prediction: prediction,
 
         threat_score:
           threatScore,
 
-        confidence,
+        confidence:
+          confidence,
+
+        threat_level:
+          data.threat_decision?.threat_level ??
+          'LOW',
+
+        action:
+          data.threat_decision?.action ??
+          'ALLOW',
+
+        threat_reasons:
+          data.threat_decision?.reasons ??
+          [],
 
         model:
+          data.detector ??
           data.model ??
           'XGBoost',
 
-        created_at:
+        // Backend analysis timestamp
+        analysis_time:
+          data.analysis_time ??
           data.created_at ??
+          data.analysisTime ??
           new Date().toISOString(),
+
+        // Backend scan duration
+        scan_time_seconds:
+          data.scan_time_seconds ??
+          null,
 
         shap_explanation:
           data.shap_explanation ??
           data.shap ??
           []
-
       })
-
     } catch (err) {
-
-      console.error(
-        'Scan error:',
-        err
-      )
+      console.error('Scan error:', err)
 
       setError(
         err.message ||
         'Unable to connect to the security engine.'
       )
-
     } finally {
-
       setScanning(false)
-
     }
-
   }
 
-
   return (
-
     <div className="scan-page">
-
 
       {/* =====================================================
           HEADER
           ===================================================== */}
-
       <div className="scan-header">
-
         <div>
-
           <h1>
             {t('scanYourDevice')}
           </h1>
@@ -250,91 +217,57 @@ function ScanFile() {
           <p>
             {t('scanDescription')}
           </p>
-
         </div>
-
       </div>
-
 
       {/* =====================================================
           SCAN MODES
           ===================================================== */}
-
       <div className="scan-mode-bar">
-
 
         <button
           type="button"
           className="scan-mode active"
         >
-
-          <span>
-            ⚡
-          </span>
-
+          <span>⚡</span>
           {t('quickScan')}
-
         </button>
-
 
         <button
           type="button"
           className="scan-mode disabled"
           disabled
         >
-
-          <span>
-            ◉
-          </span>
-
+          <span>◉</span>
           {t('fullScan')}
-
-          <small>
-            {t('soon')}
-          </small>
-
+          <small>{t('soon')}</small>
         </button>
-
 
         <button
           type="button"
           className="scan-mode disabled"
           disabled
         >
-
-          <span>
-            ⌕
-          </span>
-
+          <span>⌕</span>
           {t('customScan')}
-
-          <small>
-            {t('soon')}
-          </small>
-
+          <small>{t('soon')}</small>
         </button>
 
       </div>
 
-
       {/* =====================================================
           MAIN SCAN GRID
           ===================================================== */}
-
       <div className="scan-content-grid">
-
 
         {/* ===================================================
             LEFT — FILE SCAN
             =================================================== */}
-
         <section className="scan-card scan-upload-card">
-
 
           <div className="scan-card-header">
 
             <div>
-
               <h2>
                 {t('aiFileScan')}
               </h2>
@@ -342,9 +275,7 @@ function ScanFile() {
               <p>
                 {t('aiFileScanDescription')}
               </p>
-
             </div>
-
 
             <span className="scan-ai-badge">
               {t('aiEngine')}
@@ -352,64 +283,44 @@ function ScanFile() {
 
           </div>
 
-
           <FileDropzone
             selectedFile={selectedFile}
             onFileSelect={handleFileSelect}
           />
 
-
           {error && (
-
             <div className="scan-error">
               {error}
             </div>
-
           )}
-
 
           <button
             type="button"
             className="scan-start-button"
-            disabled={
-              !selectedFile ||
-              scanning
-            }
+            disabled={!selectedFile || scanning}
             onClick={handleScan}
           >
-
-            <span>
-              ⌕
-            </span>
+            <span>⌕</span>
 
             {scanning
               ? 'Scanning...'
               : t('startQuickScan')
             }
-
           </button>
 
-
           <div className="scan-supported">
-
             {t('supportedExeDll')}
-
           </div>
 
         </section>
 
-
         {/* ===================================================
             RIGHT — READY TO SCAN
             =================================================== */}
-
         {!result && (
-
           <div className="scan-right-column">
 
-
             <section className="scan-card scan-ready-card">
-
 
               <div className="scan-ready-icon">
 
@@ -417,7 +328,6 @@ function ScanFile() {
                   viewBox="0 0 24 24"
                   aria-hidden="true"
                 >
-
                   <circle
                     cx="11"
                     cy="11"
@@ -434,21 +344,17 @@ function ScanFile() {
                     strokeWidth="1.8"
                     strokeLinecap="round"
                   />
-
                 </svg>
 
               </div>
-
 
               <h2>
                 {t('readyToScan')}
               </h2>
 
-
               <p>
                 {t('readyToScanDescription')}
               </p>
-
 
               <div className="scan-check-grid">
 
@@ -472,17 +378,14 @@ function ScanFile() {
 
             </section>
 
-
             {/* =================================================
                 LAST SCAN
                 ================================================= */}
-
             <section className="scan-card scan-last-card">
 
               <div className="scan-last-header">
 
                 <div>
-
                   <h2>
                     {t('lastScan')}
                   </h2>
@@ -490,16 +393,13 @@ function ScanFile() {
                   <p>
                     {t('mostRecentAnalysis')}
                   </p>
-
                 </div>
-
 
                 <span className="scan-last-check">
                   ✓
                 </span>
 
               </div>
-
 
               <div className="scan-last-empty">
 
@@ -508,7 +408,6 @@ function ScanFile() {
                 </div>
 
                 <div>
-
                   <strong>
                     {t('noScanCompleted')}
                   </strong>
@@ -516,7 +415,6 @@ function ScanFile() {
                   <span>
                     {t('latestScanWillAppear')}
                   </span>
-
                 </div>
 
               </div>
@@ -524,32 +422,21 @@ function ScanFile() {
             </section>
 
           </div>
-
         )}
-
 
         {/* ===================================================
             SCAN RESULT
             =================================================== */}
-
         {result && (
-
           <div className="scan-result-wrapper">
-
-            <ScanResult
-              result={result}
-            />
-
+            <ScanResult result={result} />
           </div>
-
         )}
 
       </div>
 
     </div>
-
   )
 }
-
 
 export default ScanFile

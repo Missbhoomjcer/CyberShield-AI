@@ -2,10 +2,11 @@ from datetime import datetime
 
 from sqlalchemy import Column, DateTime, Float, Integer, String, Text
 
-from database.database import Base
+from backend.database.database import Base
 
 
 class Scan(Base):
+    
     __tablename__ = "scans"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -20,8 +21,13 @@ class Scan(Base):
     prediction = Column(String(100), nullable=True)
     threat_score = Column(Float, nullable=True)
     confidence = Column(Float, nullable=True)
-
     model = Column(String(100), nullable=True)
+
+    # Unified Threat Decision Engine fields
+    overall_risk = Column(Float, nullable=True)
+    threat_level = Column(String(50), nullable=True)
+    action = Column(String(100), nullable=True)
+    threat_reasons = Column(Text, nullable=True)
 
     created_at = Column(
         DateTime,

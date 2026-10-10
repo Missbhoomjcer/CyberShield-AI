@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+﻿from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from database.database import get_db
-from database.crud import get_all_scans, get_scan
+from backend.database.database import get_db
+from backend.database.crud import get_all_scans, get_scan
 
 
 router = APIRouter(
@@ -11,14 +11,8 @@ router = APIRouter(
 )
 
 
-# =========================================================
-# GET ALL SCANS
-# =========================================================
-
 @router.get("/")
-def get_scan_history(
-    db: Session = Depends(get_db)
-):
+def get_scan_history(db: Session = Depends(get_db)):
     scans = get_all_scans(db)
 
     return {
@@ -35,6 +29,10 @@ def get_scan_history(
                 "threat_score": scan.threat_score,
                 "confidence": scan.confidence,
                 "model": scan.model,
+                "overall_risk": scan.overall_risk,
+                "threat_level": scan.threat_level,
+                "action": scan.action,
+                "threat_reasons": scan.threat_reasons,
                 "created_at": scan.created_at
             }
             for scan in scans
@@ -42,15 +40,8 @@ def get_scan_history(
     }
 
 
-# =========================================================
-# GET SINGLE SCAN
-# =========================================================
-
 @router.get("/{scan_id}")
-def get_scan_by_id(
-    scan_id: int,
-    db: Session = Depends(get_db)
-):
+def get_scan_by_id(scan_id: int, db: Session = Depends(get_db)):
     scan = get_scan(db, scan_id)
 
     if scan is None:
@@ -70,5 +61,9 @@ def get_scan_by_id(
         "threat_score": scan.threat_score,
         "confidence": scan.confidence,
         "model": scan.model,
+        "overall_risk": scan.overall_risk,
+        "threat_level": scan.threat_level,
+        "action": scan.action,
+        "threat_reasons": scan.threat_reasons,
         "created_at": scan.created_at
     }

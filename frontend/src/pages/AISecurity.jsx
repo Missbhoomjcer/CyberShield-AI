@@ -192,7 +192,7 @@ function AISecurity() {
 
   const t = text[language] || text.English
 
-  const handleAsk = () => {
+  const handleAsk = async () => {
     const trimmedQuestion = question.trim()
 
     if (!trimmedQuestion || asking) return
@@ -200,10 +200,32 @@ function AISecurity() {
     setAsking(true)
     setAnswer('')
 
-    setTimeout(() => {
-      setAnswer(t.aiResponse)
+    try {
+      const response = await fetch('http://127.0.0.1:8000/chat/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: trimmedQuestion,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Chatbot request failed')
+      }
+
+      setAnswer(data.response)
+    } catch (error) {
+      console.error('Chatbot error:', error)
+      setAnswer(
+        'Sorry, I could not connect to the CyberShield AI backend. Please make sure the backend and Ollama are running.'
+      )
+    } finally {
       setAsking(false)
-    }, 700)
+    }
   }
 
   return (
