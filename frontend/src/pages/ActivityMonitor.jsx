@@ -3,6 +3,7 @@ import MetricGauge from '../components/activity/MetricGauge.jsx'
 import './ActivityMonitor.css'
 
 const API_URL = 'http://127.0.0.1:8000'
+const MONITORING_KEY = 'cybershield_monitoring_active'
 
 function ActivityMonitor() {
   const [monitoring, setMonitoring] = useState(false)
@@ -42,32 +43,54 @@ function ActivityMonitor() {
     user_temp: {
       label: 'User TEMP',
       path: '%TEMP%',
-      status: 'MONITORING',
+      status: 'NOT STARTED',
       changes: 0,
     },
     windows_temp: {
       label: 'Windows TEMP',
       path: 'C:\\Windows\\Temp',
-      status: 'MONITORING',
+      status: 'NOT STARTED',
       changes: 0,
     },
     downloads: {
       label: 'Downloads',
       path: '%USERPROFILE%\\Downloads',
-      status: 'MONITORING',
+      status: 'NOT STARTED',
       changes: 0,
     },
   })
 
   const [log, setLog] = useState([])
-
   const intervalRef = useRef(null)
+  const mountedRef = useRef(true)
+  const requestInProgressRef = useRef(false)
+
+  const publishMonitoringStatus = (active) => {
+    sessionStorage.setItem(MONITORING_KEY, String(active))
+
+    window.dispatchEvent(
+      new Event('cybershield-monitoring-status')
+    )
+  }
+
+  const stopMonitoring = () => {
+    setMonitoring(false)
+    publishMonitoringStatus(false)
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+  }
 
   const fetchLiveMonitoring = async () => {
-    try {
-      setLoading(true)
-      setError(null)
+    if (requestInProgressRef.current) {
+      return false
+    }
 
+    requestInProgressRef.current = true
+
+    try {
       const response = await fetch(
         `${API_URL}/monitoring/live?observations=10&interval=1`
       )
@@ -76,7 +99,7 @@ function ActivityMonitor() {
 
       if (!response.ok) {
         throw new Error(
-          data.detail || 'Live monitoring failed'
+          data.detail || 'Live monitoring failed.'
         )
       }
 
@@ -86,158 +109,83 @@ function ActivityMonitor() {
       const protectionData = data.protection || {}
       const fileData = data.file_monitoring || {}
 
-      // ====================================================
-      // SYSTEM METRICS
-      // ====================================================
+      if (!mountedRef.current) {
+        return false
+      }
 
       setMetrics({
-        cpuUsage: activity.cpu_usage ?? 0,
-        memoryUsage: activity.memory_usage ?? 0,
-        fileModRate: activity.file_change_count ?? 0,
-        networkConnections:
-          activity.network_connection_count ?? 0,
-        suspiciousProcesses:
-          activity.suspicious_process_count ?? 0,
+        cpuUsage: Number(activity.cpu_usage ?? 0),
+        memoryUsage: Number(activity.memory_usage ?? 0),
+        fileModRate: Number(activity.file_change_count ?? 0),
+        networkConnections: Number(
+          activity.network_connection_count ?? 0
+        ),
+        suspiciousProcesses: Number(
+          activity.suspicious_process_count ?? 0
+        ),
       })
-
-      // ====================================================
-      // LSTM
-      // ====================================================
 
       setPrediction({
         label: lstm.label ?? 'Unknown',
-        probability: Number(
-          lstm.probability ?? 0
-        ),
-        riskPercent: Number(
-          lstm.risk_percent ?? 0
-        ),
+        probability: Number(lstm.probability ?? 0),
+        riskPercent: Number(lstm.risk_percent ?? 0),
       })
-
-      // ====================================================
-      // THREAT DECISION
-      // ====================================================
 
       setThreat({
-        level:
-          threatData.threat_level ?? 'UNKNOWN',
-
-        action:
-          threatData.action ?? 'UNKNOWN',
-
-        overallRisk:
-          Number(
-            threatData.overall_risk ?? 0
-          ),
-
-        confidence:
-          threatData.confidence ?? 'UNKNOWN',
-
-        reasons:
-          threatData.reasons ?? [],
+        level: threatData.threat_level ?? 'UNKNOWN',
+        action: threatData.action ?? 'UNKNOWN',
+        overallRisk: Number(threatData.overall_risk ?? 0),
+        confidence: threatData.confidence ?? 'UNKNOWN',
+        reasons: Array.isArray(threatData.reasons)
+          ? threatData.reasons
+          : [],
       })
 
-      // ====================================================
-      // PROTECTION
-      // ====================================================
-
       setProtection({
-        executed:
-          protectionData.executed ?? false,
-
+        executed: protectionData.executed ?? false,
         message:
           protectionData.message ??
           'No protection action performed.',
-
-        action:
-          protectionData.action ?? '',
-
-        quarantined:
-          protectionData.quarantined ?? false,
+        action: protectionData.action ?? '',
+        quarantined: protectionData.quarantined ?? false,
       })
 
-      // ====================================================
-      // FILE MONITORING
-      //
-      // NEW:
-      // User TEMP
-      // Windows TEMP
-      // Downloads
-      // ====================================================
+      const makeFileStatus = (
+        file,
+        label,
+        path
+      ) => ({
+        label: file?.label ?? label,
+        path: file?.path ?? path,
+        status: file?.status ?? 'UNKNOWN',
+        changes: Number(file?.changes_in_window ?? 0),
+      })
 
       setFileMonitoring({
-        user_temp: {
-          label:
-            fileData.user_temp?.label ??
-            'User TEMP',
-
-          path:
-            fileData.user_temp?.path ??
-            '%TEMP%',
-
-          status:
-            fileData.user_temp?.status ??
-            'MONITORING',
-
-          changes:
-            Number(
-              fileData.user_temp?.changes_in_window ?? 0
-            ),
-        },
-
-        windows_temp: {
-          label:
-            fileData.windows_temp?.label ??
-            'Windows TEMP',
-
-          path:
-            fileData.windows_temp?.path ??
-            'C:\\Windows\\Temp',
-
-          status:
-            fileData.windows_temp?.status ??
-            'MONITORING',
-
-          changes:
-            Number(
-              fileData.windows_temp?.changes_in_window ?? 0
-            ),
-        },
-
-        downloads: {
-          label:
-            fileData.downloads?.label ??
-            'Downloads',
-
-          path:
-            fileData.downloads?.path ??
-            '%USERPROFILE%\\Downloads',
-
-          status:
-            fileData.downloads?.status ??
-            'MONITORING',
-
-          changes:
-            Number(
-              fileData.downloads?.changes_in_window ?? 0
-            ),
-        },
+        user_temp: makeFileStatus(
+          fileData.user_temp,
+          'User TEMP',
+          '%TEMP%'
+        ),
+        windows_temp: makeFileStatus(
+          fileData.windows_temp,
+          'Windows TEMP',
+          'C:\\Windows\\Temp'
+        ),
+        downloads: makeFileStatus(
+          fileData.downloads,
+          'Downloads',
+          '%USERPROFILE%\\Downloads'
+        ),
       })
 
-      // ====================================================
-      // ACTIVITY LOG
-      // ====================================================
-
-      const now =
-        new Date().toLocaleTimeString()
-
+      const now = new Date().toLocaleTimeString()
       const newEvents = []
 
       newEvents.push({
         id: Date.now(),
         type:
-          String(lstm.label).toLowerCase() ===
-          'normal'
+          String(lstm.label ?? '').toLowerCase() === 'normal'
             ? 'info'
             : 'warning',
         time: now,
@@ -251,153 +199,122 @@ function ActivityMonitor() {
           }`,
       })
 
-      // ----------------------------------------------------
-      // TEMP activity
-      // ----------------------------------------------------
+      const monitoredFolders = [
+        ['User TEMP', fileData.user_temp],
+        ['Windows TEMP', fileData.windows_temp],
+        ['Downloads', fileData.downloads],
+      ]
 
-      if (
-        Number(
-          fileData.user_temp?.changes_in_window ?? 0
-        ) > 0
-      ) {
-        newEvents.push({
-          id: Date.now() + 1,
-          type: 'warning',
-          time: now,
-          text:
-            `User TEMP: ${
-              fileData.user_temp.changes_in_window
-            } file change(s) detected`,
-        })
-      }
+      monitoredFolders.forEach(([name, file], index) => {
+        const changes = Number(file?.changes_in_window ?? 0)
 
-      if (
-        Number(
-          fileData.windows_temp?.changes_in_window ?? 0
-        ) > 0
-      ) {
-        newEvents.push({
-          id: Date.now() + 2,
-          type: 'warning',
-          time: now,
-          text:
-            `Windows TEMP: ${
-              fileData.windows_temp.changes_in_window
-            } file change(s) detected`,
-        })
-      }
-
-      if (
-        Number(
-          fileData.downloads?.changes_in_window ?? 0
-        ) > 0
-      ) {
-        newEvents.push({
-          id: Date.now() + 3,
-          type: 'info',
-          time: now,
-          text:
-            `Downloads: ${
-              fileData.downloads.changes_in_window
-            } file change(s) detected`,
-        })
-      }
+        if (changes > 0) {
+          newEvents.push({
+            id: Date.now() + index + 1,
+            type: 'warning',
+            time: now,
+            text: `${name}: ${changes} file change(s) detected`,
+          })
+        }
+      })
 
       setLog((previous) =>
         [...newEvents, ...previous].slice(0, 20)
       )
 
+      setError(null)
+      return true
     } catch (err) {
-      console.error(
-        'Live monitoring error:',
-        err
-      )
+      console.error('Live monitoring error:', err)
 
-      setError(
-        err.message ||
-        'Unable to fetch live monitoring data.'
-      )
+      if (mountedRef.current) {
+        setError(
+          err.message ||
+          'Unable to fetch live monitoring data.'
+        )
+      }
 
+      return false
     } finally {
-      setLoading(false)
+      requestInProgressRef.current = false
     }
   }
 
-  // ========================================================
-  // START / STOP MONITORING
-  // ========================================================
-
   const handleMonitoring = async () => {
+    if (loading) return
 
     if (monitoring) {
+      stopMonitoring()
+      setError(null)
+      return
+    }
 
-      setMonitoring(false)
+    setLoading(true)
+    setError(null)
+    setLog([])
 
-      if (intervalRef.current) {
-        clearInterval(
-          intervalRef.current
-        )
+    // The UI remains inactive until the first request succeeds.
+    const success = await fetchLiveMonitoring()
 
-        intervalRef.current = null
-      }
+    if (!mountedRef.current) return
 
+    if (!success) {
+      stopMonitoring()
+      setLoading(false)
       return
     }
 
     setMonitoring(true)
-    setError(null)
-    setLog([])
+    publishMonitoringStatus(true)
 
-    await fetchLiveMonitoring()
+    intervalRef.current = setInterval(async () => {
+      if (!mountedRef.current) return
 
-    intervalRef.current =
-      setInterval(
-        fetchLiveMonitoring,
-        10000
-      )
+      const requestSucceeded = await fetchLiveMonitoring()
+
+      // If the live API stops responding, do not keep showing
+      // monitoring as active.
+      if (!requestSucceeded && mountedRef.current) {
+        stopMonitoring()
+      }
+    }, 10000)
+
+    setLoading(false)
   }
 
-  // ========================================================
-  // CLEANUP
-  // ========================================================
-
   useEffect(() => {
+    mountedRef.current = true
+
+    // Never assume monitoring is active when this page loads.
+    publishMonitoringStatus(false)
 
     return () => {
+      mountedRef.current = false
 
       if (intervalRef.current) {
-
-        clearInterval(
-          intervalRef.current
-        )
-
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
       }
 
+      sessionStorage.setItem(MONITORING_KEY, 'false')
+      window.dispatchEvent(
+        new Event('cybershield-monitoring-status')
+      )
     }
-
   }, [])
-
-  // ========================================================
-  // UI
-  // ========================================================
 
   return (
     <div className="activity-monitor">
-
       <h1>Activity Monitor</h1>
 
       <p className="page-subtitle">
         Real-time file and process activity
       </p>
 
-      {/* ==================================================
-          PROTECTION STATUS
-      ================================================== */}
+      {/* Protection Status */}
 
       <div className="panel protection-panel">
-
         <div className="protection-status">
-
           <span
             className={`status-dot-large${
               monitoring ? ' active' : ''
@@ -405,200 +322,110 @@ function ActivityMonitor() {
           />
 
           <div>
-
             <div className="protection-title">
-
               {monitoring
-                ? 'Real-Time Protection Active'
-                : 'Real-Time Protection Stopped'}
-
+                ? 'Real-Time Monitoring Active'
+                : 'Real-Time Monitoring Inactive'}
             </div>
 
             <div className="protection-sub">
-
               {monitoring
-                ? 'Collecting behavioral data and analyzing with LSTM'
-                : 'Start monitoring to collect live system activity'}
-
+                ? 'Live data is being collected and analyzed.'
+                : 'Start monitoring to collect live system activity.'}
             </div>
-
           </div>
-
         </div>
 
         <button
-          className={`btn-toggle${
-            monitoring ? ' stop' : ''
-          }`}
+          className={`btn-toggle${monitoring ? ' stop' : ''}`}
           onClick={handleMonitoring}
           disabled={loading}
         >
-
           {loading
-            ? 'Analyzing...'
+            ? 'Connecting...'
             : monitoring
               ? 'Stop Monitoring'
               : 'Start Monitoring'}
-
         </button>
-
       </div>
 
-      {/* ==================================================
-          ERROR
-      ================================================== */}
-
       {error && (
-        <div className="scan-error">
+        <div className="scan-error" role="alert">
           {error}
         </div>
       )}
 
-      {/* ==================================================
-          THREAT DECISION
-      ================================================== */}
+      {/* Threat Decision */}
 
       <div className="panel">
-
         <h2>Threat Decision</h2>
 
         <div className="result-grid">
+          <ResultField
+            label="Threat Level"
+            value={threat.level}
+          />
 
-          <div className="result-field">
+          <ResultField
+            label="Overall Risk"
+            value={`${threat.overallRisk.toFixed(2)}%`}
+          />
 
-            <span className="field-label">
-              Threat Level
-            </span>
+          <ResultField
+            label="Action"
+            value={threat.action}
+          />
 
-            <span className="field-valuemono">
-              {threat.level}
-            </span>
-
-          </div>
-
-          <div className="result-field">
-
-            <span className="field-label">
-              Overall Risk
-            </span>
-
-            <span className="field-valuemono">
-              {threat.overallRisk.toFixed(2)}%
-            </span>
-
-          </div>
-
-          <div className="result-field">
-
-            <span className="field-label">
-              Action
-            </span>
-
-            <span className="field-valuemono">
-              {threat.action}
-            </span>
-
-          </div>
-
-          <div className="result-field">
-
-            <span className="field-label">
-              Confidence
-            </span>
-
-            <span className="field-valuemono">
-              {threat.confidence}
-            </span>
-
-          </div>
-
+          <ResultField
+            label="Confidence"
+            value={threat.confidence}
+          />
         </div>
 
         {threat.reasons.length > 0 && (
-
           <div className="activity-log">
-
-            {threat.reasons.map(
-              (reason, index) => (
-
-                <div
-                  key={index}
-                  className="log-entry log-warning"
-                >
-
-                  <span className="log-text mono">
-                    {reason}
-                  </span>
-
-                </div>
-
-              )
-            )}
-
+            {threat.reasons.map((reason, index) => (
+              <div
+                key={index}
+                className="log-entry log-warning"
+              >
+                <span className="log-text mono">
+                  {reason}
+                </span>
+              </div>
+            ))}
           </div>
-
         )}
-
       </div>
 
-      {/* ==================================================
-          BEHAVIORAL DETECTION
-      ================================================== */}
+      {/* Behavioral Detection */}
 
       <div className="panel">
-
         <h2>Behavioral Detection</h2>
 
         <div className="result-grid">
+          <ResultField
+            label="LSTM Prediction"
+            value={prediction.label}
+          />
 
-          <div className="result-field">
+          <ResultField
+            label="Probability"
+            value={`${(
+              prediction.probability * 100
+            ).toFixed(2)}%`}
+          />
 
-            <span className="field-label">
-              LSTM Prediction
-            </span>
-
-            <span className="field-valuemono">
-              {prediction.label}
-            </span>
-
-          </div>
-
-          <div className="result-field">
-
-            <span className="field-label">
-              Probability
-            </span>
-
-            <span className="field-valuemono">
-              {(
-                prediction.probability * 100
-              ).toFixed(2)}%
-            </span>
-
-          </div>
-
-          <div className="result-field">
-
-            <span className="field-label">
-              Risk
-            </span>
-
-            <span className="field-valuemono">
-              {prediction.riskPercent.toFixed(2)}%
-            </span>
-
-          </div>
-
+          <ResultField
+            label="Risk"
+            value={`${prediction.riskPercent.toFixed(2)}%`}
+          />
         </div>
-
       </div>
 
-      {/* ==================================================
-          LIVE METRICS
-      ================================================== */}
+      {/* Live Metrics */}
 
       <div className="metric-grid">
-
         <MetricGauge
           label="CPU Usage"
           value={metrics.cpuUsage}
@@ -628,188 +455,91 @@ function ActivityMonitor() {
           value={metrics.suspiciousProcesses}
           unit=""
         />
-
       </div>
 
-      {/* ==================================================
-          REAL-TIME FILE MONITORING
-          NEW SECTION
-      ================================================== */}
+      {/* File Monitoring */}
 
       <div className="panel">
-
         <h2>Real-Time File Monitoring</h2>
 
         <div className="result-grid">
+          {Object.entries(fileMonitoring).map(
+            ([key, file]) => (
+              <div className="result-field" key={key}>
+                <span className="field-label">
+                  {file.label}
+                </span>
 
-          {/* USER TEMP */}
+                <span className="field-valuemono">
+                  {file.path}
+                </span>
 
-          <div className="result-field">
+                <span className="field-label">
+                  Status: {file.status}
+                </span>
 
-            <span className="field-label">
-              {fileMonitoring.user_temp.label}
-            </span>
-
-            <span className="field-valuemono">
-              {fileMonitoring.user_temp.path}
-            </span>
-
-            <span className="field-label">
-              Status: {fileMonitoring.user_temp.status}
-            </span>
-
-            <span className="field-valuemono">
-              Changes: {fileMonitoring.user_temp.changes}
-            </span>
-
-          </div>
-
-          {/* WINDOWS TEMP */}
-
-          <div className="result-field">
-
-            <span className="field-label">
-              {fileMonitoring.windows_temp.label}
-            </span>
-
-            <span className="field-valuemono">
-              {fileMonitoring.windows_temp.path}
-            </span>
-
-            <span className="field-label">
-              Status: {fileMonitoring.windows_temp.status}
-            </span>
-
-            <span className="field-valuemono">
-              Changes: {fileMonitoring.windows_temp.changes}
-            </span>
-
-          </div>
-
-          {/* DOWNLOADS */}
-
-          <div className="result-field">
-
-            <span className="field-label">
-              {fileMonitoring.downloads.label}
-            </span>
-
-            <span className="field-valuemono">
-              {fileMonitoring.downloads.path}
-            </span>
-
-            <span className="field-label">
-              Status: {fileMonitoring.downloads.status}
-            </span>
-
-            <span className="field-valuemono">
-              Changes: {fileMonitoring.downloads.changes}
-            </span>
-
-          </div>
-
+                <span className="field-valuemono">
+                  Changes: {file.changes}
+                </span>
+              </div>
+            )
+          )}
         </div>
-
       </div>
 
-      {/* ==================================================
-          SYSTEM ACTIVITY
-      ================================================== */}
+      {/* System Activity */}
 
       <div className="panel">
-
         <h2>System Activity</h2>
 
         <div className="result-grid">
+          <ResultField
+            label="Suspicious Processes"
+            value={metrics.suspiciousProcesses}
+          />
 
-          <div className="result-field">
+          <ResultField
+            label="Suspicious Score"
+            value={threat.overallRisk.toFixed(2)}
+          />
 
-            <span className="field-label">
-              Total Processes
-            </span>
-
-            <span className="field-valuemono">
-              {metrics.suspiciousProcesses +
-                (metrics.networkConnections > 0
-                  ? 0
-                  : 0)}
-            </span>
-
-          </div>
-
-          <div className="result-field">
-
-            <span className="field-label">
-              Suspicious Score
-            </span>
-
-            <span className="field-valuemono">
-              {threat.overallRisk.toFixed(2)}
-            </span>
-
-          </div>
-
-          <div className="result-field">
-
-            <span className="field-label">
-              Protection
-            </span>
-
-            <span className="field-valuemono">
-              {protection.executed
+          <ResultField
+            label="Protection Action"
+            value={
+              protection.executed
                 ? protection.action || 'EXECUTED'
-                : 'NONE'}
-            </span>
+                : 'NONE'
+            }
+          />
 
-          </div>
-
-          <div className="result-field">
-
-            <span className="field-label">
-              Quarantine
-            </span>
-
-            <span className="field-valuemono">
-              {protection.quarantined
-                ? 'YES'
-                : 'NO'}
-            </span>
-
-          </div>
-
+          <ResultField
+            label="Quarantine"
+            value={protection.quarantined ? 'YES' : 'NO'}
+          />
         </div>
 
+        <p>{protection.message}</p>
       </div>
 
-      {/* ==================================================
-          LIVE ACTIVITY LOG
-      ================================================== */}
+      {/* Live Activity Log */}
 
       <div className="panel">
-
         <h2>Live Activity Log</h2>
 
         <div className="activity-log">
-
           {log.length === 0 && (
-
             <div className="empty-state">
-
               {monitoring
                 ? 'Collecting system activity...'
                 : 'Start monitoring to see live events here.'}
-
             </div>
-
           )}
 
           {log.map((event) => (
-
             <div
               key={event.id}
               className={`log-entry log-${event.type}`}
             >
-
               <span className="log-time mono">
                 {event.time}
               </span>
@@ -817,15 +547,22 @@ function ActivityMonitor() {
               <span className="log-text mono">
                 {event.text}
               </span>
-
             </div>
-
           ))}
-
         </div>
-
       </div>
+    </div>
+  )
+}
 
+function ResultField({ label, value }) {
+  return (
+    <div className="result-field">
+      <span className="field-label">{label}</span>
+
+      <span className="field-valuemono">
+        {value}
+      </span>
     </div>
   )
 }

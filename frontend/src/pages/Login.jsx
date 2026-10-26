@@ -1,57 +1,82 @@
-
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { signInWithPopup } from 'firebase/auth'
 import { auth, googleProvider } from '../firebase'
 import './Login.css'
 
+const API_URL = 'http://127.0.0.1:8000'
+
 function Login({ onLogin }) {
-  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
 
-  const handleSubmit = (event) => {
+  const saveLoggedInUser = (user) => {
+    const displayName =
+      user.displayName ||
+      user.name ||
+      user.full_name ||
+      user.email?.split('@')[0] ||
+      'User'
+
+    const userData = {
+      ...user,
+      displayName,
+      name: displayName,
+      email: user.email || '',
+    }
+
+    const storage = rememberMe ? localStorage : sessionStorage
+
+    storage.setItem('cybershield_user_name', displayName)
+    storage.setItem('user_name', displayName)
+    storage.setItem('userName', displayName)
+    storage.setItem('username', displayName)
+    storage.setItem('user_email', userData.email)
+    storage.setItem('cybershield_user', JSON.stringify(userData))
+
+    window.dispatchEvent(
+      new CustomEvent('cybershield-user-updated', {
+        detail: userData,
+      })
+    )
+
+    if (typeof onLogin === 'function') {
+      onLogin(userData)
+    }
+  }
+
+  const handleEmailLogin = async (event) => {
     event.preventDefault()
     setError('')
 
-    const cleanEmail = email.trim()
-    const cleanPassword = password.trim()
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-    if (!cleanEmail) {
-      setError('Please enter your email address.')
+    if (!email.trim() || !password) {
+      setError('Please enter your email and password.')
       return
     }
 
-    if (!emailRegex.test(cleanEmail)) {
-      setError('Please enter a valid email address.')
-      return
-    }
+    setLoading(true)
 
-    if (!cleanPassword) {
-      setError('Please enter your password.')
-      return
-    }
+    try {
+      /*
+       * This is the existing frontend-only login behavior.
+       * It does not verify the password with Firebase or the backend.
+       */
+      const cleanEmail = email.trim().toLowerCase()
+      const displayName = cleanEmail.split('@')[0]
 
-    if (cleanPassword.length < 8) {
-      setError('Password must be at least 8 characters long.')
-      return
-    }
-
-    // Existing frontend-only email/password flow is preserved.
-    const user = {
-      username: cleanEmail,
-      role: 'User',
-      rememberMe,
-    }
-
-    if (onLogin) {
-      onLogin(user)
-    } else {
-      navigate('/')
+      saveLoggedInUser({
+        email: cleanEmail,
+        displayName,
+        name: displayName,
+        role: 'User',
+      })
+    } catch (err) {
+      setError(err.message || 'Unable to sign in. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -60,15 +85,11 @@ function Login({ onLogin }) {
     setGoogleLoading(true)
 
     try {
-      // Step 1: Sign in with Google through Firebase.
       const result = await signInWithPopup(auth, googleProvider)
       const firebaseUser = result.user
-
-      // Step 2: Get a Firebase ID token.
       const idToken = await firebaseUser.getIdToken()
 
-      // Step 3: Ask FastAPI to verify the token.
-      const response = await fetch('http://127.0.0.1:8000/auth/me', {
+      const response = await fetch(`${API_URL}/auth/me`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${idToken}`,
@@ -76,231 +97,197 @@ function Login({ onLogin }) {
       })
 
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error(
+            'Backend authentication failed. Please check your Firebase configuration.'
+          )
+        }
+
         throw new Error(
-          response.status === 401
-            ? 'Backend authentication failed. Please sign in again.'
-            : 'Could not connect to the backend. Please try again.'
+          `Backend request failed (${response.status}). Please try again.`
         )
       }
 
       const backendUser = await response.json()
 
-      // Confirm that the backend verified the authenticated user.
-      if (
-        !backendUser.authenticated ||
-        backendUser.user?.uid !== firebaseUser.uid
-      ) {
-        throw new Error('User verification failed. Please try again.')
-      }
+      const displayName =
+        firebaseUser.displayName ||
+        backendUser.displayName ||
+        backendUser.name ||
+        backendUser.full_name ||
+        firebaseUser.email?.split('@')[0] ||
+        'User'
 
-      console.log('Backend authenticated user:', backendUser)
+      saveLoggedInUser({
+        ...backendUser,
+        uid: firebaseUser.uid,
+        email: firebaseUser.email || backendUser.email || '',
+        displayName,
+        name: displayName,
+        photoURL: firebaseUser.photoURL,
+        role: backendUser.role || 'User',
+      })
+    } catch (err) {
+      console.error('Google login failed:', err)
 
-      // Step 4: Preserve the existing dashboard login flow.
-      const user = {
-        username:
-          backendUser.user.email ||
-          firebaseUser.email ||
-          firebaseUser.displayName ||
-          'Google User',
-        displayName: firebaseUser.displayName || '',
-        photoURL: firebaseUser.photoURL || '',
-        uid: backendUser.user.uid,
-        role: 'User',
-        rememberMe: false,
-        provider: 'google',
-      }
-
-      if (onLogin) {
-        onLogin(user)
-      } else {
-        navigate('/')
-      }
-    } catch (authError) {
-      console.error('Google sign-in or backend authentication failed:', authError)
-
-      if (
-        authError.code === 'auth/popup-closed-by-user' ||
-        authError.code === 'auth/cancelled-popup-request'
-      ) {
-        setError('Google sign-in was cancelled. Please try again.')
-      } else if (authError.code === 'auth/unauthorized-domain') {
-        setError(
-          'This website domain is not authorized in Firebase. Add localhost in Firebase Authentication settings.'
-        )
-      } else if (authError.code === 'auth/popup-blocked') {
-        setError(
-          'Your browser blocked the Google sign-in popup. Allow popups and try again.'
-        )
-      } else {
-        setError(
-          authError.message || 'Google sign-in failed. Please try again.'
-        )
-      }
+      setError(
+        err.code === 'auth/popup-closed-by-user'
+          ? 'The Google sign-in window was closed. Please try again.'
+          : err.message || 'Google sign-in failed. Please try again.'
+      )
     } finally {
       setGoogleLoading(false)
     }
   }
 
-  const handleMicrosoftLogin = () => {
-    setError('Microsoft sign-in will be connected later.')
-  }
-
   return (
-    <div className="login-page">
-      <div className="login-card">
-        {/* Logo */}
-        <div className="login-logo">
-          <svg
-            viewBox="0 0 48 48"
-            className="login-shield"
-            aria-hidden="true"
-          >
-            <path
-              d="M24 3L42 10V21C42 32.5 34.6 42 24 46C13.4 42 6 32.5 6 21V10L24 3Z"
-              fill="#ffffff"
-              stroke="#16b879"
-              strokeWidth="3"
-            />
-            <path
-              d="M17 24L21.5 28.5L31.5 18"
+    <main className="login-page">
+      <section className="login-card">
+        <div className="login-brand">
+          <div className="login-brand-icon" aria-hidden="true">
+            <svg
+              viewBox="0 0 40 40"
+              width="40"
+              height="40"
               fill="none"
-              stroke="#16b879"
-              strokeWidth="3.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M24 3L42 10V14L24 7L6 14V10L24 3Z"
-              fill="#1677ff"
-            />
-          </svg>
-          <div className="login-logo-text">
-            <div className="login-brand-name">CyberShield-AI</div>
-            <div className="login-brand-sub">
-              SMART PROTECTION. SAFER TOMORROW.
-            </div>
+            >
+              <path
+                d="M20 3 33 8v10c0 9-5.5 15-13 19C12.5 33 7 27 7 18V8L20 3Z"
+                stroke="#087cff"
+                strokeWidth="2.5"
+                strokeLinejoin="round"
+              />
+              <path
+                d="m14 20 4 4 8-9"
+                stroke="#13b981"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+
+          <div>
+            <h1>CyberShield-AI</h1>
+            <p>SMART PROTECTION. SAFER TOMORROW.</p>
           </div>
         </div>
 
-        {/* Header */}
-        <div className="login-header">
-          <h1>Welcome Back</h1>
+        <div className="login-heading">
+          <h2>Welcome Back</h2>
           <p>Sign in to your account</p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit}>
+        {error && (
+          <div className="login-error" role="alert">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleEmailLogin}>
           <div className="login-field">
-            <label htmlFor="email">Email address</label>
+            <label htmlFor="login-email">Email address</label>
             <input
-              id="email"
+              id="login-email"
               type="email"
-              value={email}
-              onChange={(event) => {
-                setEmail(event.target.value)
-                setError('')
-              }}
               placeholder="Enter your email"
               autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
             />
           </div>
 
-          <div className="login-field password-field">
-            <div className="password-label-row">
-              <label htmlFor="password">Password</label>
+          <div className="login-field">
+            <div className="login-password-label">
+              <label htmlFor="login-password">Password</label>
               <button
                 type="button"
-                className="forgot-password"
+                className="login-text-button"
                 onClick={() =>
-                  setError('Password recovery will be connected later.')
+                  setError(
+                    'Password reset is not configured on this login form yet.'
+                  )
                 }
               >
                 Forgot password?
               </button>
             </div>
+
             <input
-              id="password"
+              id="login-password"
               type="password"
-              value={password}
-              onChange={(event) => {
-                setPassword(event.target.value)
-                setError('')
-              }}
               placeholder="Enter your password"
               autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
             />
           </div>
 
-          <div className="remember-row">
-            <label className="remember-label">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(event) => setRememberMe(event.target.checked)}
-              />
-              <span>Remember me</span>
-            </label>
-          </div>
+          <label className="login-remember">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(event) => setRememberMe(event.target.checked)}
+            />
+            <span>Remember me</span>
+          </label>
 
-          {error && (
-            <div className="login-error" role="alert">
-              {error}
-            </div>
-          )}
-
-          <button type="submit" className="login-button">
-            Sign In
+          <button
+            type="submit"
+            className="login-submit"
+            disabled={loading || googleLoading}
+          >
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
-        {/* Divider */}
         <div className="login-divider">
-          <span>or continue with</span>
+          <span />
+          <p>or continue with</p>
+          <span />
         </div>
 
-        {/* Social buttons */}
-        <div className="social-buttons">
-          <button
-            type="button"
-            className="social-button"
-            onClick={handleGoogleLogin}
-            disabled={googleLoading}
+        <button
+          type="button"
+          className="login-google"
+          onClick={handleGoogleLogin}
+          disabled={googleLoading || loading}
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 48 48"
+            aria-hidden="true"
           >
-            <span className="google-icon">G</span>
-            <span>{googleLoading ? 'Connecting...' : 'Google'}</span>
-          </button>
+            <path
+              fill="#4285F4"
+              d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.6c3.9-3.6 6.1-8.8 6.1-15Z"
+            />
+            <path
+              fill="#34A853"
+              d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.6-5.1c-1.8 1.2-4.1 2-6.9 2-5.3 0-9.8-3.6-11.4-8.4H5.8v5.3A20 20 0 0 0 24 44Z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M12.6 27.6a12 12 0 0 1 0-7.2v-5.3H5.8a20 20 0 0 0 0 17.8l6.8-5.3Z"
+            />
+            <path
+              fill="#EA4335"
+              d="M24 12c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 5.9 29.5 4 24 4A20 20 0 0 0 5.8 15.1l6.8 5.3C14.2 15.6 18.7 12 24 12Z"
+            />
+          </svg>
 
-          <button
-            type="button"
-            className="social-button"
-            onClick={handleMicrosoftLogin}
-          >
-            <span className="microsoft-icon">
-              <span></span>
-              <span></span>
-              <span></span>
-              <span></span>
-            </span>
-            <span>Microsoft</span>
-          </button>
-        </div>
+          {googleLoading ? 'Connecting to Google...' : 'Continue with Google'}
+        </button>
 
-        {/* Sign up */}
-        <div className="signup-text">
-          Don't have an account?
-          <button
-            type="button"
-            onClick={() =>
-              setError('Account creation will be connected later.')
-            }
-          >
-            Create one
-          </button>
-        </div>
-      </div>
-    </div>
+        <p className="login-footer">
+          Secure access to your CyberShield-AI dashboard
+        </p>
+      </section>
+    </main>
   )
 }
 
 export default Login
-

@@ -1,455 +1,438 @@
-import { useNavigate } from 'react-router-dom'
+
 import './Landing.css'
 
-function Landing() {
+const features = [
+  {
+    icon: 'monitor',
+    title: 'Real-Time Monitoring',
+    description: 'Detect suspicious behavior as it happens.',
+  },
+  {
+    icon: 'shield',
+    title: 'Ransomware Detection',
+    description: 'Identify potentially malicious files and activity.',
+  },
+  {
+    icon: 'brain',
+    title: 'Behavioral Analysis',
+    description: 'Use AI/ML to identify unusual patterns.',
+  },
+  {
+    icon: 'file',
+    title: 'Explainable Results',
+    description: 'Understand security findings with clear insights.',
+  },
+]
 
-  const navigate = useNavigate()
+const benefits = [
+  {
+    icon: 'search',
+    title: 'Early Detection',
+    description:
+      'Identify suspicious files and behavior before they cause further damage.',
+  },
+  {
+    icon: 'shield',
+    title: 'Intelligent Protection',
+    description:
+      'Use machine learning to support ransomware detection and analysis.',
+  },
+  {
+    icon: 'file',
+    title: 'Explainable Insights',
+    description:
+      'Understand why a file or activity has been flagged for review.',
+  },
+  {
+    icon: 'brain',
+    title: 'Behavioral Intelligence',
+    description:
+      'Analyze activity patterns to help identify potential threats.',
+  },
+]
 
+function FeatureIcon({ type, size = 24 }) {
+  const common = {
+    width: size,
+    height: size,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.8,
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    'aria-hidden': true,
+  }
 
+  switch (type) {
+    case 'monitor':
+      return (
+        <svg {...common}>
+          <rect x="3" y="4" width="18" height="13" rx="2" />
+          <path d="M8 21h8M12 17v4" />
+          <path d="m7 13 3-3 3 2 4-5" />
+        </svg>
+      )
+
+    case 'shield':
+      return (
+        <svg {...common}>
+          <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+      )
+
+    case 'brain':
+      return (
+        <svg {...common}>
+          <path d="M12 5a4 4 0 0 0-7-2 4 4 0 0 0-2 6 4 4 0 0 0 1 7 4 4 0 0 0 5 5l3-2Z" />
+          <path d="M12 5a4 4 0 0 1 7-2 4 4 0 0 1 2 6 4 4 0 0 1-1 7 4 4 0 0 1-5 5l-3-2Z" />
+          <path d="M8 8c2 0 4 2 4 4m-6 2c2 0 3 1 3 3m7-9c-2 0-4 2-4 4m6 2c-2 0-3 1-3 3M12 5v16" />
+        </svg>
+      )
+
+    case 'file':
+      return (
+        <svg {...common}>
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+          <path d="M14 2v6h6M8 13h8M8 17h8" />
+        </svg>
+      )
+
+    case 'search':
+      return (
+        <svg {...common}>
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 5 5" />
+        </svg>
+      )
+
+    default:
+      return null
+  }
+}
+
+function ShieldIllustration() {
   return (
+    <div
+      className="landing-visual"
+      aria-label="CyberShield AI security illustration"
+    >
+      <div className="visual-glow" />
+      <div className="visual-grid" />
 
-    <div className="landing-page">
+      <div className="orbit orbit-one" />
+      <div className="orbit orbit-two" />
+      <div className="orbit orbit-three" />
 
+      <div className="orbit-dot dot-one" />
+      <div className="orbit-dot dot-two" />
+      <div className="orbit-dot dot-three" />
 
-      {/* =================================================
-          NAVBAR
-          ================================================= */}
+      <div className="visual-status">
+        <span className="status-indicator" />
+        <span>AI SECURITY ACTIVE</span>
+      </div>
 
-      <header className="landing-navbar">
+      <div className="floating-icon floating-computer">
+        <FeatureIcon type="monitor" size={25} />
+      </div>
 
-        <button
-          className="landing-brand"
-          onClick={() => navigate('/')}
+      <div className="floating-icon floating-document">
+        <FeatureIcon type="file" size={23} />
+      </div>
+
+      <div className="floating-icon floating-check">
+        <span>✓</span>
+      </div>
+
+      <div className="floating-icon floating-threat">
+        <span>!</span>
+      </div>
+
+      <div className="shield-platform">
+        <div className="platform-ring" />
+        <div className="platform-base" />
+      </div>
+
+      <div className="hero-shield">
+        <svg
+          className="hero-shield-svg"
+          viewBox="0 0 220 260"
+          fill="none"
+          role="img"
+          aria-label="Blue shield with a security lock"
         >
-
-          <div className="landing-logo">
-
-            <svg
-              viewBox="0 0 48 48"
-              aria-hidden="true"
+          <defs>
+            <linearGradient
+              id="shieldOuter"
+              x1="20"
+              y1="10"
+              x2="200"
+              y2="250"
+              gradientUnits="userSpaceOnUse"
             >
+              <stop offset="0%" stopColor="#b8f6ff" />
+              <stop offset="45%" stopColor="#168aff" />
+              <stop offset="100%" stopColor="#0050d8" />
+            </linearGradient>
 
-              <path
-                d="M24 3L42 10V21C42 32.5 34.6 42 24 46C13.4 42 6 32.5 6 21V10L24 3Z"
-                fill="#ffffff"
-                stroke="#20b978"
-                strokeWidth="3"
-              />
+            <linearGradient
+              id="shieldInner"
+              x1="40"
+              y1="25"
+              x2="180"
+              y2="230"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop offset="0%" stopColor="#168bff" />
+              <stop offset="55%" stopColor="#0758e7" />
+              <stop offset="100%" stopColor="#0734a9" />
+            </linearGradient>
 
-              <path
-                d="M17 24L21.5 28.5L31.5 18"
-                fill="none"
-                stroke="#20b978"
-                strokeWidth="3.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+            <linearGradient
+              id="lockGradient"
+              x1="75"
+              y1="95"
+              x2="145"
+              y2="190"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="100%" stopColor="#b9ddff" />
+            </linearGradient>
 
-              <path
-                d="M24 3L42 10V14L24 7L6 14V10L24 3Z"
-                fill="#1677ff"
-              />
+            <filter
+              id="shieldShadow"
+              x="-60%"
+              y="-50%"
+              width="220%"
+              height="220%"
+            >
+              <feGaussianBlur stdDeviation="8" />
+            </filter>
+          </defs>
 
-            </svg>
+          <path
+            d="M110 10 198 48v70c0 65-39 106-88 132-49-26-88-67-88-132V48Z"
+            fill="#168aff"
+            opacity=".35"
+            filter="url(#shieldShadow)"
+          />
 
+          <path
+            d="M110 7 198 47v69c0 64-39 105-88 131-49-26-88-67-88-131V47Z"
+            fill="url(#shieldOuter)"
+            stroke="#b9f7ff"
+            strokeWidth="3"
+          />
+
+          <path
+            d="M110 25 180 57v59c0 50-28 84-70 108-42-24-70-58-70-108V57Z"
+            fill="url(#shieldInner)"
+            stroke="#69d9ff"
+            strokeWidth="2"
+          />
+
+          <path
+            d="M110 25 180 57v59c0 50-28 84-70 108Z"
+            fill="#003cbf"
+            opacity=".3"
+          />
+
+          <g stroke="#91e9ff" strokeWidth="2" opacity=".6">
+            <path d="M70 82 91 70" />
+            <path d="M150 82 129 70" />
+            <path d="M69 158 87 173" />
+            <path d="M151 158 133 173" />
+          </g>
+
+          <rect
+            x="76"
+            y="112"
+            width="68"
+            height="65"
+            rx="13"
+            fill="#ffffff"
+            opacity=".22"
+          />
+
+          <path
+            d="M88 116V99a22 22 0 0 1 44 0v17"
+            stroke="url(#lockGradient)"
+            strokeWidth="12"
+            strokeLinecap="round"
+          />
+
+          <rect
+            x="75"
+            y="111"
+            width="70"
+            height="70"
+            rx="12"
+            fill="url(#lockGradient)"
+            stroke="#ffffff"
+            strokeWidth="2"
+          />
+
+          <circle cx="110" cy="138" r="9" fill="#0871e9" />
+          <path d="M106 143h8l-2 17h-4Z" fill="#0871e9" />
+
+          <path
+            d="M110 7 198 47"
+            stroke="#ffffff"
+            strokeWidth="2"
+            opacity=".7"
+          />
+        </svg>
+      </div>
+
+      {features.map((feature, index) => (
+        <div
+          className={`floating-feature floating-feature-${index + 1}`}
+          key={feature.title}
+        >
+          <div className="floating-feature-icon">
+            <FeatureIcon type={feature.icon} size={23} />
           </div>
 
+          <div className="floating-feature-copy">
+            <h3>{feature.title}</h3>
+            <p>{feature.description}</p>
+          </div>
+        </div>
+      ))}
 
-          <div>
+      <div className="visual-caption">
+        <span className="caption-pulse" />
+        AI-POWERED ENDPOINT SECURITY
+      </div>
+    </div>
+  )
+}
 
-            <div className="landing-brand-name">
+function Landing() {
+  return (
+    <main className="landing-page" id="top">
+      <header className="landing-navbar">
+        <a
+          href="#top"
+          className="landing-brand"
+          aria-label="CyberShield AI home"
+        >
+          <div className="brand-shield">
+            <FeatureIcon type="shield" size={28} />
+          </div>
+
+          <div className="brand-copy">
+            <strong>
               CyberShield<span>-AI</span>
-            </div>
-
-            <div className="landing-brand-sub">
-              SMART PROTECTION. SAFER TOMORROW.
-            </div>
-
+            </strong>
+            <small>SMART PROTECTION. SAFER TOMORROW.</small>
           </div>
+        </a>
 
-        </button>
-
-
-        {/* NAVIGATION */}
-
-        <nav className="landing-nav">
-
-          <button
-            type="button"
-            onClick={() => navigate('/features')}
-          >
-            Features
-          </button>
-
-
-          <button
-            type="button"
-            onClick={() => navigate('/security')}
-          >
-            Security
-          </button>
-
-
-          <button
-            type="button"
-            onClick={() => navigate('/about')}
-          >
-            About
-          </button>
-
-
-          <button
-            type="button"
-            className="landing-signin"
-            onClick={() => navigate('/login')}
-          >
-            Sign In
-          </button>
-
-
-          <button
-            type="button"
-            className="landing-get-started"
-            onClick={() => navigate('/login')}
-          >
-            Get Started
-          </button>
-
+        <nav className="landing-nav-links" aria-label="Main navigation">
+          <a href="#features">Features</a>
+          <a href="#about">About</a>
         </nav>
 
+        <div className="landing-nav-actions">
+          <a
+            className="landing-button landing-button-outline nav-signin"
+            href="/login"
+          >
+            Sign In
+          </a>
+        </div>
       </header>
 
+      <section className="landing-hero">
+        <div className="landing-hero-inner">
+          <div className="landing-hero-copy">
+            <div className="landing-eyebrow">
+              <span className="eyebrow-line" />
+              AI-POWERED ENDPOINT SECURITY
+            </div>
 
-      {/* =================================================
-          HERO
-          ================================================= */}
-
-      <main className="landing-hero">
-
-        <div className="landing-hero-content">
-
-
-          <div className="landing-eyebrow">
-            AI-POWERED ENDPOINT SECURITY
-          </div>
-
-
-          <h1>
-
-            AI-Powered
-
-            <br />
-
-            <span>
-              Ransomware Protection
-            </span>
-
-            <br />
-
-            for a Safer Tomorrow
-
-          </h1>
-
-
-          <p>
-            Detect. Prevent. Explain. Stay Protected.
-          </p>
-
-
-          <p className="landing-description">
-
-            CyberShield-AI uses advanced machine learning,
-            behavioral monitoring and real-time protection
-            to identify ransomware and malicious activity
-            before it can cause serious damage.
-
-          </p>
-
-
-          <div className="landing-buttons">
-
-
-            <button
-              type="button"
-              className="hero-primary"
-              onClick={() => navigate('/login')}
-            >
-              Get Started
-            </button>
-
-
-            <button
-              type="button"
-              className="hero-secondary"
-              onClick={() => navigate('/demo')}
-            >
-              Watch Demo
-            </button>
-
-
-          </div>
-
-        </div>
-
-
-        {/* =================================================
-            DASHBOARD PREVIEW
-            ================================================= */}
-
-        <div className="landing-preview">
-
-          <div className="preview-window">
-
-
-            <div className="preview-topbar">
-
-              <div className="preview-dots">
-
-                <span></span>
-                <span></span>
-                <span></span>
-
-              </div>
-
-              <span>
-                CyberShield-AI
+            <h1>
+              <span className="headline-line">AI-Powered</span>
+              <span className="headline-line headline-blue">
+                Ransomware
               </span>
+              <span className="headline-line headline-blue">
+                Protection
+              </span>
+              <span className="headline-line">
+                for a Safer Tomorrow
+              </span>
+            </h1>
 
+            <p className="landing-tagline">
+              Detect. Prevent. Explain. Stay Protected.
+            </p>
+
+            <p className="landing-description">
+              CyberShield-AI combines machine learning, behavioral analysis,
+              and real-time monitoring to help identify ransomware and
+              suspicious activity before it causes serious damage.
+            </p>
+
+            <div className="landing-hero-actions">
+              <a
+                href="/login"
+                className="landing-button landing-button-primary hero-start"
+              >
+                Get Started
+                <span aria-hidden="true">→</span>
+              </a>
+
+              <a
+                href="#features"
+                className="landing-button landing-button-outline hero-demo"
+              >
+                Explore Features
+                <span aria-hidden="true">↗</span>
+              </a>
             </div>
 
-
-            <div className="preview-body">
-
-
-              <div className="preview-sidebar">
-
-                <div className="preview-logo">
-                  ◈
-                </div>
-
-
-                <div className="preview-side-item active">
-                  Dashboard
-                </div>
-
-
-                <div className="preview-side-item">
-                  Scan
-                </div>
-
-
-                <div className="preview-side-item">
-                  Protection
-                </div>
-
-
-                <div className="preview-side-item">
-                  Threats
-                </div>
-
-
-                <div className="preview-side-item">
-                  Reports
-                </div>
-
-              </div>
-
-
-              <div className="preview-main">
-
-
-                <div className="preview-heading">
-
-                  <div>
-
-                    <h3>
-                      Good Evening, Harshita!
-                    </h3>
-
-                    <span>
-                      Your device is protected.
-                    </span>
-
-                  </div>
-
-
-                  <div className="preview-avatar">
-                    H
-                  </div>
-
-                </div>
-
-
-                <div className="preview-protection">
-
-                  <div className="preview-check">
-                    ✓
-                  </div>
-
-
-                  <div>
-
-                    <small>
-                      YOU ARE PROTECTED
-                    </small>
-
-                    <strong>
-                      Your device is secure
-                    </strong>
-
-                    <span>
-                      CyberShield-AI is actively monitoring
-                      your device.
-                    </span>
-
-                  </div>
-
-                </div>
-
-
-                <div className="preview-stats">
-
-
-                  <div>
-
-                    <small>
-                      FILES SCANNED
-                    </small>
-
-                    <strong>
-                      1,284
-                    </strong>
-
-                  </div>
-
-
-                  <div>
-
-                    <small>
-                      THREATS
-                    </small>
-
-                    <strong className="preview-red">
-                      17
-                    </strong>
-
-                  </div>
-
-
-                  <div>
-
-                    <small>
-                      ACCURACY
-                    </small>
-
-                    <strong className="preview-blue">
-                      98.6%
-                    </strong>
-
-                  </div>
-
-
-                </div>
-
-
-                <div className="preview-bottom">
-
-
-                  <div className="preview-score">
-
-                    <small>
-                      PROTECTION SCORE
-                    </small>
-
-
-                    <div className="preview-ring">
-
-                      <strong>
-                        98
-                      </strong>
-
-                    </div>
-
-
-                    <b>
-                      Excellent
-                    </b>
-
-                  </div>
-
-
-                  <div className="preview-status">
-
-                    <small>
-                      PROTECTION STATUS
-                    </small>
-
-
-                    <div>
-
-                      <span>
-                        Real-Time Protection
-                      </span>
-
-                      <b>
-                        ✓
-                      </b>
-
-                    </div>
-
-
-                    <div>
-
-                      <span>
-                        Ransomware Protection
-                      </span>
-
-                      <b>
-                        ✓
-                      </b>
-
-                    </div>
-
-
-                    <div>
-
-                      <span>
-                        Behavioral Monitoring
-                      </span>
-
-                      <b>
-                        ✓
-                      </b>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
+            <div className="landing-trust-note">
+              <span className="trust-check">✓</span>
+              Intelligent detection. Clear security insights.
             </div>
 
+            <div className="hero-mini-stats">
+              <div>
+                <span className="mini-stat-icon">
+                  <FeatureIcon type="monitor" size={19} />
+                </span>
+                <span>
+                  <strong>Real-Time</strong>
+                  <small>Monitoring</small>
+                </span>
+              </div>
+
+              <div>
+                <span className="mini-stat-icon">
+                  <FeatureIcon type="brain" size={19} />
+                </span>
+                <span>
+                  <strong>AI-Powered</strong>
+                  <small>Analysis</small>
+                </span>
+              </div>
+            </div>
           </div>
 
+          <ShieldIllustration />
         </div>
 
-      </main>
+        <div className="hero-bottom-glow" />
+      </section>
 
-
-      {/* =================================================
-          SECURITY PREVIEW
-          ================================================= */}
-
-      <section className="landing-security">
-
-        <div>
-
-          <span>
-            BUILT FOR SECURITY
-          </span>
-
+      <section className="landing-benefits" id="features">
+        <div className="benefits-heading">
+          <span className="section-eyebrow">BUILT FOR SECURITY</span>
 
           <h2>
             Detect threats before
@@ -457,136 +440,44 @@ function Landing() {
             they become incidents.
           </h2>
 
-
           <p>
-            CyberShield-AI combines static analysis,
-            machine learning and behavioral monitoring
-            into a unified endpoint security platform.
+            Smarter security insights to help you understand and respond
+            to suspicious activity.
           </p>
-
-
-          <div className="landing-security-flow">
-
-
-            <div>
-              <strong>01</strong>
-              <span>Detect</span>
-            </div>
-
-
-            <div>
-              <strong>02</strong>
-              <span>Decide</span>
-            </div>
-
-
-            <div>
-              <strong>03</strong>
-              <span>Protect</span>
-            </div>
-
-
-            <div>
-              <strong>04</strong>
-              <span>Quarantine</span>
-            </div>
-
-
-          </div>
-
         </div>
 
+        <div className="benefit-grid">
+          {benefits.map((benefit, index) => (
+            <article className="benefit-card" key={benefit.title}>
+              <div className="benefit-icon">
+                <FeatureIcon type={benefit.icon} size={27} />
+              </div>
+
+              <div className="benefit-copy">
+                <span className="benefit-number">
+                  0{index + 1}
+                </span>
+                <h3>{benefit.title}</h3>
+                <p>{benefit.description}</p>
+              </div>
+            </article>
+          ))}
+        </div>
       </section>
 
+      <footer className="landing-footer" id="about">
+        <a href="#top" className="footer-brand">
+          <FeatureIcon type="shield" size={22} />
+          <span>CyberShield-AI</span>
+        </a>
 
-      {/* =================================================
-          ABOUT PREVIEW
-          ================================================= */}
+        <p>Smart protection. Safer tomorrow.</p>
 
-      <section className="landing-about">
-
-        <div className="section-heading">
-
-          <span>
-            ABOUT CYBERSHIELD-AI
-          </span>
-
-
-          <h2>
-            Intelligent endpoint protection
-          </h2>
-
-
-          <p>
-            CyberShield-AI is designed to detect,
-            analyze and respond to ransomware and
-            malicious activity using machine learning,
-            behavioral monitoring and explainable AI.
-          </p>
-
-
-          <button
-            type="button"
-            className="landing-section-button"
-            onClick={() => navigate('/about')}
-          >
-            Learn More About CyberShield-AI
-          </button>
-
-        </div>
-
-      </section>
-
-
-      {/* =================================================
-          FOOTER
-          ================================================= */}
-
-      <footer className="landing-footer">
-
-
-        <div className="landing-footer-brand">
-
-          <strong>
-            CyberShield<span>-AI</span>
-          </strong>
-
-          <p>
-            AI-powered ransomware and malware detection.
-          </p>
-
-        </div>
-
-
-        <div className="landing-footer-links">
-
-          <button onClick={() => navigate('/features')}>
-            Features
-          </button>
-
-          <button onClick={() => navigate('/security')}>
-            Security
-          </button>
-
-          <button onClick={() => navigate('/about')}>
-            About
-          </button>
-
-          <button onClick={() => navigate('/demo')}>
-            Demo
-          </button>
-
-        </div>
-
-
-        <span>
-          © 2026 CyberShield-AI
-        </span>
-
-
+        <a href="#top" className="footer-back">
+          Back to top ↑
+        </a>
       </footer>
-
-    </div>
+    </main>
   )
 }
 

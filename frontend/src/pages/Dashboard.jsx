@@ -4,6 +4,39 @@ import { useLanguage } from '../context/LanguageContext.jsx'
 import './Dashboard.css'
 
 const API_URL = 'http://127.0.0.1:8000'
+const MONITORING_KEY = 'cybershield_monitoring_active'
+
+function getGreeting() {
+  const hour = new Date().getHours()
+
+  if (hour < 12) return 'Good Morning'
+  if (hour < 17) return 'Good Afternoon'
+  return 'Good Evening'
+}
+
+function getLoggedInUser() {
+  const keys = [
+    'cybershield_user_name',
+    'user_name',
+    'userName',
+    'username',
+    'user_email',
+  ]
+
+  for (const key of keys) {
+    const value = sessionStorage.getItem(key)
+
+    if (value?.trim()) {
+      if (key === 'user_email' && value.includes('@')) {
+        return value.split('@')[0]
+      }
+
+      return value.trim()
+    }
+  }
+
+  return 'User'
+}
 
 function Dashboard() {
   const navigate = useNavigate()
@@ -12,245 +45,227 @@ function Dashboard() {
   const [scanning, setScanning] = useState(false)
   const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loggedInUser, setLoggedInUser] = useState(getLoggedInUser)
+  const [greeting, setGreeting] = useState(getGreeting)
+  const [monitoringActive, setMonitoringActive] = useState(
+    () => sessionStorage.getItem(MONITORING_KEY) === 'true'
+  )
 
+  // No score is displayed until real analysis data is available.
   const protectionScore = null
-
-  /* =========================================================
-     TRANSLATIONS
-     ========================================================= */
 
   const translations = {
     English: {
-      greeting: 'Good evening, Harshita',
-      protectedMessage:
-        'Your device is protected and everything looks good.',
-      protectionStatus: 'PROTECTION STATUS',
-      protected: 'You are Protected',
-      protectionDescription:
-        'CyberShield-AI is ready to monitor your device for ransomware, malware and other security threats.',
+      pageMessage:
+        'Review your device activity and scan files for potential threats.',
+      protectionStatus: 'SECURITY STATUS',
+      inactive: 'Protection Inactive',
+      active: 'Monitoring Active',
+      inactiveDescription:
+        'Real-time monitoring is not running. Start monitoring to collect live activity, or scan files to check for potential threats.',
+      activeDescription:
+        'Live monitoring is running. This status does not guarantee that every protection feature is enabled.',
       scanSystem: 'Scan Your System',
       openingScanner: 'Opening Scanner...',
-      viewProtection: 'View Protection',
       protectionScore: 'Protection Score',
       awaitingAnalysis: 'Awaiting analysis',
-      excellent: 'Excellent',
       securityOverview: 'Security Overview',
-      currentActivity:
-        'Current protection activity on this device',
+      currentActivity: 'Recorded security activity on this device',
       filesScanned: 'Files Scanned',
-      filesChecked: 'Files checked for threats',
+      filesChecked: 'Files recorded in scan history',
       threatsDetected: 'Threats Detected',
-      detectedByEngine: 'Detected by security engine',
+      detectedByEngine: 'Recorded threat detections',
       threatsBlocked: 'Threats Blocked',
-      protectionResponse: 'Protection engine response',
+      protectionResponse: 'Recorded block actions',
       quarantined: 'Quarantined',
-      isolatedFiles: 'Isolated files',
+      isolatedFiles: 'Recorded quarantine actions',
       recentActivity: 'Recent Security Activity',
-      latestEvents:
-        'Latest events from your protection system',
+      latestEvents: 'Latest recorded security events',
       viewAll: 'View All',
       loadingActivity: 'Loading security activity...',
-      noActivity:
-        'No security activity available yet.',
+      noActivity: 'No security activity available yet.',
       threatDetected: 'Threat detected',
       scanCompleted: 'File scan completed',
       securityEvent: 'Security event',
-      protectionModules: 'Protection Modules',
-      securityLayers:
-        'Security layers protecting this device',
-      manage: 'Manage',
-      realtime: 'Real-Time Protection',
-      realtimeDescription:
-        'Continuous endpoint monitoring',
-      ransomware: 'Ransomware Protection',
-      ransomwareDescription:
-        'Suspicious behavior detection',
-      aiDetection: 'AI Threat Detection',
-      aiDescription: 'XGBoost + LSTM analysis',
-      behavioral: 'Behavioral Monitoring',
-      behavioralDescription:
-        'Real-time activity analysis',
       aiSecurity: 'AI SECURITY',
       aiCopilot: 'CyberShield AI Copilot',
-      aiDescriptionLong:
-        'Get explanations and security assistance',
+      aiDescription: 'Get explanations and security assistance',
       openAI: 'Open AI Security',
-      protectedDevice: 'PROTECTED DEVICE',
+      deviceInformation: 'DEVICE INFORMATION',
       windowsPC: 'Windows PC',
-      endpointAgent: 'CyberShield Endpoint Agent',
-      agentProtected: 'Protected',
-      agentStatus: 'Agent status',
-      on: 'ON',
+      endpointAgent: 'CyberShield AI endpoint dashboard',
+      monitoringRunning: 'Monitoring Active',
+      monitoringStopped: 'Monitoring Inactive',
+      monitoringStatus: 'Monitoring status',
       alerts: 'View security alerts',
     },
 
     Hindi: {
-      greeting: 'शुभ संध्या, Harshita',
-      protectedMessage:
-        'आपका डिवाइस सुरक्षित है और सब कुछ ठीक है।',
+      pageMessage:
+        'अपने डिवाइस की गतिविधि देखें और संभावित खतरों के लिए फाइलें स्कैन करें।',
       protectionStatus: 'सुरक्षा स्थिति',
-      protected: 'आप सुरक्षित हैं',
-      protectionDescription:
-        'CyberShield-AI आपके डिवाइस को रैनसमवेयर, मैलवेयर और अन्य सुरक्षा खतरों के लिए मॉनिटर करने के लिए तैयार है।',
+      inactive: 'सुरक्षा मॉनिटरिंग निष्क्रिय',
+      active: 'मॉनिटरिंग सक्रिय',
+      inactiveDescription:
+        'रीयल-टाइम मॉनिटरिंग चालू नहीं है। गतिविधि देखने के लिए मॉनिटरिंग शुरू करें या संभावित खतरों के लिए फाइलें स्कैन करें।',
+      activeDescription:
+        'लाइव मॉनिटरिंग चल रही है। इसका अर्थ यह नहीं है कि सभी सुरक्षा सुविधाएं सक्रिय हैं।',
       scanSystem: 'अपने सिस्टम को स्कैन करें',
       openingScanner: 'स्कैनर खोला जा रहा है...',
-      viewProtection: 'सुरक्षा देखें',
       protectionScore: 'सुरक्षा स्कोर',
       awaitingAnalysis: 'विश्लेषण की प्रतीक्षा',
-      excellent: 'उत्कृष्ट',
       securityOverview: 'सुरक्षा अवलोकन',
-      currentActivity:
-        'इस डिवाइस की वर्तमान सुरक्षा गतिविधि',
+      currentActivity: 'इस डिवाइस की दर्ज सुरक्षा गतिविधि',
       filesScanned: 'स्कैन की गई फाइलें',
-      filesChecked:
-        'खतरों के लिए जांची गई फाइलें',
+      filesChecked: 'स्कैन इतिहास में दर्ज फाइलें',
       threatsDetected: 'पता लगाए गए खतरे',
-      detectedByEngine:
-        'सुरक्षा इंजन द्वारा पता लगाए गए',
+      detectedByEngine: 'दर्ज खतरे',
       threatsBlocked: 'ब्लॉक किए गए खतरे',
-      protectionResponse:
-        'सुरक्षा इंजन की प्रतिक्रिया',
-      quarantined: 'क्वारंटीन की गई फाइलें',
-      isolatedFiles: 'अलग की गई फाइलें',
+      protectionResponse: 'दर्ज ब्लॉक कार्रवाई',
+      quarantined: 'क्वारंटीन',
+      isolatedFiles: 'दर्ज क्वारंटीन कार्रवाई',
       recentActivity: 'हाल की सुरक्षा गतिविधि',
-      latestEvents:
-        'आपके सुरक्षा सिस्टम की नवीनतम घटनाएं',
+      latestEvents: 'नवीनतम दर्ज सुरक्षा घटनाएं',
       viewAll: 'सभी देखें',
-      loadingActivity:
-        'सुरक्षा गतिविधि लोड हो रही है...',
-      noActivity:
-        'अभी कोई सुरक्षा गतिविधि उपलब्ध नहीं है।',
+      loadingActivity: 'सुरक्षा गतिविधि लोड हो रही है...',
+      noActivity: 'अभी कोई सुरक्षा गतिविधि उपलब्ध नहीं है।',
       threatDetected: 'खतरा पाया गया',
       scanCompleted: 'फाइल स्कैन पूरा हुआ',
       securityEvent: 'सुरक्षा घटना',
-      protectionModules: 'सुरक्षा मॉड्यूल',
-      securityLayers:
-        'इस डिवाइस की सुरक्षा करने वाली सुरक्षा परतें',
-      manage: 'प्रबंधित करें',
-      realtime: 'रीयल-टाइम सुरक्षा',
-      realtimeDescription:
-        'लगातार एंडपॉइंट मॉनिटरिंग',
-      ransomware: 'रैनसमवेयर सुरक्षा',
-      ransomwareDescription:
-        'संदिग्ध व्यवहार का पता लगाना',
-      aiDetection: 'AI खतरा पहचान',
-      aiDescription: 'XGBoost + LSTM विश्लेषण',
-      behavioral: 'व्यवहारिक मॉनिटरिंग',
-      behavioralDescription:
-        'रीयल-टाइम गतिविधि विश्लेषण',
       aiSecurity: 'AI सुरक्षा',
       aiCopilot: 'CyberShield AI Copilot',
-      aiDescriptionLong:
-        'स्पष्टीकरण और सुरक्षा सहायता प्राप्त करें',
+      aiDescription: 'स्पष्टीकरण और सुरक्षा सहायता प्राप्त करें',
       openAI: 'AI सुरक्षा खोलें',
-      protectedDevice: 'सुरक्षित डिवाइस',
+      deviceInformation: 'डिवाइस की जानकारी',
       windowsPC: 'Windows PC',
-      endpointAgent: 'CyberShield Endpoint Agent',
-      agentProtected: 'सुरक्षित',
-      agentStatus: 'एजेंट स्थिति',
-      on: 'चालू',
+      endpointAgent: 'CyberShield AI डैशबोर्ड',
+      monitoringRunning: 'मॉनिटरिंग सक्रिय',
+      monitoringStopped: 'मॉनिटरिंग निष्क्रिय',
+      monitoringStatus: 'मॉनिटरिंग स्थिति',
       alerts: 'सुरक्षा अलर्ट देखें',
     },
   }
 
   const t = translations[language] || translations.English
 
-  /* =========================================================
-     LOAD SECURITY HISTORY
-     ========================================================= */
-
+  // Keep the user, greeting, and monitoring status updated.
   useEffect(() => {
-    fetchHistory()
+    const updateUser = () => {
+      setLoggedInUser(getLoggedInUser())
+    }
+
+    const updateGreeting = () => {
+      setGreeting(getGreeting())
+    }
+
+    const updateMonitoring = () => {
+      setMonitoringActive(
+        sessionStorage.getItem(MONITORING_KEY) === 'true'
+      )
+    }
+
+    window.addEventListener('storage', updateUser)
+    window.addEventListener('cybershield-user-updated', updateUser)
+    window.addEventListener(
+      'cybershield-monitoring-status',
+      updateMonitoring
+    )
+
+    const intervalId = window.setInterval(updateGreeting, 60000)
+
+    updateUser()
+    updateMonitoring()
+
+    return () => {
+      window.removeEventListener('storage', updateUser)
+      window.removeEventListener('cybershield-user-updated', updateUser)
+      window.removeEventListener(
+        'cybershield-monitoring-status',
+        updateMonitoring
+      )
+      window.clearInterval(intervalId)
+    }
   }, [])
 
-  const fetchHistory = async () => {
-    try {
-      setLoading(true)
+  // Load recorded security history.
+  useEffect(() => {
+    let cancelled = false
 
-      const response = await fetch(`${API_URL}/history/`)
+    const fetchHistory = async () => {
+      try {
+        setLoading(true)
 
-      if (!response.ok) {
-        throw new Error('History API unavailable')
+        const response = await fetch(`${API_URL}/history/`)
+
+        if (!response.ok) {
+          throw new Error('History API unavailable')
+        }
+
+        const data = await response.json()
+
+        const items = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.history)
+            ? data.history
+            : Array.isArray(data?.scans)
+              ? data.scans
+              : []
+
+        if (!cancelled) {
+          setHistory(items)
+        }
+      } catch (error) {
+        console.error('Failed to load security history:', error)
+
+        if (!cancelled) {
+          setHistory([])
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
       }
-
-      const data = await response.json()
-
-      const items = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.history)
-          ? data.history
-          : Array.isArray(data?.scans)
-            ? data.scans
-            : []
-
-      setHistory(items)
-    } catch (error) {
-      console.error('Failed to load security history:', error)
-      setHistory([])
-    } finally {
-      setLoading(false)
     }
-  }
 
-  /* =========================================================
-     SCAN YOUR SYSTEM
-     ========================================================= */
+    fetchHistory()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const handleSystemScan = () => {
     setScanning(true)
 
-    setTimeout(() => {
-      setScanning(false)
+    window.setTimeout(() => {
       navigate('/scan')
-    }, 400)
+      setScanning(false)
+    }, 300)
   }
 
-  /* =========================================================
-     SECURITY COUNTS
-     ========================================================= */
-
+  // These counts are based on recorded history, not live protection.
   const detectedThreats = history.filter((item) => {
-    const threatLevel = String(
-      item.threat_level ?? ''
-    ).toUpperCase()
-
+    const level = String(item.threat_level ?? '').toUpperCase()
     const risk = Number(item.overall_risk ?? 0)
 
     return (
-      ['MEDIUM', 'HIGH', 'CRITICAL'].includes(threatLevel) ||
+      ['MEDIUM', 'HIGH', 'CRITICAL'].includes(level) ||
       risk >= 50
     )
   })
 
-  const quarantined = history.filter((item) => {
-    const action = String(
-      item.action ?? ''
-    ).toUpperCase()
+  const quarantined = history.filter((item) =>
+    String(item.action ?? '').toUpperCase().includes('QUARANTINE')
+  )
 
-    return action.includes('QUARANTINE')
-  })
-
-  const blocked = history.filter((item) => {
-    const action = String(
-      item.action ?? ''
-    ).toUpperCase()
-
-    return action.includes('BLOCK')
-  })
-
-  /* =========================================================
-     TIME FORMAT
-     ========================================================= */
+  const blocked = history.filter((item) =>
+    String(item.action ?? '').toUpperCase().includes('BLOCK')
+  )
 
   const formatTime = (item) => {
-    const value =
-      item.created_at ??
-      item.timestamp ??
-      item.time
+    const value = item.created_at ?? item.timestamp ?? item.time
 
-    if (!value) {
-      return '—'
-    }
+    if (!value) return '—'
 
     const date = new Date(value)
 
@@ -264,56 +279,36 @@ function Dashboard() {
     })
   }
 
-  /* =========================================================
-     ACTIVITY TITLE
-     ========================================================= */
-
   const getActivityTitle = (item) => {
-    const threatLevel = String(
-      item.threat_level ?? ''
-    ).toUpperCase()
-
+    const level = String(item.threat_level ?? '').toUpperCase()
     const risk = Number(item.overall_risk ?? 0)
 
-    const dangerous =
-      ['MEDIUM', 'HIGH', 'CRITICAL'].includes(threatLevel) ||
+    return (
+      ['MEDIUM', 'HIGH', 'CRITICAL'].includes(level) ||
       risk >= 50
-
-    if (dangerous) {
-      return t.threatDetected
-    }
-
-    return t.scanCompleted
+    )
+      ? t.threatDetected
+      : t.scanCompleted
   }
-
-  /* =========================================================
-     RENDER
-     ========================================================= */
 
   return (
     <div className="dashboard-page">
-
       {/* HEADER */}
 
       <header className="dashboard-header">
-
         <div>
-          <h1>{t.greeting}</h1>
-
-          <p>
-            {t.protectedMessage}
-          </p>
+          <h1>{greeting}!</h1>
+          <p>{t.pageMessage}</p>
         </div>
 
         <div className="dashboard-header-actions">
-
           <button
             className="notification-button"
             onClick={() => navigate('/threats')}
             aria-label={t.alerts}
             title={t.alerts}
           >
-            <svg viewBox="0 0 24 24">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
               <path
                 d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"
                 fill="none"
@@ -322,7 +317,6 @@ function Dashboard() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-
               <path
                 d="M10 21h4"
                 fill="none"
@@ -334,75 +328,62 @@ function Dashboard() {
           </button>
 
           <div className="dashboard-user">
-
             <div className="dashboard-user-avatar">
-              H
+              {loggedInUser.charAt(0).toUpperCase()}
             </div>
-
-            <span>Harshita</span>
-
+            <span>{loggedInUser}</span>
           </div>
-
         </div>
-
       </header>
 
-      {/* PROTECTION STATUS */}
+      {/* HONEST SECURITY STATUS */}
 
       <section className="dashboard-protection-card">
-
         <div className="dashboard-protection-main">
-
           <div className="dashboard-shield">
-
-            <svg viewBox="0 0 48 52">
-
+            <svg viewBox="0 0 48 52" aria-hidden="true">
               <path
                 d="M24 2L43 9v13c0 12-7.8 22.1-19 27C12.8 44.1 5 34 5 22V9L24 2Z"
-                fill="#16b66a"
+                fill={monitoringActive ? '#16b66a' : '#64748b'}
               />
-
-              <path
-                d="M15 25l6 6 12-13"
-                fill="none"
-                stroke="#fff"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-
+              {monitoringActive && (
+                <path
+                  d="M15 25l6 6 12-13"
+                  fill="none"
+                  stroke="#fff"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
             </svg>
-
           </div>
 
           <div className="dashboard-protection-copy">
-
             <div className="dashboard-status-line">
-
-              <span className="live-dot"></span>
-
+              <span
+                className={`live-dot${monitoringActive ? ' monitoring-live' : ''}`}
+              />
               {t.protectionStatus}
-
             </div>
 
             <h2>
-              {t.protected}
+              {monitoringActive ? t.active : t.inactive}
             </h2>
 
             <p>
-              {t.protectionDescription}
+              {monitoringActive
+                ? t.activeDescription
+                : t.inactiveDescription}
             </p>
 
             <div className="dashboard-protection-actions">
-
               <button
                 className="dashboard-primary-button"
                 onClick={handleSystemScan}
                 disabled={scanning}
               >
-
-                <svg viewBox="0 0 24 24">
-
+                <svg viewBox="0 0 24 24" aria-hidden="true">
                   <circle
                     cx="11"
                     cy="11"
@@ -411,7 +392,6 @@ function Dashboard() {
                     stroke="currentColor"
                     strokeWidth="2"
                   />
-
                   <path
                     d="M16 16l5 5"
                     fill="none"
@@ -419,93 +399,50 @@ function Dashboard() {
                     strokeWidth="2"
                     strokeLinecap="round"
                   />
-
                 </svg>
 
-                {scanning
-                  ? t.openingScanner
-                  : t.scanSystem}
-
+                {scanning ? t.openingScanner : t.scanSystem}
               </button>
-
-              <button
-                className="dashboard-more-button"
-                onClick={() => navigate('/protection')}
-              >
-                {t.viewProtection}
-              </button>
-
             </div>
-
           </div>
-
         </div>
 
-        {/* PROTECTION SCORE */}
+        {/* SCORE REMAINS UNKNOWN UNTIL REAL ANALYSIS EXISTS */}
 
         <div className="dashboard-score-section">
-
           <div className="dashboard-score-circle">
-
             <span className="score-value">
               {protectionScore ?? '—'}
             </span>
-
-            <span className="score-total">
-              /100
-            </span>
-
+            <span className="score-total">/100</span>
           </div>
 
-          <span className="score-label">
-            {t.protectionScore}
-          </span>
+          <span className="score-label">{t.protectionScore}</span>
 
           <strong className="score-status">
-
-            {protectionScore === null
-              ? t.awaitingAnalysis
-              : t.excellent}
-
+            {t.awaitingAnalysis}
           </strong>
-
         </div>
-
       </section>
 
       {/* SECURITY OVERVIEW */}
 
       <section className="dashboard-section">
-
         <div className="dashboard-section-title">
-
-          <h2>
-            {t.securityOverview}
-          </h2>
-
-          <p>
-            {t.currentActivity}
-          </p>
-
+          <h2>{t.securityOverview}</h2>
+          <p>{t.currentActivity}</p>
         </div>
 
         <div className="dashboard-stats-grid">
-
-          {/* FILES SCANNED */}
-
           <div className="dashboard-stat-card">
-
             <div className="dashboard-stat-icon blue">
-
-              <svg viewBox="0 0 24 24">
-
+              <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   d="M6 4h12v16H6z"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.7"
                 />
-
                 <path
                   d="M9 8h6M9 12h6M9 16h4"
                   fill="none"
@@ -513,35 +450,18 @@ function Dashboard() {
                   strokeWidth="1.7"
                   strokeLinecap="round"
                 />
-
               </svg>
-
             </div>
-
             <span className="dashboard-stat-label">
               {t.filesScanned}
             </span>
-
-            <strong>
-              {loading
-                ? '—'
-                : history.length || '—'}
-            </strong>
-
-            <small>
-              {t.filesChecked}
-            </small>
-
+            <strong>{loading ? '—' : history.length}</strong>
+            <small>{t.filesChecked}</small>
           </div>
 
-          {/* THREATS */}
-
           <div className="dashboard-stat-card">
-
             <div className="dashboard-stat-icon red">
-
-              <svg viewBox="0 0 24 24">
-
+              <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   d="M12 3l9 17H3L12 3z"
                   fill="none"
@@ -549,49 +469,27 @@ function Dashboard() {
                   strokeWidth="1.7"
                   strokeLinejoin="round"
                 />
-
                 <path
                   d="M12 9v5"
                   stroke="currentColor"
                   strokeWidth="1.7"
                   strokeLinecap="round"
                 />
-
-                <circle
-                  cx="12"
-                  cy="17"
-                  r="0.8"
-                  fill="currentColor"
-                />
-
+                <circle cx="12" cy="17" r="0.8" fill="currentColor" />
               </svg>
-
             </div>
-
             <span className="dashboard-stat-label">
               {t.threatsDetected}
             </span>
-
             <strong>
-              {loading
-                ? '—'
-                : detectedThreats.length}
+              {loading ? '—' : detectedThreats.length}
             </strong>
-
-            <small>
-              {t.detectedByEngine}
-            </small>
-
+            <small>{t.detectedByEngine}</small>
           </div>
 
-          {/* BLOCKED */}
-
           <div className="dashboard-stat-card">
-
             <div className="dashboard-stat-icon green">
-
-              <svg viewBox="0 0 24 24">
-
+              <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   d="M5 12l4 4 10-10"
                   fill="none"
@@ -600,42 +498,24 @@ function Dashboard() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
-
               </svg>
-
             </div>
-
             <span className="dashboard-stat-label">
               {t.threatsBlocked}
             </span>
-
-            <strong>
-              {loading
-                ? '—'
-                : blocked.length}
-            </strong>
-
-            <small>
-              {t.protectionResponse}
-            </small>
-
+            <strong>{loading ? '—' : blocked.length}</strong>
+            <small>{t.protectionResponse}</small>
           </div>
 
-          {/* QUARANTINE */}
-
           <div className="dashboard-stat-card">
-
             <div className="dashboard-stat-icon purple">
-
-              <svg viewBox="0 0 24 24">
-
+              <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   d="M5 7h14v13H5z"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.7"
                 />
-
                 <path
                   d="M8 7V4h8v3M9 11v5M12 11v5M15 11v5"
                   fill="none"
@@ -643,51 +523,25 @@ function Dashboard() {
                   strokeWidth="1.7"
                   strokeLinecap="round"
                 />
-
               </svg>
-
             </div>
-
             <span className="dashboard-stat-label">
               {t.quarantined}
             </span>
-
-            <strong>
-              {loading
-                ? '—'
-                : quarantined.length}
-            </strong>
-
-            <small>
-              {t.isolatedFiles}
-            </small>
-
+            <strong>{loading ? '—' : quarantined.length}</strong>
+            <small>{t.isolatedFiles}</small>
           </div>
-
         </div>
-
       </section>
 
-      {/* LOWER CONTENT */}
+      {/* RECENT SECURITY ACTIVITY — PROTECTION MODULES REMOVED */}
 
       <div className="dashboard-lower-grid">
-
-        {/* RECENT ACTIVITY */}
-
         <section className="dashboard-panel">
-
           <div className="dashboard-panel-header">
-
             <div>
-
-              <h2>
-                {t.recentActivity}
-              </h2>
-
-              <p>
-                {t.latestEvents}
-              </p>
-
+              <h2>{t.recentActivity}</h2>
+              <p>{t.latestEvents}</p>
             </div>
 
             <button
@@ -696,196 +550,86 @@ function Dashboard() {
             >
               {t.viewAll}
             </button>
-
           </div>
 
           <div className="dashboard-activity-list">
-
             {loading ? (
-
               <div className="dashboard-empty">
                 {t.loadingActivity}
               </div>
-
             ) : history.length === 0 ? (
-
               <div className="dashboard-empty">
                 {t.noActivity}
               </div>
-
             ) : (
+              history.slice(0, 4).map((item, index) => {
+                const level = String(
+                  item.threat_level ?? ''
+                ).toUpperCase()
 
-              history
-                .slice(0, 4)
-                .map((item, index) => {
+                const risk = Number(item.overall_risk ?? 0)
 
-                  const threatLevel = String(
-                    item.threat_level ?? ''
-                  ).toUpperCase()
+                const dangerous =
+                  ['MEDIUM', 'HIGH', 'CRITICAL'].includes(level) ||
+                  risk >= 50
 
-                  const risk = Number(
-                    item.overall_risk ?? 0
-                  )
-
-                  const dangerous =
-                    ['MEDIUM', 'HIGH', 'CRITICAL'].includes(
-                      threatLevel
-                    ) ||
-                    risk >= 50
-
-                  return (
-
+                return (
+                  <div
+                    className="dashboard-activity-item"
+                    key={item.id ?? index}
+                  >
                     <div
-                      className="dashboard-activity-item"
-                      key={item.id ?? index}
+                      className={`activity-status-icon ${
+                        dangerous ? 'danger' : 'safe'
+                      }`}
                     >
-
-                      <div
-                        className={`activity-status-icon ${
-                          dangerous
-                            ? 'danger'
-                            : 'safe'
-                        }`}
-                      >
-                        {dangerous ? '!' : '✓'}
-                      </div>
-
-                      <div className="activity-content">
-
-                        <strong>
-                          {getActivityTitle(item)}
-                        </strong>
-
-                        <span>
-                          {item.filename ??
-                            item.file_name ??
-                            t.securityEvent}
-                        </span>
-
-                      </div>
-
-                      <time>
-                        {formatTime(item)}
-                      </time>
-
+                      {dangerous ? '!' : '✓'}
                     </div>
 
-                  )
-                })
+                    <div className="activity-content">
+                      <strong>{getActivityTitle(item)}</strong>
+                      <span>
+                        {item.filename ??
+                          item.file_name ??
+                          t.securityEvent}
+                      </span>
+                    </div>
 
+                    <time>{formatTime(item)}</time>
+                  </div>
+                )
+              })
             )}
-
           </div>
-
         </section>
-
-        {/* PROTECTION MODULES */}
-
-        <section className="dashboard-panel">
-
-          <div className="dashboard-panel-header">
-
-            <div>
-
-              <h2>
-                {t.protectionModules}
-              </h2>
-
-              <p>
-                {t.securityLayers}
-              </p>
-
-            </div>
-
-            <button
-              className="dashboard-link-button"
-              onClick={() => navigate('/protection')}
-            >
-              {t.manage}
-            </button>
-
-          </div>
-
-          <div className="dashboard-module-list">
-
-            <DashboardModule
-              type="shield"
-              title={t.realtime}
-              description={t.realtimeDescription}
-              status={t.on}
-            />
-
-            <DashboardModule
-              type="ransomware"
-              title={t.ransomware}
-              description={t.ransomwareDescription}
-              status={t.on}
-            />
-
-            <DashboardModule
-              type="ai"
-              title={t.aiDetection}
-              description={t.aiDescription}
-              status={t.on}
-            />
-
-            <DashboardModule
-              type="behavior"
-              title={t.behavioral}
-              description={t.behavioralDescription}
-              status={t.on}
-            />
-
-          </div>
-
-        </section>
-
       </div>
 
       {/* AI SECURITY */}
 
       <section className="dashboard-device-card">
-
         <div className="dashboard-device-left">
-
           <div className="dashboard-device-icon">
-
-            <svg viewBox="0 0 24 24">
-
+            <svg viewBox="0 0 24 24" aria-hidden="true">
               <path
                 d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3z"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.7"
               />
-
               <path
                 d="M9 12l2 2 4-4"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.7"
               />
-
             </svg>
-
           </div>
 
           <div>
-
-            <span>
-              {t.aiSecurity}
-            </span>
-
-            <strong>
-              {t.aiCopilot}
-            </strong>
-
-            <small>
-              {t.aiDescriptionLong}
-            </small>
-
+            <span>{t.aiSecurity}</span>
+            <strong>{t.aiCopilot}</strong>
+            <small>{t.aiDescription}</small>
           </div>
-
         </div>
 
         <button
@@ -894,19 +638,14 @@ function Dashboard() {
         >
           {t.openAI}
         </button>
-
       </section>
 
-      {/* DEVICE */}
+      {/* DEVICE INFORMATION */}
 
       <section className="dashboard-device-card">
-
         <div className="dashboard-device-left">
-
           <div className="dashboard-device-icon">
-
-            <svg viewBox="0 0 24 24">
-
+            <svg viewBox="0 0 24 24" aria-hidden="true">
               <rect
                 x="3"
                 y="4"
@@ -917,7 +656,6 @@ function Dashboard() {
                 stroke="currentColor"
                 strokeWidth="1.7"
               />
-
               <path
                 d="M8 20h8M12 16v4"
                 fill="none"
@@ -925,114 +663,28 @@ function Dashboard() {
                 strokeWidth="1.7"
                 strokeLinecap="round"
               />
-
             </svg>
-
           </div>
 
           <div>
-
-            <span>
-              {t.protectedDevice}
-            </span>
-
-            <strong>
-              {t.windowsPC}
-            </strong>
-
-            <small>
-              {t.endpointAgent}
-            </small>
-
+            <span>{t.deviceInformation}</span>
+            <strong>{t.windowsPC}</strong>
+            <small>{t.endpointAgent}</small>
           </div>
-
         </div>
 
         <div className="dashboard-device-right">
-
-          <span className="live-dot"></span>
-
+          <span className="live-dot" />
           <div>
-
             <strong>
-              {t.agentProtected}
+              {monitoringActive
+                ? t.monitoringRunning
+                : t.monitoringStopped}
             </strong>
-
-            <small>
-              {t.agentStatus}
-            </small>
-
+            <small>{t.monitoringStatus}</small>
           </div>
-
         </div>
-
       </section>
-
-    </div>
-  )
-}
-
-/* =========================================================
-   PROTECTION MODULE COMPONENT
-   ========================================================= */
-
-function DashboardModule({
-  type,
-  title,
-  description,
-  status,
-}) {
-  return (
-    <div className="dashboard-module">
-
-      <div className="module-icon">
-
-        {type === 'ai' ? (
-
-          <span>
-            AI
-          </span>
-
-        ) : (
-
-          <svg viewBox="0 0 24 24">
-
-            <path
-              d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3z"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.7"
-            />
-
-            <path
-              d="M9 12l2 2 4-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.7"
-            />
-
-          </svg>
-
-        )}
-
-      </div>
-
-      <div>
-
-        <strong>
-          {title}
-        </strong>
-
-        <span>
-          {description}
-        </span>
-
-      </div>
-
-      <span className="module-status active">
-        {status}
-      </span>
-
     </div>
   )
 }
