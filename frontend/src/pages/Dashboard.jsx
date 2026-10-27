@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext.jsx'
@@ -50,6 +51,7 @@ function Dashboard() {
   const [monitoringActive, setMonitoringActive] = useState(
     () => sessionStorage.getItem(MONITORING_KEY) === 'true'
   )
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
 
   // No score is displayed until real analysis data is available.
   const protectionScore = null
@@ -234,6 +236,23 @@ function Dashboard() {
     }
   }, [])
 
+  // Close the notification panel when Escape is pressed.
+  useEffect(() => {
+    if (!notificationsOpen) return
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setNotificationsOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [notificationsOpen])
+
   const handleSystemScan = () => {
     setScanning(true)
 
@@ -294,7 +313,6 @@ function Dashboard() {
   return (
     <div className="dashboard-page">
       {/* HEADER */}
-
       <header className="dashboard-header">
         <div>
           <h1>{greeting}!</h1>
@@ -302,31 +320,69 @@ function Dashboard() {
         </div>
 
         <div className="dashboard-header-actions">
-          <button
-            className="notification-button"
-            onClick={() => navigate('/threats')}
-            aria-label={t.alerts}
-            title={t.alerts}
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M10 21h4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.7"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
+          {/* NOTIFICATIONS */}
+          <div className="notification-wrapper">
+            <button
+              type="button"
+              className="notification-button"
+              onClick={() =>
+                setNotificationsOpen((open) => !open)
+              }
+              aria-label={t.alerts}
+              aria-expanded={notificationsOpen}
+              aria-haspopup="dialog"
+              title={t.alerts}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M10 21h4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
 
+            {notificationsOpen && (
+              <div
+                className="notification-dropdown"
+                role="dialog"
+                aria-label="Notifications"
+              >
+                <div className="notification-dropdown-header">
+                  <strong>Notifications</strong>
+
+                  <button
+                    type="button"
+                    className="notification-close-button"
+                    onClick={() => setNotificationsOpen(false)}
+                    aria-label="Close notifications"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="notification-empty">
+                  <span className="notification-empty-icon">
+                    ✓
+                  </span>
+                  <strong>You're all caught up</strong>
+                  <p>No new notifications right now.</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* USER */}
           <div className="dashboard-user">
             <div className="dashboard-user-avatar">
               {loggedInUser.charAt(0).toUpperCase()}
@@ -336,8 +392,7 @@ function Dashboard() {
         </div>
       </header>
 
-      {/* HONEST SECURITY STATUS */}
-
+      {/* SECURITY STATUS */}
       <section className="dashboard-protection-card">
         <div className="dashboard-protection-main">
           <div className="dashboard-shield">
@@ -407,8 +462,7 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* SCORE REMAINS UNKNOWN UNTIL REAL ANALYSIS EXISTS */}
-
+        {/* PROTECTION SCORE */}
         <div className="dashboard-score-section">
           <div className="dashboard-score-circle">
             <span className="score-value">
@@ -426,7 +480,6 @@ function Dashboard() {
       </section>
 
       {/* SECURITY OVERVIEW */}
-
       <section className="dashboard-section">
         <div className="dashboard-section-title">
           <h2>{t.securityOverview}</h2>
@@ -475,7 +528,12 @@ function Dashboard() {
                   strokeWidth="1.7"
                   strokeLinecap="round"
                 />
-                <circle cx="12" cy="17" r="0.8" fill="currentColor" />
+                <circle
+                  cx="12"
+                  cy="17"
+                  r="0.8"
+                  fill="currentColor"
+                />
               </svg>
             </div>
             <span className="dashboard-stat-label">
@@ -534,8 +592,7 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* RECENT SECURITY ACTIVITY — PROTECTION MODULES REMOVED */}
-
+      {/* RECENT SECURITY ACTIVITY */}
       <div className="dashboard-lower-grid">
         <section className="dashboard-panel">
           <div className="dashboard-panel-header">
@@ -605,7 +662,6 @@ function Dashboard() {
       </div>
 
       {/* AI SECURITY */}
-
       <section className="dashboard-device-card">
         <div className="dashboard-device-left">
           <div className="dashboard-device-icon">
@@ -641,7 +697,6 @@ function Dashboard() {
       </section>
 
       {/* DEVICE INFORMATION */}
-
       <section className="dashboard-device-card">
         <div className="dashboard-device-left">
           <div className="dashboard-device-icon">

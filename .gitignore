@@ -30,3 +30,7 @@ backend/controller_test/
 secrets/
 
 cybershield.db
+
+# Local Python virtual
+environments
+backend/.venv312/

@@ -1,26 +1,459 @@
-.reports h1 { font-size: 24px; }
 
-.page-subtitle {
-  color: var(--text-secondary);
+/* =========================================================
+   CYBERSHIELD AI — REPORTS PAGE
+   ========================================================= */
+
+.reports {
+  width: 100%;
+  max-width: 1500px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 24px;
+  padding-bottom: 40px;
+  color: var(--text-primary, #172033);
+  box-sizing: border-box;
+}
+
+.reports *,
+.reports *::before,
+.reports *::after {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.reports h1 {
+  margin: 0;
+  color: var(--text-primary, #172033);
+  font-size: 28px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.reports .page-subtitle {
+  margin: 7px 0 22px;
+  color: var(--text-secondary, #718096);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   ERROR MESSAGE
+   ========================================================= */
+
+.reports .scan-error {
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fff1f2;
+  color: #b42318;
   font-size: 13px;
-  margin-top: 4px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   REPORTS PANEL
+   ========================================================= */
+
+.reports .panel {
+  min-width: 0;
+  margin-bottom: 20px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #e1e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 3px 12px rgba(25, 55, 90, 0.05);
+}
+
+.reports .empty-state {
+  padding: 36px 20px;
+  color: var(--text-secondary, #718096);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* =========================================================
+   TABLE SCROLL CONTAINER
+
+   Works when the JSX contains:
+   <div className="reports-table-container">
+     <table className="data-table">
+   ========================================================= */
+
+.reports-table-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* =========================================================
+   REPORTS TABLE
+   ========================================================= */
+
+.reports .data-table {
+  width: 100%;
+  min-width: 1120px;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  background: #ffffff;
+}
+
+/* Column widths */
+
+.reports .data-table th:nth-child(1),
+.reports .data-table td:nth-child(1) {
+  width: 115px;
+}
+
+.reports .data-table th:nth-child(2),
+.reports .data-table td:nth-child(2) {
+  width: 205px;
+}
+
+.reports .data-table th:nth-child(3),
+.reports .data-table td:nth-child(3) {
+  width: 310px;
+}
+
+.reports .data-table th:nth-child(4),
+.reports .data-table td:nth-child(4) {
+  width: 145px;
+}
+
+.reports .data-table th:nth-child(5),
+.reports .data-table td:nth-child(5) {
+  width: 145px;
+}
+
+.reports .data-table th:nth-child(6),
+.reports .data-table td:nth-child(6) {
+  width: 200px;
+}
+
+/* Table headings */
+
+.reports .data-table thead th {
+  padding: 16px 15px;
+  border-bottom: 1px solid #dfe7f1;
+  background: #f7faff;
+  color: #52647b;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* Table body rows */
+
+.reports .data-table tbody tr {
+  height: 58px;
+  transition: background 0.15s ease;
+}
+
+.reports .data-table tbody tr:hover {
+  background: #f8fbff;
+}
+
+.reports .data-table tbody td {
+  padding: 13px 15px;
+  border-bottom: 1px solid #edf1f5;
+  color: #354258;
+  font-size: 12.5px;
+  line-height: 1.5;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.reports .data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* =========================================================
+   REPORT ID AND DATE
+   ========================================================= */
+
+.reports .data-table td.mono {
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.reports .data-table td:nth-child(1) {
+  color: #1769e8;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.reports .data-table td:nth-child(2) {
+  color: #52647b;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   FILE NAME
+
+   The JSX can keep:
+   <td className="mono">{report.fileName}</td>
+
+   This prevents long filenames from overlapping
+   neighboring columns.
+   ========================================================= */
+
+.reports .data-table td:nth-child(3) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Optional filename span if used in JSX */
+
+.reports .report-filename {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  color: #354258;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   PREDICTION BADGES
+   ========================================================= */
+
+.reports .data-table .badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.reports .data-table .badge-low {
+  background: #e3f7ee;
+  color: #168653;
+}
+
+.reports .data-table .badge-critical {
+  background: #ffebeb;
+  color: #c53030;
+}
+
+/* Support other badge classes */
+
+.reports .data-table .badge-medium {
+  background: #fff3d6;
+  color: #9a6700;
+}
+
+.reports .data-table .badge-high {
+  background: #ffebeb;
+  color: #c53030;
+}
+
+/* =========================================================
+   THREAT LEVEL BADGE
+
+   SeverityBadge.jsx keeps responsibility for its
+   own badge appearance. This controls its table cell.
+   ========================================================= */
+
+.reports .data-table td:nth-child(5) {
+  white-space: nowrap;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.reports .report-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.reports .btn-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid #d9e2ed;
+  border-radius: 7px;
+  background: #ffffff;
+  color: var(--accent-cyan, #1769e8);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.reports .btn-link:hover:not(:disabled) {
+  border-color: #b9d2f4;
+  background: #edf5ff;
+  text-decoration: none;
+}
+
+.reports .btn-link:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.reports .btn-link:focus-visible {
+  outline: 2px solid #1769e8;
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   REPORT DETAILS
+   ========================================================= */
+
+.reports .report-details {
+  margin-top: 20px;
+  padding: 22px;
+  border: 1px solid #e1e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 3px 12px rgba(25, 55, 90, 0.05);
+}
+
+.reports .result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 20px;
 }
 
-.report-actions {
-  display: flex;
+.reports .result-header h2 {
+  margin: 0;
+  color: var(--text-primary, #172033);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Details grid */
+
+.reports .result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
 
-.btn-link {
-  background: none;
-  border: none;
-  color: var(--accent-cyan);
-  font-size: 12.5px;
-  font-weight: 500;
-  padding: 0;
+.reports .result-field {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 13px;
+  border: 1px solid #e8edf4;
+  border-radius: 8px;
+  background: #fbfdff;
 }
 
-.btn-link:hover {
-  text-decoration: underline;
+.reports .result-field.span-2 {
+  grid-column: 1 / -1;
+}
+
+.reports .field-label {
+  color: #718096;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.reports .field-value {
+  overflow-wrap: anywhere;
+  color: #26364b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.reports .field-value.hash {
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   RESPONSIVE DESIGN
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .reports {
+    padding: 20px;
+    padding-bottom: 32px;
+  }
+
+  .reports h1 {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 768px) {
+  .reports {
+    padding: 16px;
+    padding-bottom: 28px;
+  }
+
+  .reports h1 {
+    font-size: 24px;
+  }
+
+  .reports .page-subtitle {
+    margin-bottom: 18px;
+    font-size: 13px;
+  }
+
+  /* Keep the columns aligned; allow horizontal scrolling. */
+  .reports .data-table {
+    min-width: 1120px;
+  }
+
+  .reports .report-details {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .reports {
+    padding: 12px;
+    padding-bottom: 24px;
+  }
+
+  .reports h1 {
+    font-size: 22px;
+  }
+
+  .reports .page-subtitle {
+    font-size: 12px;
+  }
+
+  .reports .result-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reports .result-field.span-2 {
+    grid-column: auto;
+  }
+
+  .reports .result-header {
+    align-items: flex-start;
+  }
 }
